@@ -178,7 +178,7 @@ get_header(); ?>
 
 <style>
 .financial-calculators-page {
-    background: #f8fafc;
+    background: #F7F8FE;
     min-height: 100vh;
     padding: 60px 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -198,7 +198,7 @@ get_header(); ?>
 .main-title {
     font-size: 42px;
     font-weight: 600;
-    color: #1e293b;
+    color: #1F2937;
     margin-bottom: 40px;
     line-height: 1.2;
 }
@@ -224,10 +224,10 @@ get_header(); ?>
 }
 
 .calc-btn.active, .type-btn.active {
-    background: #6B7FF7;
+    background: #667FFF;
     color: white;
-    border-color: #6B7FF7;
-    box-shadow: 0 2px 8px rgba(107, 127, 247, 0.25);
+    border-color: #667FFF;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
 }
 
 .calc-btn:hover, .type-btn:hover {
@@ -292,7 +292,7 @@ get_header(); ?>
 .input-group label {
     display: block;
     font-weight: 500;
-    color: #64748b;
+    color: #6B7280;
     margin-bottom: 8px;
     font-size: 14px;
 }
@@ -304,22 +304,21 @@ get_header(); ?>
 
 .input-wrapper input {
     width: 100%;
-    padding: 16px 50px 16px 16px;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    font-size: 16px;
+    padding: 14px 50px 14px 16px;
+    border: 1px solid rgba(31,41,55,0.12);
+    border-radius: 14px;
+    font-size: 18px;
     font-weight: 600;
-    color: #1e293b;
-    background: white;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-    transition: all 0.2s ease;
+    color: #1F2937;
+    background: #FFFFFF;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    transition: all .2s ease;
 }
 
 .input-wrapper input:focus {
     outline: none;
-    border-color: #94a3b8;
-    box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
-    transform: translateY(-1px);
+    border-color: #667FFF;
+    box-shadow: 0 0 0 3px rgba(102,127,255,.25);
 }
 
 .currency, .unit {
@@ -327,47 +326,85 @@ get_header(); ?>
     right: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: #94a3b8;
+    color: #6B7280;
     font-weight: 500;
     font-size: 14px;
 }
 
 .slider {
     width: 100%;
-    height: 4px;
-    border-radius: 2px;
-    background: #f1f5f9;
+    height: 6px;
+    border-radius: 3px;
+    background: #E5E7EB;
     outline: none;
     -webkit-appearance: none;
     appearance: none;
     cursor: pointer;
+    position: relative;
 }
 
+/* Webkit browsers (Chrome, Safari) */
 .slider::-webkit-slider-thumb {
     appearance: none;
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: #6B7FF7;
-    cursor: pointer;
-    border: 2px solid white;
-    box-shadow: 0 2px 6px rgba(107, 127, 247, 0.25);
-    transition: all 0.2s ease;
+    background: #667FFF;
+    cursor: grab;
+    border: 3px solid white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: all .2s ease;
+    position: relative;
+    z-index: 2;
 }
 
 .slider::-webkit-slider-thumb:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(107, 127, 247, 0.35);
+    transform: scale(1.06);
+    cursor: grab;
 }
 
+.slider::-webkit-slider-thumb:active {
+    transform: scale(0.98);
+    cursor: grabbing;
+}
+
+.slider:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15), 0 0 0 3px rgba(102,127,255,.25);
+}
+
+/* Firefox */
 .slider::-moz-range-thumb {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: #6B7FF7;
-    cursor: pointer;
-    border: 2px solid white;
-    box-shadow: 0 2px 6px rgba(107, 127, 247, 0.25);
+    background: #667FFF;
+    cursor: grab;
+    border: 3px solid white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: all .2s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+    transform: scale(1.06);
+}
+
+.slider::-moz-range-thumb:active {
+    transform: scale(0.98);
+    cursor: grabbing;
+}
+
+/* Track styling */
+.slider::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 3px;
+    background: #E5E7EB;
+}
+
+.slider::-moz-range-track {
+    height: 6px;
+    border-radius: 3px;
+    background: #E5E7EB;
+    border: none;
 }
 
 .result {
@@ -482,6 +519,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Number formatting with commas
+    function formatNumber(number) {
+        return new Intl.NumberFormat('en-US').format(Math.round(number * 100) / 100);
+    }
+
     // Credit Calculator
     function updateCreditCalculator() {
         const amount = parseFloat(document.getElementById('credit-amount').value);
@@ -489,7 +531,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const term = parseInt(document.getElementById('credit-term').value);
         
         const payment = (amount * rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
-        document.getElementById('credit-payment').textContent = payment.toFixed(2);
+        document.getElementById('credit-payment').textContent = formatNumber(payment);
     }
 
     // Mortgage Calculator
@@ -506,10 +548,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, termMonths)) / (Math.pow(1 + monthlyRate, termMonths) - 1);
         
-        document.getElementById('min-down-payment').textContent = minDownPayment.toFixed(2);
-        document.getElementById('mortgage-payment').textContent = monthlyPayment.toFixed(2);
-        document.getElementById('loan-amount').textContent = loanAmount.toFixed(2);
-        document.getElementById('annual-rate').textContent = annualRate.toFixed(2);
+        document.getElementById('min-down-payment').textContent = formatNumber(minDownPayment);
+        document.getElementById('mortgage-payment').textContent = formatNumber(monthlyPayment);
+        document.getElementById('loan-amount').textContent = formatNumber(loanAmount);
+        document.getElementById('annual-rate').textContent = annualRate.toFixed(1);
     }
 
     // Deposit Calculator
@@ -521,8 +563,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const monthlyInterest = (amount * annualRate / 100) / 12;
         const totalInterest = monthlyInterest * termMonths;
         
-        document.getElementById('monthly-interest').textContent = monthlyInterest.toFixed(2);
-        document.getElementById('total-interest').textContent = totalInterest.toFixed(2);
+        document.getElementById('monthly-interest').textContent = formatNumber(monthlyInterest);
+        document.getElementById('total-interest').textContent = formatNumber(totalInterest);
     }
 
     // Sync inputs with sliders
@@ -531,14 +573,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const slider = document.getElementById(sliderId);
         
         input.addEventListener('input', function() {
-            slider.value = this.value;
+            // Remove commas for calculation
+            const numericValue = this.value.replace(/,/g, '');
+            slider.value = numericValue;
             updateFunction();
+            
+            // Format with commas for display
+            if (numericValue && !isNaN(numericValue)) {
+                this.value = formatNumber(parseFloat(numericValue));
+            }
         });
         
         slider.addEventListener('input', function() {
-            input.value = this.value;
+            const numericValue = this.value;
+            input.value = formatNumber(parseFloat(numericValue));
             updateFunction();
         });
+        
+        // Format initial value
+        if (input.value && !isNaN(input.value)) {
+            input.value = formatNumber(parseFloat(input.value));
+        }
     }
 
     // Initialize all calculators
