@@ -275,7 +275,8 @@ get_header(); ?>
 }
 
 .value-box {
-    background: #fafbfc;
+    --tw-bg-opacity: 1;
+    background-color: rgb(245 245 245 / var(--tw-bg-opacity, 1));
     border-radius: 12px;
     padding: 20px 24px;
     margin-bottom: 24px;
@@ -459,7 +460,8 @@ get_header(); ?>
 }
 
 .result-item {
-    background: #fafbfc;
+    --tw-bg-opacity: 1;
+    background-color: rgb(245 245 245 / var(--tw-bg-opacity, 1));
     border-radius: 12px;
     padding: 20px 24px;
     text-align: left;
