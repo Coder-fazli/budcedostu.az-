@@ -334,7 +334,7 @@ get_header(); ?>
 }
 
 .slider {
-    width: calc(100% + 16px);
+    width: 100%;
     height: 4px;
     border-radius: 0 0 12px 12px;
     background: linear-gradient(to right, #6B7FF7 0%, #6B7FF7 var(--fill-percent, 0%), #E5E7EB var(--fill-percent, 0%), #E5E7EB 100%);
@@ -344,7 +344,8 @@ get_header(); ?>
     cursor: pointer;
     position: absolute;
     bottom: 0;
-    left: -8px;
+    left: 0;
+    right: 0;
     transition: all 0.2s ease;
 }
 
