@@ -36,7 +36,7 @@ get_header(); ?>
                         <input type="number" id="credit-amount" value="25000" min="1000" max="1000000">
                         <span class="currency">₼</span>
                     </div>
-                    <!-- SLIDER REMOVED FOR TESTING -->
+                    <input type="range" id="credit-amount-slider" min="1000" max="1000000" value="25000" class="slider">
                 </div>
 
                 <div class="input-row">
