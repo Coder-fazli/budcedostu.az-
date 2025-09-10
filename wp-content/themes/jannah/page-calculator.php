@@ -427,60 +427,69 @@ get_header(); ?>
 }
 
 .result {
-    background: #f8fafc;
-    border-radius: 16px;
-    padding: 24px;
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
     text-align: center;
-    margin-top: 30px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    margin-top: 40px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .result label {
-    font-size: 14px;
+    font-size: 13px;
     color: #64748b;
     font-weight: 500;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    text-transform: none;
+    letter-spacing: 0.2px;
 }
 
 .result-value {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 700;
     color: #1e293b;
+    line-height: 1.1;
 }
 
 .results-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-top: 30px;
+    gap: 24px;
+    margin-top: 40px;
 }
 
 .result-item {
-    background: #f8fafc;
-    border-radius: 16px;
-    padding: 20px;
-    text-align: center;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    background: white;
+    border-radius: 20px;
+    padding: 28px 24px;
+    text-align: left;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s ease;
+}
+
+.result-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .result-item label {
     display: block;
-    font-size: 12px;
+    font-size: 13px;
     color: #64748b;
     font-weight: 500;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    text-transform: none;
+    letter-spacing: 0.2px;
+    line-height: 1.3;
 }
 
 .result-item .result-value {
-    font-size: 22px;
+    font-size: 26px;
     font-weight: 700;
     color: #1e293b;
+    line-height: 1.1;
 }
 
 @media (max-width: 768px) {
@@ -513,7 +522,25 @@ get_header(); ?>
     
     .results-grid {
         grid-template-columns: 1fr;
-        gap: 15px;
+        gap: 16px;
+    }
+    
+    .result {
+        padding: 24px;
+        margin-top: 30px;
+    }
+    
+    .result-item {
+        padding: 24px 20px;
+        text-align: center;
+    }
+    
+    .result-item .result-value {
+        font-size: 24px;
+    }
+    
+    .result-value {
+        font-size: 28px;
     }
 }
 </style>
