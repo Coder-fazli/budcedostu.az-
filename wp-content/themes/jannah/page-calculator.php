@@ -7,19 +7,13 @@ get_header(); ?>
 
 <div class="financial-calculators-page">
     <div class="container">
-        <!-- Hero Section -->
-        <div class="hero-section">
-            <h1 class="main-title">Hesab kitabın düz olsun ən</h1>
-            <div class="calculator-buttons">
-                <button class="calc-btn active" data-calc="credit">Kredit kalkulyatoru</button>
-                <button class="calc-btn" data-calc="mortgage">İpoteka kalkulyatoru</button>
-                <button class="calc-btn" data-calc="deposit">Əmanət kalkulyatoru</button>
-            </div>
+        <!-- Page Title -->
+        <div class="page-header">
+            <h1 class="page-title">Hesabla</h1>
         </div>
 
         <!-- Calculator Section -->
         <div class="calculator-section">
-            <h2 class="section-title">Hesabla</h2>
             
             <!-- Calculator Type Selector -->
             <div class="calc-type-buttons">
@@ -190,16 +184,17 @@ get_header(); ?>
     padding: 0 20px;
 }
 
-.hero-section {
+.page-header {
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 40px;
+    padding: 20px 0;
 }
 
-.main-title {
-    font-size: 42px;
+.page-title {
+    font-size: 36px;
     font-weight: 600;
     color: #1e293b;
-    margin-bottom: 40px;
+    margin: 0;
     line-height: 1.2;
 }
 
