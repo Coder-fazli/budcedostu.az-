@@ -1,0 +1,61 @@
+*** Changelog ***
+-------------------------------------------------------------------------
+
+Version 1.3.0 - 10/10/2023
+- New: Add support for the Autoloaded posts in the Custom Sticky Menu in the Single Post Pages.
+- Improvements and minor bug fixes.
+
+Version 1.2.4 - 12 May 2023
+- Improvements and minor bug fixes.
+
+Version 1.2.3 - 14 Apr 2023
+- Improvements and minor bug fixes.
+
+Version 1.2.2 - 23 Feb 2023
+- Improvements and minor bug fixes.
+
+Version 1.2.1 - 09 Feb 2023
+- Fixed: Related posts above the footer appears twice if the auto-loaded posts feature is active.
+- Fixed: Sticky elements are not functioning when the Auto Load Posts feature is disabled on a 
+
+Version 1.2.0 - 06 Dec 2022
+- New: Option in the post-edit page to disable the auto-load posts for the current post.
+- New: Option in the category edit page to disable the auto-load posts for all posts in this category.
+- New: option to auto-load the most recent posts.
+- New: option to auto-load random posts.
+- New: Option to display the sidebar once on mobiles for the autoloaded posts
+
+Version 1.1.4 - 24 Jan 2022
+- Fix: target "_blank" links issue.
+
+Version 1.1.3 - 03 Dec 2021
+- Fix: target "_blank" links issue.
+
+Version 1.1.2 - 19 Apr 2021
+- Fix: "jQuery is not defined" bug.
+- Improvements and minor bug fixes.
+
+Version 1.1.1 - 10 Dec 2020
+- Fix: "jQuery is not defined" bug.
+- Improvements and minor bug fixes.
+
+Version 1.1.0 - 21 Nov 2020
+- New: Option to load posts by tags.
+- Fix: Duplicated posts bug.
+- Improvements and minor bug fixes.
+
+Version 1.0.4 - 14 Nov 2020
+- Improvements and minor bug fixes.
+
+Version 1.0.3 - 13 Sep 2020
+- Improvements and minor bug fixes.
+
+Version 1.0.2 - 02 Sep 2020
+- Fix: Number of posts option bug.
+- Fix: Conflict with some caching plugins.
+
+Version 1.0.1 - 31 Aug 2020
+- Improvements and minor bug fixes.
+
+Version 1.0.0
+- First release

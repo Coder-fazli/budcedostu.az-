@@ -1,0 +1,26 @@
+
+---Downloaded files---
+The import files for: Times were successfully downloaded!
+MAX EXECUTION TIME = 300
+Files info:
+Site URL = https://budcedostu.az
+Data file = /home/u175743447/domains/budcedostu.az/public_html/wp-content/uploads/2024/02/demo-content-import-file_2024-02-23__12-24-39.xml
+Widget file = not defined!
+Customizer file = not defined!
+
+---Debugging---
+Begin to import the media files from the XML
+
+---Importing content---
+
+MAX EXECUTION TIME = 900
+MEMORY LIMIT = 950M
+
+---Debugging---
+After importing the media files from the XML
+
+---pt-ocdi/before_widgets_import---
+
+
+---Completed---
+The Demo has been imported in 13.12726688385econds.

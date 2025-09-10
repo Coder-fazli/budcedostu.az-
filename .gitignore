@@ -1,0 +1,28 @@
+# Large files and backups
+*.zip
+*.sql
+*.tar.gz
+*.bak
+
+# WordPress specific
+wp-config.php
+error_log
+.htaccess.bk
+
+# System files
+.DS_Store
+Thumbs.db
+.private/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node modules (if using)
+node_modules/
+
+# Logs
+*.log
+error_log

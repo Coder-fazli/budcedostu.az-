@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="//budcedostu.az/main-sitemap.xsl"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	<sitemap>
+		<loc>https://budcedostu.az/post-sitemap.xml</loc>
+		<lastmod>2025-08-25T17:01:45+00:00</lastmod>
+	</sitemap>
+	<sitemap>
+		<loc>https://budcedostu.az/page-sitemap.xml</loc>
+		<lastmod>2024-11-14T11:53:15+00:00</lastmod>
+	</sitemap>
+	<sitemap>
+		<loc>https://budcedostu.az/category-sitemap.xml</loc>
+		<lastmod>2025-08-25T17:01:45+00:00</lastmod>
+	</sitemap>
+</sitemapindex>
