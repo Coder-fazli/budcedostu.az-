@@ -9,7 +9,7 @@ get_header(); ?>
     <div class="container">
         <!-- Page Title -->
         <div class="page-header">
-            <h1 class="page-title">Hesabla</h1>
+            <h1 class="page-title"><?php the_title(); ?></h1>
         </div>
 
         <!-- Calculator Section -->
@@ -167,6 +167,19 @@ get_header(); ?>
                 </div>
             </div>
         </div>
+        
+        <!-- Page Description -->
+        <?php if (get_the_content() || get_the_excerpt()): ?>
+        <div class="page-description">
+            <?php 
+            if (get_the_content()) {
+                the_content();
+            } elseif (get_the_excerpt()) {
+                the_excerpt();
+            }
+            ?>
+        </div>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -196,6 +209,24 @@ get_header(); ?>
     color: #1e293b;
     margin: 0;
     line-height: 1.2;
+}
+
+.page-description {
+    margin-top: 40px;
+    padding: 24px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.page-description p {
+    margin: 0 0 16px 0;
+}
+
+.page-description p:last-child {
+    margin-bottom: 0;
 }
 
 .calculator-buttons {
