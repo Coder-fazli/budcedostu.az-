@@ -562,6 +562,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show/hide calculators
             calculators.forEach(calc => calc.classList.remove('active'));
             document.querySelector(`.${calcType}-calculator`).classList.add('active');
+            
+            // Update slider fills for the active calculator
+            setTimeout(() => {
+                document.querySelectorAll(`.${calcType}-calculator .slider`).forEach(slider => {
+                    updateSliderFill(slider);
+                });
+            }, 10);
         });
     });
 
@@ -647,6 +654,16 @@ document.addEventListener('DOMContentLoaded', function() {
     syncInputs('deposit-amount', 'deposit-amount-slider', updateDepositCalculator);
     syncInputs('deposit-rate', 'deposit-rate-slider', updateDepositCalculator);
     syncInputs('deposit-term', 'deposit-term-slider', updateDepositCalculator);
+
+    // Initialize all slider fills on page load
+    document.querySelectorAll('.slider').forEach(slider => {
+        updateSliderFill(slider);
+    });
+
+    // Run initial calculations
+    updateCreditCalculator();
+    updateMortgageCalculator();
+    updateDepositCalculator();
 
     // Initialize all slider fills on page load
     document.querySelectorAll('.slider').forEach(slider => {
