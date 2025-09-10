@@ -5,7 +5,6 @@
 *.bak
 
 # WordPress specific
-wp-config.php
 error_log
 .htaccess.bk
 
@@ -27,5 +26,3 @@ node_modules/
 *.log
 error_log
 
-# WordPress config (server-specific)
-public_html/wp-config.php
