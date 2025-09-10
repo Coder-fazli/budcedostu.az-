@@ -356,8 +356,8 @@ get_header(); ?>
 /* Enhanced Glass Effect Thumb */
 .slider::-webkit-slider-thumb {
     appearance: none;
-    width: 26px;
-    height: 26px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     background: linear-gradient(135deg, #6B7FF7 0%, #5a6fd8 100%);
     cursor: grab;
@@ -369,7 +369,7 @@ get_header(); ?>
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     z-index: 2;
-    margin-top: -10px;
+    margin-top: -23px;
 }
 
 .slider::-webkit-slider-thumb:hover {
@@ -393,8 +393,8 @@ get_header(); ?>
 
 /* Firefox */
 .slider::-moz-range-thumb {
-    width: 26px;
-    height: 26px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     background: linear-gradient(135deg, #6B7FF7 0%, #5a6fd8 100%);
     cursor: grab;
@@ -403,7 +403,7 @@ get_header(); ?>
         0 2px 8px rgba(107, 127, 247, 0.3),
         0 4px 16px rgba(0, 0, 0, 0.1);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    margin-top: -10px;
+    margin-top: -23px;
 }
 
 .slider::-moz-range-thumb:hover {
