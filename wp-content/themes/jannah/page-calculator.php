@@ -334,40 +334,94 @@ get_header(); ?>
 
 .slider {
     width: 100%;
-    height: 4px;
-    border-radius: 2px;
-    background: #f1f5f9;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, #6B7FF7 0%, #6B7FF7 var(--fill-percent, 0%), #E5E7EB var(--fill-percent, 0%), #E5E7EB 100%);
     outline: none;
     -webkit-appearance: none;
     appearance: none;
     cursor: pointer;
-}
-
-.slider::-webkit-slider-thumb {
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #6B7FF7;
-    cursor: pointer;
-    border: 2px solid white;
-    box-shadow: 0 2px 6px rgba(107, 127, 247, 0.25);
+    position: relative;
     transition: all 0.2s ease;
 }
 
-.slider::-webkit-slider-thumb:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(107, 127, 247, 0.35);
+/* Webkit Track */
+.slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: transparent;
 }
 
-.slider::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
+/* Enhanced Glass Effect Thumb */
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    background: #6B7FF7;
-    cursor: pointer;
-    border: 2px solid white;
-    box-shadow: 0 2px 6px rgba(107, 127, 247, 0.25);
+    background: linear-gradient(135deg, #6B7FF7 0%, #5a6fd8 100%);
+    cursor: grab;
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        0 2px 8px rgba(107, 127, 247, 0.3),
+        0 4px 16px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 2;
+}
+
+.slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    cursor: grab;
+    box-shadow: 
+        0 4px 16px rgba(107, 127, 247, 0.4),
+        0 8px 24px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 0 0 4px rgba(107, 127, 247, 0.1);
+}
+
+.slider::-webkit-slider-thumb:active {
+    transform: scale(1.05);
+    cursor: grabbing;
+    box-shadow: 
+        0 2px 8px rgba(107, 127, 247, 0.4),
+        0 4px 16px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Firefox */
+.slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6B7FF7 0%, #5a6fd8 100%);
+    cursor: grab;
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 
+        0 2px 8px rgba(107, 127, 247, 0.3),
+        0 4px 16px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slider::-moz-range-thumb:hover {
+    transform: scale(1.15);
+    cursor: grab;
+    box-shadow: 
+        0 4px 16px rgba(107, 127, 247, 0.4),
+        0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.slider::-moz-range-thumb:active {
+    transform: scale(1.05);
+    cursor: grabbing;
+}
+
+.slider::-moz-range-track {
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, #6B7FF7 0%, #6B7FF7 var(--fill-percent, 0%), #E5E7EB var(--fill-percent, 0%), #E5E7EB 100%);
+    border: none;
 }
 
 .result {
@@ -525,18 +579,29 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('total-interest').textContent = totalInterest.toFixed(2);
     }
 
+    // Update slider fill based on value
+    function updateSliderFill(slider) {
+        const value = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+        slider.style.setProperty('--fill-percent', value + '%');
+    }
+
     // Sync inputs with sliders
     function syncInputs(inputId, sliderId, updateFunction) {
         const input = document.getElementById(inputId);
         const slider = document.getElementById(sliderId);
         
+        // Initialize fill
+        updateSliderFill(slider);
+        
         input.addEventListener('input', function() {
             slider.value = this.value;
+            updateSliderFill(slider);
             updateFunction();
         });
         
         slider.addEventListener('input', function() {
             input.value = this.value;
+            updateSliderFill(this);
             updateFunction();
         });
     }
@@ -553,6 +618,11 @@ document.addEventListener('DOMContentLoaded', function() {
     syncInputs('deposit-amount', 'deposit-amount-slider', updateDepositCalculator);
     syncInputs('deposit-rate', 'deposit-rate-slider', updateDepositCalculator);
     syncInputs('deposit-term', 'deposit-term-slider', updateDepositCalculator);
+
+    // Initialize all slider fills on page load
+    document.querySelectorAll('.slider').forEach(slider => {
+        updateSliderFill(slider);
+    });
 
     // Initial calculations
     updateCreditCalculator();
