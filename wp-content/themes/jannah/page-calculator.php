@@ -23,8 +23,8 @@ get_header(); ?>
             
             <!-- Calculator Type Selector -->
             <div class="calc-type-buttons">
-                <button class="type-btn" data-calc="credit">Kredit kalkulyatoru</button>
-                <button class="type-btn active" data-calc="mortgage">İpoteka kalkulyatoru</button>
+                <button class="type-btn active" data-calc="credit">Kredit kalkulyatoru</button>
+                <button class="type-btn" data-calc="mortgage">İpoteka kalkulyatoru</button>
                 <button class="type-btn" data-calc="deposit">Əmanət kalkulyatoru</button>
             </div>
 
@@ -568,7 +568,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.querySelectorAll(`.${calcType}-calculator .slider`).forEach(slider => {
                     updateSliderFill(slider);
                 });
-            }, 10);
+                
+                // Run the appropriate calculation
+                if (calcType === 'credit') updateCreditCalculator();
+                else if (calcType === 'mortgage') updateMortgageCalculator(); 
+                else if (calcType === 'deposit') updateDepositCalculator();
+            }, 50);
         });
     });
 
