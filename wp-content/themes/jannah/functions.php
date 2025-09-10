@@ -121,3 +121,38 @@ function jannah_post_content_width( $content ) {
 
 	return $content;
 }
+
+/**
+ * Auto-create Calculator Page
+ */
+function create_calculator_page() {
+    // Check if page already exists
+    $existing_page = get_page_by_title('Kalkulyatorlar');
+    
+    if (!$existing_page) {
+        // Create the page
+        $page_data = array(
+            'post_title'    => 'Kalkulyatorlar',
+            'post_content'  => '<!-- Calculator page content is handled by the template -->',
+            'post_status'   => 'publish',
+            'post_type'     => 'page',
+            'post_author'   => 1,
+            'post_name'     => 'kalkulyatorlar',
+        );
+
+        // Insert the page
+        $page_id = wp_insert_post($page_data);
+
+        if ($page_id) {
+            // Set the page template
+            update_post_meta($page_id, '_wp_page_template', 'page-calculator.php');
+        }
+    }
+}
+
+// Create page on init if doesn't exist
+add_action('init', function() {
+    if (!get_page_by_title('Kalkulyatorlar')) {
+        create_calculator_page();
+    }
+});
