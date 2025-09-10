@@ -6,6 +6,9 @@
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 
+// Include Financial Calculator Shortcode
+require_once get_template_directory() . '/calculator-shortcode.php';
+
 /*
  * Works with PHP 5.3 or Later
  */
