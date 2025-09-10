@@ -26,3 +26,6 @@ node_modules/
 # Logs
 *.log
 error_log
+
+# WordPress config (server-specific)
+public_html/wp-config.php
