@@ -30,37 +30,37 @@ get_header(); ?>
 
             <!-- Credit Calculator -->
             <div class="calculator credit-calculator active">
-                <div class="input-group">
-                    <label>Kredit məbləği</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="credit-amount" value="25000" min="1000" max="1000000">
-                        <span class="currency">₼</span>
+                <div class="value-box">
+                    <div class="value-label">Kredit məbləği</div>
+                    <div class="value-display">
+                        <span id="credit-amount-display">25,000</span>₼
                     </div>
                     <input type="range" id="credit-amount-slider" min="1000" max="1000000" value="25000" class="slider">
+                    <input type="hidden" id="credit-amount" value="25000">
                 </div>
 
                 <div class="input-row">
-                    <div class="input-group half">
-                        <label>İllik faiz dərəcəsi</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="credit-rate" value="10" min="1" max="30" step="0.1">
-                            <span class="unit">%</span>
+                    <div class="value-box half">
+                        <div class="value-label">İllik faiz dərəcəsi</div>
+                        <div class="value-display">
+                            <span id="credit-rate-display">10</span>%
                         </div>
                         <input type="range" id="credit-rate-slider" min="1" max="30" value="10" step="0.1" class="slider">
+                        <input type="hidden" id="credit-rate" value="10">
                     </div>
 
-                    <div class="input-group half">
-                        <label>Kredit müddəti</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="credit-term" value="18" min="1" max="360">
-                            <span class="unit">ay</span>
+                    <div class="value-box half">
+                        <div class="value-label">Kredit müddəti</div>
+                        <div class="value-display">
+                            <span id="credit-term-display">18</span> ay
                         </div>
                         <input type="range" id="credit-term-slider" min="1" max="360" value="18" class="slider">
+                        <input type="hidden" id="credit-term" value="18">
                     </div>
                 </div>
 
-                <div class="result">
-                    <label>Aylıq ödəniş</label>
+                <div class="result-box">
+                    <div class="result-label">Aylıq ödəniş</div>
                     <div class="result-value">
                         <span id="credit-payment">1501.43</span> ₼
                     </div>
@@ -69,56 +69,56 @@ get_header(); ?>
 
             <!-- Mortgage Calculator -->
             <div class="calculator mortgage-calculator">
-                <div class="input-group">
-                    <label>İlkin ödəniş faizi</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="down-payment-percent" value="15" min="0" max="50" step="0.1">
-                        <span class="unit">%</span>
+                <div class="value-box">
+                    <div class="value-label">İlkin ödəniş faizi</div>
+                    <div class="value-display">
+                        <span id="down-payment-percent-display">15</span>%
                     </div>
                     <input type="range" id="down-payment-percent-slider" min="0" max="50" value="15" step="0.1" class="slider">
+                    <input type="hidden" id="down-payment-percent" value="15">
                 </div>
 
                 <div class="input-row">
-                    <div class="input-group half">
-                        <label>Mənzilin dəyəri</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="home-value" value="210000" min="10000" max="5000000">
-                            <span class="currency">₼</span>
+                    <div class="value-box half">
+                        <div class="value-label">Mənzilin dəyəri</div>
+                        <div class="value-display">
+                            <span id="home-value-display">210,000</span>₼
                         </div>
                         <input type="range" id="home-value-slider" min="10000" max="5000000" value="210000" class="slider">
+                        <input type="hidden" id="home-value" value="210000">
                     </div>
 
-                    <div class="input-group half">
-                        <label>Kredit müddəti</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="mortgage-term-years" value="20" min="1" max="40">
-                            <span class="unit">il</span>
+                    <div class="value-box half">
+                        <div class="value-label">Kredit müddəti</div>
+                        <div class="value-display">
+                            <span id="mortgage-term-years-display">20</span> il
                         </div>
                         <input type="range" id="mortgage-term-years-slider" min="1" max="40" value="20" class="slider">
+                        <input type="hidden" id="mortgage-term-years" value="20">
                     </div>
                 </div>
 
                 <div class="results-grid">
                     <div class="result-item">
-                        <label>Minimal İlkin ödəniş</label>
+                        <div class="result-label">Minimal İlkin ödəniş</div>
                         <div class="result-value">
-                            <span id="min-down-payment">31500.00</span> ₼
+                            <span id="min-down-payment">31,500.00</span> ₼
                         </div>
                     </div>
                     <div class="result-item">
-                        <label>Aylıq ödəniş</label>
+                        <div class="result-label">Aylıq ödəniş</div>
                         <div class="result-value">
-                            <span id="mortgage-payment">3745.32</span> ₼
+                            <span id="mortgage-payment">3,745.32</span> ₼
                         </div>
                     </div>
                     <div class="result-item">
-                        <label>Kredit məbləği</label>
+                        <div class="result-label">Kredit məbləği</div>
                         <div class="result-value">
-                            <span id="loan-amount">178500.00</span> ₼
+                            <span id="loan-amount">178,500.00</span> ₼
                         </div>
                     </div>
                     <div class="result-item">
-                        <label>İllik % dərəcəsi</label>
+                        <div class="result-label">İllik % dərəcəsi</div>
                         <div class="result-value">
                             <span id="annual-rate">25.00</span> %
                         </div>
@@ -128,46 +128,46 @@ get_header(); ?>
 
             <!-- Deposit Calculator -->
             <div class="calculator deposit-calculator">
-                <div class="input-group">
-                    <label>İlkin əmanət məbləği</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="deposit-amount" value="80000" min="100" max="1000000">
-                        <span class="currency">₼</span>
+                <div class="value-box">
+                    <div class="value-label">İlkin əmanət məbləği</div>
+                    <div class="value-display">
+                        <span id="deposit-amount-display">80,000</span>₼
                     </div>
                     <input type="range" id="deposit-amount-slider" min="100" max="1000000" value="80000" class="slider">
+                    <input type="hidden" id="deposit-amount" value="80000">
                 </div>
 
                 <div class="input-row">
-                    <div class="input-group half">
-                        <label>İllik faiz dərəcəsi</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="deposit-rate" value="12" min="0.1" max="30" step="0.1">
-                            <span class="unit">%</span>
+                    <div class="value-box half">
+                        <div class="value-label">İllik faiz dərəcəsi</div>
+                        <div class="value-display">
+                            <span id="deposit-rate-display">12</span>%
                         </div>
                         <input type="range" id="deposit-rate-slider" min="0.1" max="30" value="12" step="0.1" class="slider">
+                        <input type="hidden" id="deposit-rate" value="12">
                     </div>
 
-                    <div class="input-group half">
-                        <label>Müddət</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="deposit-term" value="18" min="1" max="120">
-                            <span class="unit">ay</span>
+                    <div class="value-box half">
+                        <div class="value-label">Müddət</div>
+                        <div class="value-display">
+                            <span id="deposit-term-display">18</span> ay
                         </div>
                         <input type="range" id="deposit-term-slider" min="1" max="120" value="18" class="slider">
+                        <input type="hidden" id="deposit-term" value="18">
                     </div>
                 </div>
 
                 <div class="results-grid">
                     <div class="result-item">
-                        <label>Aylıq faiz gəliri</label>
+                        <div class="result-label">Aylıq faiz gəliri</div>
                         <div class="result-value">
                             <span id="monthly-interest">800.00</span> ₼
                         </div>
                     </div>
                     <div class="result-item">
-                        <label>Müddət sonunda faiz gəliri</label>
+                        <div class="result-label">Müddət sonunda faiz gəliri</div>
                         <div class="result-value">
-                            <span id="total-interest">14400.00</span> ₼
+                            <span id="total-interest">14,400.00</span> ₼
                         </div>
                     </div>
                 </div>
@@ -274,8 +274,33 @@ get_header(); ?>
     display: block;
 }
 
-.input-group {
+.value-box {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 24px;
     margin-bottom: 30px;
+    border: 1px solid #e2e8f0;
+}
+
+.value-box.half {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.value-label {
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 500;
+    margin-bottom: 12px;
+    text-transform: none;
+}
+
+.value-display {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 16px;
+    line-height: 1.1;
 }
 
 .input-row {
@@ -284,52 +309,21 @@ get_header(); ?>
     margin-bottom: 30px;
 }
 
-.input-group.half {
-    flex: 1;
-    margin-bottom: 0;
-}
-
-.input-group label {
-    display: block;
-    font-weight: 500;
-    color: #64748b;
-    margin-bottom: 8px;
-    font-size: 14px;
-}
-
-.input-wrapper {
-    position: relative;
-    margin-bottom: 10px;
-}
-
-.input-wrapper input {
-    width: 100%;
-    padding: 16px 50px 16px 16px;
+.result-box {
+    background: #f1f5f9;
+    border-radius: 16px;
+    padding: 32px;
+    text-align: center;
+    margin-top: 40px;
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    color: #1e293b;
-    background: white;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-    transition: all 0.2s ease;
 }
 
-.input-wrapper input:focus {
-    outline: none;
-    border-color: #94a3b8;
-    box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
-    transform: translateY(-1px);
-}
-
-.currency, .unit {
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #94a3b8;
-    font-weight: 500;
+.result-label {
     font-size: 14px;
+    color: #64748b;
+    font-weight: 500;
+    margin-bottom: 12px;
+    text-transform: none;
 }
 
 .slider {
@@ -584,7 +578,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const term = parseInt(document.getElementById('credit-term').value);
         
         const payment = (amount * rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
-        document.getElementById('credit-payment').textContent = payment.toFixed(2);
+        document.getElementById('credit-payment').textContent = formatNumber(payment.toFixed(2));
     }
 
     // Mortgage Calculator
@@ -601,9 +595,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, termMonths)) / (Math.pow(1 + monthlyRate, termMonths) - 1);
         
-        document.getElementById('min-down-payment').textContent = minDownPayment.toFixed(2);
-        document.getElementById('mortgage-payment').textContent = monthlyPayment.toFixed(2);
-        document.getElementById('loan-amount').textContent = loanAmount.toFixed(2);
+        document.getElementById('min-down-payment').textContent = formatNumber(minDownPayment.toFixed(2));
+        document.getElementById('mortgage-payment').textContent = formatNumber(monthlyPayment.toFixed(2));
+        document.getElementById('loan-amount').textContent = formatNumber(loanAmount.toFixed(2));
         document.getElementById('annual-rate').textContent = annualRate.toFixed(2);
     }
 
@@ -616,8 +610,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const monthlyInterest = (amount * annualRate / 100) / 12;
         const totalInterest = monthlyInterest * termMonths;
         
-        document.getElementById('monthly-interest').textContent = monthlyInterest.toFixed(2);
-        document.getElementById('total-interest').textContent = totalInterest.toFixed(2);
+        document.getElementById('monthly-interest').textContent = formatNumber(monthlyInterest.toFixed(2));
+        document.getElementById('total-interest').textContent = formatNumber(totalInterest.toFixed(2));
     }
 
     // Update slider fill based on value
@@ -626,39 +620,40 @@ document.addEventListener('DOMContentLoaded', function() {
         slider.style.setProperty('--fill-percent', value + '%');
     }
 
-    // Sync inputs with sliders
-    function syncInputs(inputId, sliderId, updateFunction) {
+    // Format number with commas
+    function formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    // Sync inputs with sliders and displays
+    function syncInputs(inputId, sliderId, displayId, updateFunction) {
         const input = document.getElementById(inputId);
         const slider = document.getElementById(sliderId);
+        const display = document.getElementById(displayId);
         
         // Initialize fill
         updateSliderFill(slider);
         
-        input.addEventListener('input', function() {
-            slider.value = this.value;
-            updateSliderFill(slider);
-            updateFunction();
-        });
-        
         slider.addEventListener('input', function() {
             input.value = this.value;
+            display.textContent = formatNumber(this.value);
             updateSliderFill(this);
             updateFunction();
         });
     }
 
     // Initialize all calculators
-    syncInputs('credit-amount', 'credit-amount-slider', updateCreditCalculator);
-    syncInputs('credit-rate', 'credit-rate-slider', updateCreditCalculator);
-    syncInputs('credit-term', 'credit-term-slider', updateCreditCalculator);
+    syncInputs('credit-amount', 'credit-amount-slider', 'credit-amount-display', updateCreditCalculator);
+    syncInputs('credit-rate', 'credit-rate-slider', 'credit-rate-display', updateCreditCalculator);
+    syncInputs('credit-term', 'credit-term-slider', 'credit-term-display', updateCreditCalculator);
 
-    syncInputs('home-value', 'home-value-slider', updateMortgageCalculator);
-    syncInputs('down-payment-percent', 'down-payment-percent-slider', updateMortgageCalculator);
-    syncInputs('mortgage-term-years', 'mortgage-term-years-slider', updateMortgageCalculator);
+    syncInputs('home-value', 'home-value-slider', 'home-value-display', updateMortgageCalculator);
+    syncInputs('down-payment-percent', 'down-payment-percent-slider', 'down-payment-percent-display', updateMortgageCalculator);
+    syncInputs('mortgage-term-years', 'mortgage-term-years-slider', 'mortgage-term-years-display', updateMortgageCalculator);
 
-    syncInputs('deposit-amount', 'deposit-amount-slider', updateDepositCalculator);
-    syncInputs('deposit-rate', 'deposit-rate-slider', updateDepositCalculator);
-    syncInputs('deposit-term', 'deposit-term-slider', updateDepositCalculator);
+    syncInputs('deposit-amount', 'deposit-amount-slider', 'deposit-amount-display', updateDepositCalculator);
+    syncInputs('deposit-rate', 'deposit-rate-slider', 'deposit-rate-display', updateDepositCalculator);
+    syncInputs('deposit-term', 'deposit-term-slider', 'deposit-term-display', updateDepositCalculator);
 
     // Initialize all slider fills on page load
     document.querySelectorAll('.slider').forEach(slider => {
