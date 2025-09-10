@@ -369,6 +369,7 @@ get_header(); ?>
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     z-index: 2;
+    margin-top: -7px;
 }
 
 .slider::-webkit-slider-thumb:hover {
@@ -402,6 +403,7 @@ get_header(); ?>
         0 2px 8px rgba(107, 127, 247, 0.3),
         0 4px 16px rgba(0, 0, 0, 0.1);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: -7px;
 }
 
 .slider::-moz-range-thumb:hover {
