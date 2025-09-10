@@ -185,7 +185,7 @@ get_header(); ?>
 
 <style>
 .financial-calculators-page {
-    background: #f8fafc;
+    background: white;
     min-height: 100vh;
     padding: 60px 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
