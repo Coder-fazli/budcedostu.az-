@@ -70,47 +70,58 @@ get_header(); ?>
             <!-- Mortgage Calculator -->
             <div class="calculator mortgage-calculator">
                 <div class="input-group">
-                    <label>Evin dəyəri</label>
+                    <label>İlkin ödəniş faizi</label>
                     <div class="input-wrapper">
-                        <input type="number" id="home-value" value="100000" min="10000" max="5000000">
-                        <span class="currency">₼</span>
+                        <input type="number" id="down-payment-percent" value="15" min="0" max="50" step="0.1">
+                        <span class="unit">%</span>
                     </div>
-                    <input type="range" id="home-value-slider" min="10000" max="5000000" value="100000" class="slider">
+                    <input type="range" id="down-payment-percent-slider" min="0" max="50" value="15" step="0.1" class="slider">
                 </div>
 
                 <div class="input-row">
                     <div class="input-group half">
-                        <label>İlk ödəniş</label>
+                        <label>Mənzilin dəyəri</label>
                         <div class="input-wrapper">
-                            <input type="number" id="down-payment" value="20000" min="0" max="1000000">
+                            <input type="number" id="home-value" value="210000" min="10000" max="5000000">
                             <span class="currency">₼</span>
                         </div>
-                        <input type="range" id="down-payment-slider" min="0" max="1000000" value="20000" class="slider">
+                        <input type="range" id="home-value-slider" min="10000" max="5000000" value="210000" class="slider">
                     </div>
 
                     <div class="input-group half">
-                        <label>İllik faiz dərəcəsi</label>
+                        <label>Kredit müddəti</label>
                         <div class="input-wrapper">
-                            <input type="number" id="mortgage-rate" value="8" min="1" max="25" step="0.1">
-                            <span class="unit">%</span>
+                            <input type="number" id="mortgage-term-years" value="20" min="1" max="40">
+                            <span class="unit">il</span>
                         </div>
-                        <input type="range" id="mortgage-rate-slider" min="1" max="25" value="8" step="0.1" class="slider">
+                        <input type="range" id="mortgage-term-years-slider" min="1" max="40" value="20" class="slider">
                     </div>
                 </div>
 
-                <div class="input-group">
-                    <label>İpoteka müddəti</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="mortgage-term" value="240" min="12" max="480">
-                        <span class="unit">ay</span>
+                <div class="results-grid">
+                    <div class="result-item">
+                        <label>Minimal İlkin ödəniş</label>
+                        <div class="result-value">
+                            <span id="min-down-payment">31500.00</span> ₼
+                        </div>
                     </div>
-                    <input type="range" id="mortgage-term-slider" min="12" max="480" value="240" class="slider">
-                </div>
-
-                <div class="result">
-                    <label>Aylıq ödəniş</label>
-                    <div class="result-value">
-                        <span id="mortgage-payment">0</span> ₼
+                    <div class="result-item">
+                        <label>Aylıq ödəniş</label>
+                        <div class="result-value">
+                            <span id="mortgage-payment">3745.32</span> ₼
+                        </div>
+                    </div>
+                    <div class="result-item">
+                        <label>Kredit məbləği</label>
+                        <div class="result-value">
+                            <span id="loan-amount">178500.00</span> ₼
+                        </div>
+                    </div>
+                    <div class="result-item">
+                        <label>İllik % dərəcəsi</label>
+                        <div class="result-value">
+                            <span id="annual-rate">25.00</span> %
+                        </div>
                     </div>
                 </div>
             </div>
@@ -118,38 +129,46 @@ get_header(); ?>
             <!-- Deposit Calculator -->
             <div class="calculator deposit-calculator">
                 <div class="input-group">
-                    <label>Əmanət məbləği</label>
+                    <label>İlkin əmanət məbləği</label>
                     <div class="input-wrapper">
-                        <input type="number" id="deposit-amount" value="10000" min="100" max="1000000">
+                        <input type="number" id="deposit-amount" value="80000" min="100" max="1000000">
                         <span class="currency">₼</span>
                     </div>
-                    <input type="range" id="deposit-amount-slider" min="100" max="1000000" value="10000" class="slider">
+                    <input type="range" id="deposit-amount-slider" min="100" max="1000000" value="80000" class="slider">
                 </div>
 
                 <div class="input-row">
                     <div class="input-group half">
                         <label>İllik faiz dərəcəsi</label>
                         <div class="input-wrapper">
-                            <input type="number" id="deposit-rate" value="5" min="0.1" max="20" step="0.1">
+                            <input type="number" id="deposit-rate" value="12" min="0.1" max="30" step="0.1">
                             <span class="unit">%</span>
                         </div>
-                        <input type="range" id="deposit-rate-slider" min="0.1" max="20" value="5" step="0.1" class="slider">
+                        <input type="range" id="deposit-rate-slider" min="0.1" max="30" value="12" step="0.1" class="slider">
                     </div>
 
                     <div class="input-group half">
-                        <label>Əmanət müddəti</label>
+                        <label>Müddət</label>
                         <div class="input-wrapper">
-                            <input type="number" id="deposit-term" value="12" min="1" max="120">
+                            <input type="number" id="deposit-term" value="18" min="1" max="120">
                             <span class="unit">ay</span>
                         </div>
-                        <input type="range" id="deposit-term-slider" min="1" max="120" value="12" class="slider">
+                        <input type="range" id="deposit-term-slider" min="1" max="120" value="18" class="slider">
                     </div>
                 </div>
 
-                <div class="result">
-                    <label>Yekun məbləğ</label>
-                    <div class="result-value">
-                        <span id="deposit-total">0</span> ₼
+                <div class="results-grid">
+                    <div class="result-item">
+                        <label>Aylıq faiz gəliri</label>
+                        <div class="result-value">
+                            <span id="monthly-interest">800.00</span> ₼
+                        </div>
+                    </div>
+                    <div class="result-item">
+                        <label>Müddət sonunda faiz gəliri</label>
+                        <div class="result-value">
+                            <span id="total-interest">14400.00</span> ₼
+                        </div>
                     </div>
                 </div>
             </div>
@@ -347,6 +366,34 @@ get_header(); ?>
     color: #333;
 }
 
+.results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.result-item {
+    background: #f0f3ff;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+}
+
+.result-item label {
+    display: block;
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.result-item .result-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+}
+
 @media (max-width: 768px) {
     .main-title {
         font-size: 28px;
@@ -373,6 +420,11 @@ get_header(); ?>
     
     .calc-type-buttons {
         flex-direction: column;
+    }
+    
+    .results-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
     }
 }
 </style>
@@ -410,23 +462,34 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mortgage Calculator
     function updateMortgageCalculator() {
         const homeValue = parseFloat(document.getElementById('home-value').value);
-        const downPayment = parseFloat(document.getElementById('down-payment').value);
-        const loanAmount = homeValue - downPayment;
-        const rate = parseFloat(document.getElementById('mortgage-rate').value) / 100 / 12;
-        const term = parseInt(document.getElementById('mortgage-term').value);
+        const downPaymentPercent = parseFloat(document.getElementById('down-payment-percent').value);
+        const termYears = parseInt(document.getElementById('mortgage-term-years').value);
+        const annualRate = 25.0; // Fixed rate from design
         
-        const payment = (loanAmount * rate * Math.pow(1 + rate, term)) / (Math.pow(1 + rate, term) - 1);
-        document.getElementById('mortgage-payment').textContent = payment.toFixed(2);
+        const minDownPayment = homeValue * (downPaymentPercent / 100);
+        const loanAmount = homeValue - minDownPayment;
+        const monthlyRate = annualRate / 100 / 12;
+        const termMonths = termYears * 12;
+        
+        const monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, termMonths)) / (Math.pow(1 + monthlyRate, termMonths) - 1);
+        
+        document.getElementById('min-down-payment').textContent = minDownPayment.toFixed(2);
+        document.getElementById('mortgage-payment').textContent = monthlyPayment.toFixed(2);
+        document.getElementById('loan-amount').textContent = loanAmount.toFixed(2);
+        document.getElementById('annual-rate').textContent = annualRate.toFixed(2);
     }
 
     // Deposit Calculator
     function updateDepositCalculator() {
         const amount = parseFloat(document.getElementById('deposit-amount').value);
-        const rate = parseFloat(document.getElementById('deposit-rate').value) / 100;
-        const term = parseInt(document.getElementById('deposit-term').value) / 12;
+        const annualRate = parseFloat(document.getElementById('deposit-rate').value);
+        const termMonths = parseInt(document.getElementById('deposit-term').value);
         
-        const total = amount * Math.pow(1 + rate, term);
-        document.getElementById('deposit-total').textContent = total.toFixed(2);
+        const monthlyInterest = (amount * annualRate / 100) / 12;
+        const totalInterest = monthlyInterest * termMonths;
+        
+        document.getElementById('monthly-interest').textContent = monthlyInterest.toFixed(2);
+        document.getElementById('total-interest').textContent = totalInterest.toFixed(2);
     }
 
     // Sync inputs with sliders
@@ -451,9 +514,8 @@ document.addEventListener('DOMContentLoaded', function() {
     syncInputs('credit-term', 'credit-term-slider', updateCreditCalculator);
 
     syncInputs('home-value', 'home-value-slider', updateMortgageCalculator);
-    syncInputs('down-payment', 'down-payment-slider', updateMortgageCalculator);
-    syncInputs('mortgage-rate', 'mortgage-rate-slider', updateMortgageCalculator);
-    syncInputs('mortgage-term', 'mortgage-term-slider', updateMortgageCalculator);
+    syncInputs('down-payment-percent', 'down-payment-percent-slider', updateMortgageCalculator);
+    syncInputs('mortgage-term-years', 'mortgage-term-years-slider', updateMortgageCalculator);
 
     syncInputs('deposit-amount', 'deposit-amount-slider', updateDepositCalculator);
     syncInputs('deposit-rate', 'deposit-rate-slider', updateDepositCalculator);
