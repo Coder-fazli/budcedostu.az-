@@ -336,7 +336,6 @@ get_header(); ?>
 .slider {
     width: 100%;
     height: 2px;
-    border-radius: 0 0 12px 12px;
     --tw-bg-opacity: 1;
     background: linear-gradient(to right, rgb(161 185 244 / var(--tw-bg-opacity, 1)) 0%, rgb(161 185 244 / var(--tw-bg-opacity, 1)) var(--fill-percent, 0%), #E5E7EB var(--fill-percent, 0%), #E5E7EB 100%);
     outline: none;
@@ -348,6 +347,9 @@ get_header(); ?>
     left: 0;
     right: 0;
     transition: all 0.2s ease;
+    padding: 0;
+    margin: 0;
+    border: none;
 }
 
 /* Webkit Track */
