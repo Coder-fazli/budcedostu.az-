@@ -78,9 +78,12 @@ class BudcedostuMultilingual {
         // Save post hook to ensure language is set
         add_action('save_post', array($this, 'ensure_post_language'), 5, 1);
         
-        // SAFE permalink modification - only when specifically requested
-        add_filter('post_link', array($this, 'modify_post_permalink_safe'), 10, 3);
-        add_filter('page_link', array($this, 'modify_page_permalink_safe'), 10, 2);
+        // Permalink modification - always prefix by locale
+        add_filter('post_link', array($this, 'modify_post_permalink'), 10, 3);
+        add_filter('page_link', array($this, 'modify_page_permalink'), 10, 2);
+        
+        // Canonicalization and redirects
+        add_action('template_redirect', array($this, 'canonicalize_urls'), 5);
         
         // Template redirect for language handling
         add_action('template_redirect', array($this, 'handle_language_redirects'), 1);
@@ -102,13 +105,16 @@ class BudcedostuMultilingual {
             language varchar(5) NOT NULL,
             translation_group mediumint(9) NOT NULL,
             PRIMARY KEY (id),
-            KEY post_id (post_id),
+            UNIQUE KEY post_lang (post_id, language),
             KEY language (language),
             KEY translation_group (translation_group)
         ) $charset_collate;";
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
+        
+        // Add version option to track database updates
+        update_option('budcedostu_multilingual_db_version', '1.1');
     }
     
     /**
@@ -241,49 +247,103 @@ class BudcedostuMultilingual {
     }
     
     /**
-     * Safe permalink modification - only adds prefix when needed
+     * Modify post permalink - ALWAYS prefix by locale
      */
-    public function modify_post_permalink_safe($permalink, $post, $leavename = false) {
-        if (!$post || is_admin()) {
+    public function modify_post_permalink($permalink, $post, $leavename = false) {
+        if (!$post) {
+            return $permalink;
+        }
+        
+        // Don't modify admin URLs
+        if (is_admin() || strpos($_SERVER['REQUEST_URI'], '/wp-admin') !== false) {
             return $permalink;
         }
         
         $post_language = $this->get_post_language($post->ID);
+        $site_url = untrailingslashit(home_url());
         
+        // Extract the post slug from current permalink
+        $path = str_replace($site_url, '', $permalink);
+        $path = trim($path, '/');
+        
+        // Remove any existing language prefixes
+        $path = preg_replace('#^(ru|en)/#', '', $path);
+        
+        // Always add the correct language prefix (except for default language)
         if ($post_language !== $this->default_language && isset($this->languages[$post_language])) {
             $lang_prefix = $this->languages[$post_language]['url_prefix'];
-            
-            // Only add prefix if not already present
-            if (strpos($permalink, '/' . $lang_prefix . '/') === false) {
-                $site_url = untrailingslashit(home_url());
-                $path = str_replace($site_url, '', $permalink);
-                $path = trim($path, '/');
-                
-                if (!empty($path)) {
-                    return $site_url . '/' . $lang_prefix . '/' . $path . '/';
-                } else {
-                    return $site_url . '/' . $lang_prefix . '/';
-                }
-            }
+            return $site_url . '/' . $lang_prefix . '/' . $path . '/';
         }
         
-        return $permalink;
+        // Default language - no prefix
+        return $site_url . '/' . $path . '/';
     }
     
     /**
-     * Safe page permalink modification
+     * Modify page permalink - ALWAYS prefix by locale
      */
-    public function modify_page_permalink_safe($permalink, $post_id) {
-        if (is_admin()) {
-            return $permalink;
-        }
-        
+    public function modify_page_permalink($permalink, $post_id) {
         $post = get_post($post_id);
         if (!$post) {
             return $permalink;
         }
         
-        return $this->modify_post_permalink_safe($permalink, $post);
+        return $this->modify_post_permalink($permalink, $post);
+    }
+    
+    /**
+     * Canonicalize URLs - 301 redirect unprefixed/wrong-locale URLs
+     */
+    public function canonicalize_urls() {
+        if (is_admin() || wp_doing_ajax() || is_feed()) {
+            return;
+        }
+        
+        $request_uri = $_SERVER['REQUEST_URI'];
+        $current_url = home_url($request_uri);
+        
+        // Skip WordPress core directories
+        if (preg_match('#/(wp-admin|wp-includes|wp-content)/#', $request_uri)) {
+            return;
+        }
+        
+        $detected_lang = $this->get_language_from_url();
+        
+        // Handle singular posts/pages
+        if (is_singular()) {
+            $post_id = get_queried_object_id();
+            $post_lang = $this->get_post_language($post_id);
+            
+            // Build correct canonical URL
+            $canonical_url = get_permalink($post_id);
+            
+            // If current URL doesn't match canonical URL, redirect
+            if (untrailingslashit($current_url) !== untrailingslashit($canonical_url)) {
+                wp_redirect($canonical_url, 301);
+                exit;
+            }
+            
+            // Check if we're accessing a post with wrong language prefix
+            if ($detected_lang !== $post_lang) {
+                wp_redirect($canonical_url, 301);
+                exit;
+            }
+        }
+        // Handle homepage
+        elseif (is_home() || is_front_page()) {
+            $correct_url = null;
+            
+            if ($detected_lang !== $this->default_language) {
+                $correct_url = home_url('/' . $this->languages[$detected_lang]['url_prefix'] . '/');
+            } else {
+                $correct_url = home_url('/');
+            }
+            
+            if ($correct_url && untrailingslashit($current_url) !== untrailingslashit($correct_url)) {
+                wp_redirect($correct_url, 301);
+                exit;
+            }
+        }
     }
     
     /**
@@ -488,10 +548,49 @@ class BudcedostuMultilingual {
         echo '</tr>';
         echo '</tbody></table>';
         
+        // Show translation status
+        echo '<div style="background: #f0f8ff; padding: 15px; border-radius: 4px; margin-top: 15px; border-left: 4px solid #0073aa;">';
+        echo '<h4 style="margin-top: 0;">🌍 Translation Status</h4>';
+        
+        $translations = $this->get_all_translations($post->ID);
+        $group_id = $this->get_translation_group($post->ID);
+        
+        echo '<p><strong>Translation Group ID:</strong> ' . $group_id . '</p>';
+        echo '<div class="translation-status">';
+        
+        foreach ($this->languages as $lang_code => $lang_data) {
+            echo '<div style="display: flex; align-items: center; margin: 8px 0; padding: 8px; background: white; border-radius: 3px;">';
+            echo '<span style="width: 30px;">' . $lang_data['flag'] . '</span>';
+            echo '<span style="flex: 1; margin-left: 10px;"><strong>' . $lang_data['name'] . '</strong></span>';
+            
+            if (isset($translations[$lang_code])) {
+                if ($translations[$lang_code] == $post->ID) {
+                    echo '<span style="color: green; font-weight: bold;">● Current</span>';
+                } else {
+                    $translation_post = get_post($translations[$lang_code]);
+                    if ($translation_post && $translation_post->post_status === 'publish') {
+                        $edit_url = admin_url('post.php?post=' . $translations[$lang_code] . '&action=edit');
+                        echo '<a href="' . $edit_url . '" style="color: blue; text-decoration: none;">● Edit Translation</a>';
+                    } else {
+                        echo '<span style="color: orange;">● Draft/Unpublished</span>';
+                    }
+                }
+            } else {
+                // Show + icon for missing translation
+                $create_url = admin_url('post-new.php?post_type=' . $post->post_type . '&translate_from=' . $post->ID . '&target_lang=' . $lang_code);
+                echo '<a href="' . $create_url . '" style="background: #0073aa; color: white; padding: 4px 8px; border-radius: 3px; text-decoration: none; font-size: 12px;">';
+                echo '+ Create ' . strtoupper($lang_code) . ' Translation</a>';
+            }
+            
+            echo '</div>';
+        }
+        
+        echo '</div></div>';
+        
         // Show URL preview
         $site_url = home_url();
         echo '<div style="background: #f9f9f9; padding: 10px; border-radius: 4px; margin-top: 15px;">';
-        echo '<h4 style="margin-top: 0;">URL Preview:</h4>';
+        echo '<h4 style="margin-top: 0;">🔗 URL Structure:</h4>';
         foreach ($this->languages as $lang_code => $lang_data) {
             $url_preview = $site_url;
             if ($lang_code !== $this->default_language) {
@@ -499,8 +598,8 @@ class BudcedostuMultilingual {
             }
             $url_preview .= '/your-post-slug/';
             
-            $active = ($current_lang == $lang_code) ? ' (current)' : '';
-            echo '<p><strong>' . $lang_data['flag'] . ' ' . $lang_data['name'] . ':</strong> <code>' . $url_preview . '</code>' . $active . '</p>';
+            $active = ($current_lang == $lang_code) ? ' <strong>(current)</strong>' : '';
+            echo '<p>' . $lang_data['flag'] . ' <strong>' . $lang_data['name'] . ':</strong> <code>' . $url_preview . '</code>' . $active . '</p>';
         }
         echo '</div>';
     }
@@ -554,7 +653,7 @@ class BudcedostuMultilingual {
     }
     
     /**
-     * Generate language switcher HTML
+     * Generate language switcher HTML with + icon logic
      */
     public function get_language_switcher($current_post_id = null) {
         $current_lang = $this->get_current_language();
@@ -564,14 +663,29 @@ class BudcedostuMultilingual {
             $class = ($current_lang == $lang_code) ? 'current' : '';
             
             if ($current_post_id) {
+                // Get translation for this language
+                $translation_id = $this->get_translation_id($current_post_id, $lang_code);
+                
                 if ($current_lang == $lang_code) {
+                    // Current language - show as active
                     $html .= '<span class="lang-switch current ' . $class . '" data-lang="' . $lang_code . '">';
                     $html .= $lang_data['flag'] . ' ' . $lang_data['name'];
                     $html .= '</span>';
+                } elseif ($translation_id && get_post_status($translation_id) === 'publish') {
+                    // Translation exists - show link to translation
+                    $translation_url = get_permalink($translation_id);
+                    $html .= '<a href="' . $translation_url . '" class="lang-switch ' . $class . '" data-lang="' . $lang_code . '">';
+                    $html .= $lang_data['flag'] . ' ' . $lang_data['name'];
+                    $html .= '</a>';
+                } else {
+                    // No translation exists - show + icon
+                    $create_url = admin_url('post-new.php?post_type=' . get_post_type($current_post_id) . '&translate_from=' . $current_post_id . '&target_lang=' . $lang_code);
+                    $html .= '<a href="' . $create_url . '" class="lang-switch add-translation" data-lang="' . $lang_code . '" title="Create ' . $lang_data['name'] . ' translation">';
+                    $html .= '<span class="add-icon">+</span> ' . $lang_data['flag'] . ' ' . $lang_data['name'];
+                    $html .= '</a>';
                 }
-                // For now, only show current language to avoid complex translation logic
             } else {
-                // For homepage and archives
+                // For homepage and archives - always show all languages
                 $url = ($lang_code == $this->default_language) ? home_url('/') : home_url('/' . $lang_data['url_prefix'] . '/');
                 $html .= '<a href="' . $url . '" class="lang-switch ' . $class . '" data-lang="' . $lang_code . '">';
                 $html .= $lang_data['flag'] . ' ' . $lang_data['name'];
@@ -633,9 +747,136 @@ class BudcedostuMultilingual {
     }
     
     /**
-     * Get translation ID (stub for future implementation)
+     * Get or create translation group for a post
+     */
+    public function get_translation_group($post_id) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'budcedostu_translations';
+        
+        $group_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT translation_group FROM $table_name WHERE post_id = %d LIMIT 1",
+            $post_id
+        ));
+        
+        if (!$group_id) {
+            // Create new translation group
+            $group_id = $this->create_translation_group($post_id);
+        }
+        
+        return $group_id;
+    }
+    
+    /**
+     * Create new translation group
+     */
+    private function create_translation_group($post_id) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'budcedostu_translations';
+        
+        // Use post_id as the initial group ID
+        $group_id = $post_id;
+        $post_language = $this->get_post_language($post_id);
+        
+        // Insert the post into translations table
+        $wpdb->insert(
+            $table_name,
+            array(
+                'post_id' => $post_id,
+                'language' => $post_language,
+                'translation_group' => $group_id
+            ),
+            array('%d', '%s', '%d')
+        );
+        
+        return $group_id;
+    }
+    
+    /**
+     * Get translation ID for specific language
      */
     public function get_translation_id($post_id, $language) {
-        return null;
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'budcedostu_translations';
+        
+        // Get translation group for this post
+        $group_id = $this->get_translation_group($post_id);
+        
+        if (!$group_id) {
+            return null;
+        }
+        
+        // Find post in the same group with the requested language
+        $translation_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT post_id FROM $table_name 
+             WHERE translation_group = %d AND language = %s AND post_id != %d",
+            $group_id, $language, $post_id
+        ));
+        
+        return $translation_id;
+    }
+    
+    /**
+     * Get all translations for a post
+     */
+    public function get_all_translations($post_id) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'budcedostu_translations';
+        
+        $group_id = $this->get_translation_group($post_id);
+        
+        if (!$group_id) {
+            return array($post_id);
+        }
+        
+        $translations = $wpdb->get_results($wpdb->prepare(
+            "SELECT post_id, language FROM $table_name WHERE translation_group = %d",
+            $group_id
+        ), ARRAY_A);
+        
+        $result = array();
+        foreach ($translations as $translation) {
+            $result[$translation['language']] = $translation['post_id'];
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * Add post to translation group
+     */
+    public function add_translation($original_post_id, $translation_post_id, $translation_language) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'budcedostu_translations';
+        
+        $group_id = $this->get_translation_group($original_post_id);
+        
+        // Insert translation
+        $wpdb->replace(
+            $table_name,
+            array(
+                'post_id' => $translation_post_id,
+                'language' => $translation_language,
+                'translation_group' => $group_id
+            ),
+            array('%d', '%s', '%d')
+        );
+    }
+    
+    /**
+     * Check if translations exist for specific languages
+     */
+    public function has_translations($post_id, $languages = null) {
+        if (!$languages) {
+            $languages = array_keys($this->languages);
+        }
+        
+        $translations = $this->get_all_translations($post_id);
+        $result = array();
+        
+        foreach ($languages as $lang) {
+            $result[$lang] = isset($translations[$lang]);
+        }
+        
+        return $result;
     }
 }

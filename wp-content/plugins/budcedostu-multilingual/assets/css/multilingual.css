@@ -38,6 +38,25 @@
     background: #f1f1f1;
 }
 
+.budcedostu-language-switcher .lang-switch.add-translation {
+    background: #e8f4f8;
+    border-color: #0073aa;
+    color: #0073aa;
+    font-weight: bold;
+    position: relative;
+}
+
+.budcedostu-language-switcher .lang-switch.add-translation:hover {
+    background: #0073aa;
+    color: white;
+}
+
+.budcedostu-language-switcher .add-icon {
+    font-weight: bold;
+    font-size: 16px;
+    margin-right: 4px;
+}
+
 /* Admin styles */
 #budcedostu_translations {
     background: #f9f9f9;
