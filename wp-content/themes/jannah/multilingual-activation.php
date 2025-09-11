@@ -59,6 +59,12 @@ function budcedostu_check_multilingual_activation() {
     if (get_option('budcedostu_multilingual_activated') !== 'yes') {
         budcedostu_activate_multilingual_system();
     }
+    
+    // Check if we need to flush rewrite rules for homepage fix
+    if (get_option('budcedostu_homepage_rules_updated') !== 'yes') {
+        flush_rewrite_rules();
+        update_option('budcedostu_homepage_rules_updated', 'yes');
+    }
 }
 add_action('init', 'budcedostu_check_multilingual_activation');
 

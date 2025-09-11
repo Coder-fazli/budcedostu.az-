@@ -152,15 +152,16 @@ class BudcedostuMultilingual {
         add_rewrite_rule('^ru/search/(.+)/?$', 'index.php?lang=ru&s=$matches[1]', 'top');
         add_rewrite_rule('^en/search/(.+)/?$', 'index.php?lang=en&s=$matches[1]', 'top');
         
-        // Homepage for languages
-        add_rewrite_rule('^ru/?$', 'index.php?lang=ru', 'top');
-        add_rewrite_rule('^en/?$', 'index.php?lang=en', 'top');
+        // Homepage for languages - specific rules for homepage translations
+        add_rewrite_rule('^ru/?$', 'index.php?lang=ru&is_home=1', 'top');
+        add_rewrite_rule('^en/?$', 'index.php?lang=en&is_home=1', 'top');
     }
     
     public function add_query_vars($vars) {
         $vars[] = 'lang';
         $vars[] = 'redirect_az';
         $vars[] = 'path';
+        $vars[] = 'is_home';
         return $vars;
     }
     
@@ -179,15 +180,59 @@ class BudcedostuMultilingual {
         } else {
             $this->current_language = $this->default_language;
         }
+        
+        // Handle language-specific homepage
+        if (isset($wp->query_vars['is_home']) && isset($wp->query_vars['lang'])) {
+            $this->handle_language_homepage($wp->query_vars['lang']);
+        }
+    }
+    
+    public function handle_language_homepage($language) {
+        // Force WordPress to show the homepage for the specific language
+        global $wp_query;
+        $wp_query->is_home = true;
+        $wp_query->is_front_page = true;
+        $wp_query->is_page = false;
+        $wp_query->is_singular = false;
+        $wp_query->is_404 = false;
+        
+        // Set the current language
+        $this->current_language = $language;
+        
+        // Modify the main query to show language-specific content
+        add_action('pre_get_posts', array($this, 'modify_homepage_query_for_language'), 1);
+    }
+    
+    public function modify_homepage_query_for_language($query) {
+        if ($query->is_main_query() && $query->is_home()) {
+            $current_lang = $this->get_current_language();
+            
+            // Add language filter to the homepage query
+            $meta_query = $query->get('meta_query', array());
+            $meta_query[] = array(
+                'relation' => 'OR',
+                array(
+                    'key' => '_budcedostu_language',
+                    'value' => $current_lang,
+                    'compare' => '='
+                ),
+                array(
+                    'key' => '_budcedostu_language',
+                    'compare' => 'NOT EXISTS'
+                )
+            );
+            
+            $query->set('meta_query', $meta_query);
+        }
     }
     
     public function detect_language() {
         if (!$this->current_language) {
             // Try to detect from URL
             $request_uri = $_SERVER['REQUEST_URI'];
-            if (strpos($request_uri, '/ru/') === 0) {
+            if (strpos($request_uri, '/ru/') === 0 || $request_uri === '/ru') {
                 $this->current_language = 'ru';
-            } elseif (strpos($request_uri, '/en/') === 0) {
+            } elseif (strpos($request_uri, '/en/') === 0 || $request_uri === '/en') {
                 $this->current_language = 'en';
             } else {
                 $this->current_language = $this->default_language;
