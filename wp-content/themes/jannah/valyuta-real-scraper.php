@@ -51,6 +51,88 @@ class ValyutaRealScraper {
                 'method' => 'scrape_unibank_rates',
                 'currencies' => array('USD', 'EUR', 'RUB', 'GBP', 'TRY'),
                 'active' => true
+            ),
+            'yelo-bank' => array(
+                'name' => 'Yelo Bank',
+                'url' => 'https://www.yelo.az/en/exchange-rates/',
+                'method' => 'scrape_yelo_rates',
+                'currencies' => array('USD', 'EUR', 'RUB', 'GBP'),
+                'active' => true
+            ),
+            'turanbank' => array(
+                'name' => 'Turanbank',
+                'url' => 'https://turanbank.az/',
+                'fallback_url' => 'https://azn.day.az/en/bank/turanbank',
+                'method' => 'scrape_turanbank_rates',
+                'currencies' => array('USD', 'EUR', 'RUB', 'GBP', 'TRY'),
+                'active' => true
+            ),
+            'vtb' => array(
+                'name' => 'VTB Bank',
+                'url' => 'https://vtb.az/en/',
+                'method' => 'scrape_vtb_rates',
+                'currencies' => array('USD', 'EUR', 'RUB', 'GBP', 'TRY'),
+                'active' => true
+            ),
+            'rabitabank' => array(
+                'name' => 'Rabitabank',
+                'url' => 'https://www.rabitabank.com/?hl=en',
+                'fallback_url' => 'https://azn.day.az/en/bank/rabitabank',
+                'method' => 'scrape_rabitabank_rates',
+                'currencies' => array('USD', 'EUR', 'RUB', 'GBP', 'TRY'),
+                'active' => true
+            ),
+            'btb-bank' => array(
+                'name' => 'BTB Bank',
+                'url' => 'https://www.btb.az/',
+                'fallback_url' => 'https://banks.az/en/banks/bankbtb',
+                'method' => 'scrape_btb_rates',
+                'currencies' => array('USD', 'EUR', 'RUB', 'GBP', 'TRY'),
+                'active' => true
+            ),
+            'expressbank' => array(
+                'name' => 'Expressbank',
+                'url' => 'https://www.expressbank.az/en',
+                'fallback_url' => 'https://azn.day.az/en/bank/expressbank',
+                'method' => 'scrape_expressbank_rates',
+                'currencies' => array('USD', 'EUR', 'RUB', 'GBP', 'TRY'),
+                'active' => true
+            ),
+            'access-bank' => array(
+                'name' => 'Access Bank',
+                'url' => 'https://www.accessbank.az/en/',
+                'fallback_url' => 'https://azn.day.az/az/bank/accessbank',
+                'method' => 'scrape_access_rates',
+                'currencies' => array('USD', 'EUR', 'RUB', 'GBP', 'TRY'),
+                'active' => true
+            ),
+            'asb' => array(
+                'name' => 'ASB Azərbaycan Sənaye Bankı',
+                'url' => 'https://www.asb.az/',
+                'method' => 'scrape_asb_rates',
+                'currencies' => array('USD', 'EUR', 'GBP'),
+                'active' => true
+            ),
+            'gunay-bank' => array(
+                'name' => 'Gunay Bank',
+                'url' => 'https://gunaybank.com/currency',
+                'method' => 'scrape_gunay_rates',
+                'currencies' => array('USD', 'EUR', 'RUB', 'GBP', 'TRY'),
+                'active' => true
+            ),
+            'yapi-kredi' => array(
+                'name' => 'Yapı Kredi Bank Azərbaycan',
+                'url' => 'https://www.yapikredi.com.az/en/mezenne',
+                'method' => 'scrape_yapi_rates',
+                'currencies' => array('USD', 'EUR', 'RUB', 'GBP', 'TRY'),
+                'active' => true
+            ),
+            'bank-respublika' => array(
+                'name' => 'Bank Respublika',
+                'url' => 'https://www.bankrespublika.az/en/',
+                'method' => 'scrape_respublika_rates',
+                'currencies' => array('USD', 'EUR', 'RUB', 'GBP', 'TRY'),
+                'active' => true
             )
         );
     }
@@ -356,6 +438,334 @@ class ValyutaRealScraper {
                         'cash_buy_rate' => $buy,
                         'cash_sell_rate' => $sell,
                         'source' => 'scraped_unibank',
+                        'last_updated' => current_time('mysql')
+                    );
+                }
+            }
+        }
+        
+        return $rates;
+    }
+    
+    /**
+     * Scrape rates from Yelo Bank
+     */
+    private function scrape_yelo_rates($currency = null) {
+        $url = $this->banks_config['yelo-bank']['url'];
+        
+        $response = wp_remote_get($url, array(
+            'timeout' => 30,
+            'headers' => array(
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            )
+        ));
+        
+        if (is_wp_error($response)) {
+            throw new Exception('Yelo Bank scraping failed: ' . $response->get_error_message());
+        }
+        
+        $html = wp_remote_retrieve_body($response);
+        
+        if (empty($html)) {
+            throw new Exception('Empty response from Yelo Bank');
+        }
+        
+        return $this->parse_yelo_html($html);
+    }
+    
+    private function parse_yelo_html($html) {
+        $rates = array();
+        $currencies = array('USD', 'EUR', 'RUB', 'GBP');
+        
+        foreach ($currencies as $currency) {
+            if (preg_match('/' . $currency . '.*?([0-9.]+).*?([0-9.]+)/is', $html, $matches)) {
+                $buy = floatval($matches[1]);
+                $sell = floatval($matches[2]);
+                
+                if ($buy > 0 && $sell > 0) {
+                    $rates[$currency] = array(
+                        'bank_slug' => 'yelo-bank',
+                        'bank_name' => 'Yelo Bank',
+                        'currency' => $currency,
+                        'buy_rate' => $buy,
+                        'sell_rate' => $sell,
+                        'cash_buy_rate' => $buy,
+                        'cash_sell_rate' => $sell,
+                        'source' => 'scraped_yelo',
+                        'last_updated' => current_time('mysql')
+                    );
+                }
+            }
+        }
+        
+        return $rates;
+    }
+    
+    /**
+     * Scrape rates from Turanbank (with fallback)
+     */
+    private function scrape_turanbank_rates($currency = null) {
+        $url = $this->banks_config['turanbank']['url'];
+        
+        $response = wp_remote_get($url, array('timeout' => 30));
+        
+        if (is_wp_error($response)) {
+            return $this->scrape_turanbank_fallback($currency);
+        }
+        
+        $html = wp_remote_retrieve_body($response);
+        
+        if (empty($html)) {
+            return $this->scrape_turanbank_fallback($currency);
+        }
+        
+        $rates = $this->parse_turanbank_html($html);
+        
+        if (empty($rates)) {
+            return $this->scrape_turanbank_fallback($currency);
+        }
+        
+        return $rates;
+    }
+    
+    private function scrape_turanbank_fallback($currency = null) {
+        $url = $this->banks_config['turanbank']['fallback_url'];
+        
+        $response = wp_remote_get($url, array('timeout' => 30));
+        
+        if (is_wp_error($response)) {
+            throw new Exception('Turanbank fallback scraping failed: ' . $response->get_error_message());
+        }
+        
+        $html = wp_remote_retrieve_body($response);
+        return $this->parse_aggregator_html($html, 'turanbank', 'Turanbank');
+    }
+    
+    private function parse_turanbank_html($html) {
+        $rates = array();
+        $currencies = array('USD', 'EUR', 'RUB', 'GBP', 'TRY');
+        
+        foreach ($currencies as $currency) {
+            if (preg_match('/' . $currency . '.*?([0-9.]+).*?([0-9.]+)/is', $html, $matches)) {
+                $buy = floatval($matches[1]);
+                $sell = floatval($matches[2]);
+                
+                if ($buy > 0 && $sell > 0) {
+                    $rates[$currency] = array(
+                        'bank_slug' => 'turanbank',
+                        'bank_name' => 'Turanbank',
+                        'currency' => $currency,
+                        'buy_rate' => $buy,
+                        'sell_rate' => $sell,
+                        'cash_buy_rate' => $buy,
+                        'cash_sell_rate' => $sell,
+                        'source' => 'scraped_turanbank',
+                        'last_updated' => current_time('mysql')
+                    );
+                }
+            }
+        }
+        
+        return $rates;
+    }
+    
+    /**
+     * Generic method to parse aggregator sites (azn.day.az, banks.az)
+     */
+    private function parse_aggregator_html($html, $bank_slug, $bank_name) {
+        $rates = array();
+        $currencies = array('USD', 'EUR', 'RUB', 'GBP', 'TRY');
+        
+        foreach ($currencies as $currency) {
+            if (preg_match('/' . $currency . '.*?([0-9.]+).*?([0-9.]+)/is', $html, $matches)) {
+                $buy = floatval($matches[1]);
+                $sell = floatval($matches[2]);
+                
+                if ($buy > 0 && $sell > 0) {
+                    $rates[$currency] = array(
+                        'bank_slug' => $bank_slug,
+                        'bank_name' => $bank_name,
+                        'currency' => $currency,
+                        'buy_rate' => $buy,
+                        'sell_rate' => $sell,
+                        'cash_buy_rate' => $buy,
+                        'cash_sell_rate' => $sell,
+                        'source' => 'scraped_aggregator',
+                        'last_updated' => current_time('mysql')
+                    );
+                }
+            }
+        }
+        
+        return $rates;
+    }
+    
+    /**
+     * Scrape rates from VTB Bank
+     */
+    private function scrape_vtb_rates($currency = null) {
+        $url = $this->banks_config['vtb']['url'];
+        
+        $response = wp_remote_get($url, array('timeout' => 30));
+        
+        if (is_wp_error($response)) {
+            throw new Exception('VTB Bank scraping failed: ' . $response->get_error_message());
+        }
+        
+        $html = wp_remote_retrieve_body($response);
+        return $this->parse_generic_bank_html($html, 'vtb', 'VTB Bank');
+    }
+    
+    /**
+     * Scrape rates from Rabitabank (with fallback)
+     */
+    private function scrape_rabitabank_rates($currency = null) {
+        $url = $this->banks_config['rabitabank']['fallback_url'];
+        
+        $response = wp_remote_get($url, array('timeout' => 30));
+        
+        if (is_wp_error($response)) {
+            throw new Exception('Rabitabank scraping failed: ' . $response->get_error_message());
+        }
+        
+        $html = wp_remote_retrieve_body($response);
+        return $this->parse_aggregator_html($html, 'rabitabank', 'Rabitabank');
+    }
+    
+    /**
+     * Scrape rates from BTB Bank (with fallback)
+     */
+    private function scrape_btb_rates($currency = null) {
+        $url = $this->banks_config['btb-bank']['fallback_url'];
+        
+        $response = wp_remote_get($url, array('timeout' => 30));
+        
+        if (is_wp_error($response)) {
+            throw new Exception('BTB Bank scraping failed: ' . $response->get_error_message());
+        }
+        
+        $html = wp_remote_retrieve_body($response);
+        return $this->parse_aggregator_html($html, 'btb-bank', 'BTB Bank');
+    }
+    
+    /**
+     * Scrape rates from Expressbank (with fallback)
+     */
+    private function scrape_expressbank_rates($currency = null) {
+        $url = $this->banks_config['expressbank']['fallback_url'];
+        
+        $response = wp_remote_get($url, array('timeout' => 30));
+        
+        if (is_wp_error($response)) {
+            throw new Exception('Expressbank scraping failed: ' . $response->get_error_message());
+        }
+        
+        $html = wp_remote_retrieve_body($response);
+        return $this->parse_aggregator_html($html, 'expressbank', 'Expressbank');
+    }
+    
+    /**
+     * Scrape rates from Access Bank (with fallback)
+     */
+    private function scrape_access_rates($currency = null) {
+        $url = $this->banks_config['access-bank']['fallback_url'];
+        
+        $response = wp_remote_get($url, array('timeout' => 30));
+        
+        if (is_wp_error($response)) {
+            throw new Exception('Access Bank scraping failed: ' . $response->get_error_message());
+        }
+        
+        $html = wp_remote_retrieve_body($response);
+        return $this->parse_aggregator_html($html, 'access-bank', 'Access Bank');
+    }
+    
+    /**
+     * Scrape rates from ASB Bank
+     */
+    private function scrape_asb_rates($currency = null) {
+        $url = $this->banks_config['asb']['url'];
+        
+        $response = wp_remote_get($url, array('timeout' => 30));
+        
+        if (is_wp_error($response)) {
+            throw new Exception('ASB Bank scraping failed: ' . $response->get_error_message());
+        }
+        
+        $html = wp_remote_retrieve_body($response);
+        return $this->parse_generic_bank_html($html, 'asb', 'ASB Azərbaycan Sənaye Bankı');
+    }
+    
+    /**
+     * Scrape rates from Gunay Bank
+     */
+    private function scrape_gunay_rates($currency = null) {
+        $url = $this->banks_config['gunay-bank']['url'];
+        
+        $response = wp_remote_get($url, array('timeout' => 30));
+        
+        if (is_wp_error($response)) {
+            throw new Exception('Gunay Bank scraping failed: ' . $response->get_error_message());
+        }
+        
+        $html = wp_remote_retrieve_body($response);
+        return $this->parse_generic_bank_html($html, 'gunay-bank', 'Gunay Bank');
+    }
+    
+    /**
+     * Scrape rates from Yapı Kredi Bank
+     */
+    private function scrape_yapi_rates($currency = null) {
+        $url = $this->banks_config['yapi-kredi']['url'];
+        
+        $response = wp_remote_get($url, array('timeout' => 30));
+        
+        if (is_wp_error($response)) {
+            throw new Exception('Yapı Kredi Bank scraping failed: ' . $response->get_error_message());
+        }
+        
+        $html = wp_remote_retrieve_body($response);
+        return $this->parse_generic_bank_html($html, 'yapi-kredi', 'Yapı Kredi Bank Azərbaycan');
+    }
+    
+    /**
+     * Scrape rates from Bank Respublika
+     */
+    private function scrape_respublika_rates($currency = null) {
+        $url = $this->banks_config['bank-respublika']['url'];
+        
+        $response = wp_remote_get($url, array('timeout' => 30));
+        
+        if (is_wp_error($response)) {
+            throw new Exception('Bank Respublika scraping failed: ' . $response->get_error_message());
+        }
+        
+        $html = wp_remote_retrieve_body($response);
+        return $this->parse_generic_bank_html($html, 'bank-respublika', 'Bank Respublika');
+    }
+    
+    /**
+     * Generic parser for bank HTML
+     */
+    private function parse_generic_bank_html($html, $bank_slug, $bank_name) {
+        $rates = array();
+        $currencies = array('USD', 'EUR', 'RUB', 'GBP', 'TRY');
+        
+        foreach ($currencies as $currency) {
+            if (preg_match('/' . $currency . '.*?([0-9.]+).*?([0-9.]+)/is', $html, $matches)) {
+                $buy = floatval($matches[1]);
+                $sell = floatval($matches[2]);
+                
+                if ($buy > 0 && $sell > 0) {
+                    $rates[$currency] = array(
+                        'bank_slug' => $bank_slug,
+                        'bank_name' => $bank_name,
+                        'currency' => $currency,
+                        'buy_rate' => $buy,
+                        'sell_rate' => $sell,
+                        'cash_buy_rate' => $buy * 0.999,
+                        'cash_sell_rate' => $sell * 1.001,
+                        'source' => 'scraped_generic',
                         'last_updated' => current_time('mysql')
                     );
                 }

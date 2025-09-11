@@ -489,9 +489,60 @@ class ValyutaAPIIntegration {
 new ValyutaAPIIntegration();
 
 /**
- * Schedule cron job for automatic rate updates
+ * Add custom cron intervals for more frequent updates
  */
+add_filter('cron_schedules', 'valyuta_add_cron_intervals');
+function valyuta_add_cron_intervals($schedules) {
+    $schedules['every_10_minutes'] = array(
+        'interval' => 600, // 10 minutes in seconds
+        'display' => 'Every 10 Minutes'
+    );
+    $schedules['every_30_minutes'] = array(
+        'interval' => 1800, // 30 minutes in seconds
+        'display' => 'Every 30 Minutes'
+    );
+    return $schedules;
+}
+
+/**
+ * Schedule multiple cron jobs for automatic rate updates
+ */
+// Real-time updates every 10 minutes during business hours
+if (!wp_next_scheduled('valyuta_update_rates_realtime')) {
+    wp_schedule_event(time(), 'every_10_minutes', 'valyuta_update_rates_realtime');
+}
+
+// Daily full update at midnight
+if (!wp_next_scheduled('valyuta_update_rates_daily')) {
+    wp_schedule_event(strtotime('today midnight'), 'daily', 'valyuta_update_rates_daily');
+}
+
+// Hourly backup updates
 if (!wp_next_scheduled('valyuta_update_rates_cron')) {
     wp_schedule_event(time(), 'hourly', 'valyuta_update_rates_cron');
+}
+
+/**
+ * Hook the cron actions
+ */
+add_action('valyuta_update_rates_realtime', 'valyuta_realtime_update');
+add_action('valyuta_update_rates_daily', 'valyuta_daily_update');
+
+function valyuta_realtime_update() {
+    // Only run during business hours (9 AM to 6 PM Azerbaijan time)
+    $current_hour = current_time('H');
+    if ($current_hour >= 9 && $current_hour <= 18) {
+        $api_integration = new ValyutaAPIIntegration();
+        $api_integration->update_all_rates_cron();
+        error_log('Valyuta: Real-time update completed at ' . current_time('Y-m-d H:i:s'));
+    }
+}
+
+function valyuta_daily_update() {
+    // Full daily update with all banks and currencies
+    $api_integration = new ValyutaAPIIntegration();
+    $all_rates = $api_integration->fetch_all_rates(true); // Force refresh
+    $updated_count = $api_integration->save_rates_to_database($all_rates);
+    error_log("Valyuta: Daily full update completed - Updated {$updated_count} rates at " . current_time('Y-m-d H:i:s'));
 }
 ?>
