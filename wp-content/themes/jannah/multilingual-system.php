@@ -703,10 +703,24 @@ class BudcedostuMultilingual {
     public function get_permalink_for_language($post_id, $language) {
         $permalink = get_permalink($post_id);
         
-        if ($language != $this->default_language) {
-            $site_url = trailingslashit(home_url());
+        if ($language != $this->default_language && isset($this->languages[$language])) {
+            $lang_prefix = $this->languages[$language]['url_prefix'];
+            
+            // Check if permalink already contains the language prefix
+            if (strpos($permalink, '/' . $lang_prefix . '/') !== false) {
+                // Already has language prefix, return as-is
+                return $permalink;
+            }
+            
+            // Clean up any malformed URLs first
+            $site_url = untrailingslashit(home_url());
+            
+            // Remove site URL to get relative path
             $relative_url = str_replace($site_url, '', $permalink);
-            $permalink = $site_url . $this->languages[$language]['url_prefix'] . '/' . $relative_url;
+            $relative_url = ltrim($relative_url, '/');
+            
+            // Build clean URL with language prefix
+            $permalink = $site_url . '/' . $lang_prefix . '/' . $relative_url;
         }
         
         return $permalink;
@@ -761,9 +775,23 @@ class BudcedostuMultilingual {
         
         // If it's not the default language, add language prefix
         if ($post_language !== $this->default_language && isset($this->languages[$post_language])) {
-            $site_url = trailingslashit(home_url());
+            $lang_prefix = $this->languages[$post_language]['url_prefix'];
+            
+            // Check if permalink already contains the language prefix
+            if (strpos($permalink, '/' . $lang_prefix . '/') !== false) {
+                // Already has language prefix, return as-is
+                return $permalink;
+            }
+            
+            // Clean up any malformed URLs first
+            $site_url = untrailingslashit(home_url());
+            
+            // Remove site URL to get relative path
             $relative_url = str_replace($site_url, '', $permalink);
-            $permalink = $site_url . $this->languages[$post_language]['url_prefix'] . '/' . ltrim($relative_url, '/');
+            $relative_url = ltrim($relative_url, '/');
+            
+            // Build clean URL with language prefix
+            $permalink = $site_url . '/' . $lang_prefix . '/' . $relative_url;
         }
         
         return $permalink;
@@ -782,16 +810,29 @@ class BudcedostuMultilingual {
         
         // If it's not the default language, add language prefix
         if ($post_language !== $this->default_language && isset($this->languages[$post_language])) {
+            $lang_prefix = $this->languages[$post_language]['url_prefix'];
+            
             // Check if this is a homepage translation
             if ($this->is_homepage_translation($post_id)) {
                 // Return clean language URL for homepage translations
-                return home_url('/' . $this->languages[$post_language]['url_prefix'] . '/');
-            } else {
-                // Regular page - add language prefix
-                $site_url = trailingslashit(home_url());
-                $relative_url = str_replace($site_url, '', $permalink);
-                $permalink = $site_url . $this->languages[$post_language]['url_prefix'] . '/' . ltrim($relative_url, '/');
+                return home_url('/' . $lang_prefix . '/');
             }
+            
+            // Check if permalink already contains the language prefix
+            if (strpos($permalink, '/' . $lang_prefix . '/') !== false) {
+                // Already has language prefix, return as-is
+                return $permalink;
+            }
+            
+            // Clean up any malformed URLs first
+            $site_url = untrailingslashit(home_url());
+            
+            // Remove site URL to get relative path
+            $relative_url = str_replace($site_url, '', $permalink);
+            $relative_url = ltrim($relative_url, '/');
+            
+            // Build clean URL with language prefix
+            $permalink = $site_url . '/' . $lang_prefix . '/' . $relative_url;
         }
         
         return $permalink;
