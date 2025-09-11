@@ -104,8 +104,8 @@ class BudcedostuMultilingual {
         // Force rewrite rules flush for new exclusions
         add_action('init', array($this, 'flush_rules_once'), 999);
         
-        // Fix Russian post routing by ensuring proper query handling
-        add_action('pre_get_posts', array($this, 'fix_russian_post_queries'), 5);
+        // TEMPORARILY DISABLED - might be causing duplicates
+        // add_action('pre_get_posts', array($this, 'fix_russian_post_queries'), 5);
         
         // Simple redirect solution for WordPress assets with language prefix
         add_action('template_redirect', array($this, 'redirect_wp_assets'), 1);

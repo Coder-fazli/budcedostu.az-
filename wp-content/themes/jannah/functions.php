@@ -166,18 +166,18 @@ function create_calculator_page() {
     }
 }
 
-// Create page on init if doesn't exist
-add_action('init', function() {
-    $existing_page = get_posts(array(
-        'post_type' => 'page',
-        'title' => 'Kalkulyatorlar',
-        'post_status' => 'publish',
-        'numberposts' => 1
-    ));
-    if (empty($existing_page)) {
-        create_calculator_page();
-    }
-});
+// DISABLED - Was creating duplicate pages
+// add_action('init', function() {
+//     $existing_page = get_posts(array(
+//         'post_type' => 'page',
+//         'title' => 'Kalkulyatorlar',
+//         'post_status' => 'publish',
+//         'numberposts' => 1
+//     ));
+//     if (empty($existing_page)) {
+//         create_calculator_page();
+//     }
+// });
 
 /**
  * Add language switcher to header
