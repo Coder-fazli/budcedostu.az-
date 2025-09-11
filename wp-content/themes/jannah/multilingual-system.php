@@ -92,6 +92,10 @@ class BudcedostuMultilingual {
         // Protect WordPress admin bar from multilingual interference
         add_action('wp_before_admin_bar_render', array($this, 'preserve_admin_bar_structure'), 1);
         add_action('admin_bar_menu', array($this, 'ensure_admin_bar_integrity'), 999);
+        
+        // Prevent language prefix from being added to WordPress core assets
+        add_filter('script_loader_src', array($this, 'fix_core_asset_urls'));
+        add_filter('style_loader_src', array($this, 'fix_core_asset_urls'));
     }
     
     /**
@@ -862,6 +866,32 @@ class BudcedostuMultilingual {
         
         $html .= '</div>';
         return $html;
+    }
+    
+    /**
+     * Fix WordPress core asset URLs to prevent language prefix being added
+     */
+    public function fix_core_asset_urls($src) {
+        if (!$src) {
+            return $src;
+        }
+        
+        $site_url = home_url('/');
+        $current_lang = $this->get_current_language();
+        
+        // If we're on a non-default language page and the URL has the language prefix
+        if ($current_lang !== $this->default_language) {
+            $lang_prefix = $this->languages[$current_lang]['url_prefix'];
+            $prefixed_url = home_url('/' . $lang_prefix . '/');
+            
+            // Check if this is a WordPress core asset URL with language prefix
+            if (strpos($src, $prefixed_url . 'wp-') === 0) {
+                // Remove the language prefix from WordPress core assets
+                $src = str_replace($prefixed_url . 'wp-', $site_url . 'wp-', $src);
+            }
+        }
+        
+        return $src;
     }
     
     /**
