@@ -712,15 +712,21 @@ class BudcedostuMultilingual {
                 return $permalink;
             }
             
-            // Clean up any malformed URLs first
+            // Clean up malformed URLs with multiple domains
             $site_url = untrailingslashit(home_url());
             
-            // Remove site URL to get relative path
-            $relative_url = str_replace($site_url, '', $permalink);
-            $relative_url = ltrim($relative_url, '/');
+            // Remove multiple occurrences of the site URL
+            $clean_url = $permalink;
+            while (strpos($clean_url, $site_url) !== false) {
+                $clean_url = str_replace($site_url, '', $clean_url);
+            }
+            
+            // Clean up any remaining protocols and slashes
+            $clean_url = preg_replace('#^https?://#', '', $clean_url);
+            $clean_url = ltrim($clean_url, '/');
             
             // Build clean URL with language prefix
-            $permalink = $site_url . '/' . $lang_prefix . '/' . $relative_url;
+            $permalink = $site_url . '/' . $lang_prefix . '/' . $clean_url;
         }
         
         return $permalink;
@@ -783,15 +789,21 @@ class BudcedostuMultilingual {
                 return $permalink;
             }
             
-            // Clean up any malformed URLs first
+            // Clean up malformed URLs with multiple domains
             $site_url = untrailingslashit(home_url());
             
-            // Remove site URL to get relative path
-            $relative_url = str_replace($site_url, '', $permalink);
-            $relative_url = ltrim($relative_url, '/');
+            // Remove multiple occurrences of the site URL
+            $clean_url = $permalink;
+            while (strpos($clean_url, $site_url) !== false) {
+                $clean_url = str_replace($site_url, '', $clean_url);
+            }
+            
+            // Clean up any remaining protocols and slashes
+            $clean_url = preg_replace('#^https?://#', '', $clean_url);
+            $clean_url = ltrim($clean_url, '/');
             
             // Build clean URL with language prefix
-            $permalink = $site_url . '/' . $lang_prefix . '/' . $relative_url;
+            $permalink = $site_url . '/' . $lang_prefix . '/' . $clean_url;
         }
         
         return $permalink;
@@ -824,15 +836,21 @@ class BudcedostuMultilingual {
                 return $permalink;
             }
             
-            // Clean up any malformed URLs first
+            // Clean up malformed URLs with multiple domains
             $site_url = untrailingslashit(home_url());
             
-            // Remove site URL to get relative path
-            $relative_url = str_replace($site_url, '', $permalink);
-            $relative_url = ltrim($relative_url, '/');
+            // Remove multiple occurrences of the site URL
+            $clean_url = $permalink;
+            while (strpos($clean_url, $site_url) !== false) {
+                $clean_url = str_replace($site_url, '', $clean_url);
+            }
+            
+            // Clean up any remaining protocols and slashes
+            $clean_url = preg_replace('#^https?://#', '', $clean_url);
+            $clean_url = ltrim($clean_url, '/');
             
             // Build clean URL with language prefix
-            $permalink = $site_url . '/' . $lang_prefix . '/' . $relative_url;
+            $permalink = $site_url . '/' . $lang_prefix . '/' . $clean_url;
         }
         
         return $permalink;
