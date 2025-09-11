@@ -103,6 +103,9 @@ class BudcedostuMultilingual {
         
         // Force rewrite rules flush for new exclusions
         add_action('init', array($this, 'flush_rules_once'), 999);
+        
+        // Simple redirect solution for WordPress assets with language prefix
+        add_action('template_redirect', array($this, 'redirect_wp_assets'), 1);
     }
     
     /**
@@ -952,6 +955,24 @@ class BudcedostuMultilingual {
         if (!$flushed) {
             flush_rewrite_rules();
             $flushed = true;
+        }
+    }
+    
+    /**
+     * Redirect WordPress assets that have incorrect language prefix
+     */
+    public function redirect_wp_assets() {
+        $request_uri = $_SERVER['REQUEST_URI'];
+        
+        // Check if this is a request for WordPress assets with language prefix
+        if (preg_match('#^/(ru|en)/(wp-includes|wp-admin|wp-content)/#', $request_uri, $matches)) {
+            $lang = $matches[1];
+            $correct_path = str_replace('/' . $lang . '/', '/', $request_uri);
+            $redirect_url = home_url($correct_path);
+            
+            // Perform 301 redirect to correct URL
+            wp_redirect($redirect_url, 301);
+            exit;
         }
     }
     
