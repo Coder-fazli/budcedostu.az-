@@ -47,9 +47,6 @@ class BudcedostuMultilingual {
     }
     
     public function init() {
-        // Initialize on WordPress init
-        add_action('init', array($this, 'setup_multilingual'));
-        
         // Database setup
         register_activation_hook(__FILE__, array($this, 'create_tables'));
         
