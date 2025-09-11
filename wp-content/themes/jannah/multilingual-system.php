@@ -104,6 +104,9 @@ class BudcedostuMultilingual {
         // Force rewrite rules flush for new exclusions
         add_action('init', array($this, 'flush_rules_once'), 999);
         
+        // Fix Russian post routing by ensuring proper query handling
+        add_action('pre_get_posts', array($this, 'fix_russian_post_queries'), 5);
+        
         // Simple redirect solution for WordPress assets with language prefix
         add_action('template_redirect', array($this, 'redirect_wp_assets'), 1);
     }
@@ -1009,6 +1012,41 @@ class BudcedostuMultilingual {
         if (!$flushed) {
             flush_rewrite_rules();
             $flushed = true;
+        }
+    }
+    
+    /**
+     * Fix Russian post queries to ensure proper routing
+     */
+    public function fix_russian_post_queries($query) {
+        if (!is_admin() && $query->is_main_query()) {
+            $current_lang = $this->get_current_language();
+            
+            // For Russian pages, ensure we're looking for posts in Russian
+            if ($current_lang === 'ru' && $query->get('name')) {
+                $post_name = $query->get('name');
+                
+                // Find the post by name and language
+                $posts = get_posts(array(
+                    'name' => $post_name,
+                    'post_type' => 'post',
+                    'post_status' => 'publish',
+                    'numberposts' => 1,
+                    'meta_query' => array(
+                        array(
+                            'key' => '_budcedostu_language',
+                            'value' => 'ru',
+                            'compare' => '='
+                        )
+                    )
+                ));
+                
+                if (!empty($posts)) {
+                    // Found a Russian post, modify the query
+                    $query->set('p', $posts[0]->ID);
+                    $query->set('name', ''); // Clear the name to avoid conflicts
+                }
+            }
         }
     }
     
