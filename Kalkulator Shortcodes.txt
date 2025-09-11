@@ -1,0 +1,7 @@
+General kalkulator - [financial_calculator]
+
+For Seperate pages
+
+  - [kredit_calculator]
+  - [ipoteka_calculator]
+  - [emanet_calculator]

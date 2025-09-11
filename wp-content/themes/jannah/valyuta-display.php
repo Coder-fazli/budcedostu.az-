@@ -17,14 +17,25 @@ $show_cash = $atts['show_cash'] === 'true';
     </div>
     
     <div class="valyuta-controls">
-        <div class="currency-selector">
-            <select id="currency-select-<?php echo $unique_id; ?>" class="currency-dropdown">
-                <option value="USD" <?php selected($current_currency, 'USD'); ?>>🇺🇸 USD</option>
-                <option value="EUR" <?php selected($current_currency, 'EUR'); ?>>🇪🇺 EUR</option>
-                <option value="RUB" <?php selected($current_currency, 'RUB'); ?>>🇷🇺 RUB</option>
-                <option value="GBP" <?php selected($current_currency, 'GBP'); ?>>🇬🇧 GBP</option>
-                <option value="TRY" <?php selected($current_currency, 'TRY'); ?>>🇹🇷 TRY</option>
-            </select>
+        <div class="controls-left">
+            <div class="currency-selector">
+                <select id="currency-select-<?php echo $unique_id; ?>" class="currency-dropdown">
+                    <option value="USD" <?php selected($current_currency, 'USD'); ?>>🇺🇸 USD</option>
+                    <option value="EUR" <?php selected($current_currency, 'EUR'); ?>>🇪🇺 EUR</option>
+                    <option value="RUB" <?php selected($current_currency, 'RUB'); ?>>🇷🇺 RUB</option>
+                    <option value="GBP" <?php selected($current_currency, 'GBP'); ?>>🇬🇧 GBP</option>
+                    <option value="TRY" <?php selected($current_currency, 'TRY'); ?>>🇹🇷 TRY</option>
+                </select>
+            </div>
+        </div>
+        <div class="controls-right">
+            <button id="fetch-live-rates-<?php echo $unique_id; ?>" class="fetch-live-btn">
+                <span class="btn-text">🔄 Canlı məzənnələr</span>
+                <span class="btn-loading" style="display: none;">⏳ Yenilənir...</span>
+            </button>
+            <div class="last-updated" id="last-updated-<?php echo $unique_id; ?>">
+                <small>Son yeniləmə: <span class="update-time">Bilinmir</span></small>
+            </div>
         </div>
     </div>
     
@@ -123,11 +134,68 @@ $show_cash = $atts['show_cash'] === 'true';
     background: white;
     padding: 20px 30px;
     border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+#<?php echo $unique_id; ?> .controls-left {
+    display: flex;
+    align-items: center;
+}
+
+#<?php echo $unique_id; ?> .controls-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
 #<?php echo $unique_id; ?> .currency-selector {
     display: flex;
     align-items: center;
+}
+
+#<?php echo $unique_id; ?> .fetch-live-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#<?php echo $unique_id; ?> .fetch-live-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+#<?php echo $unique_id; ?> .fetch-live-btn:active {
+    transform: translateY(0);
+}
+
+#<?php echo $unique_id; ?> .fetch-live-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#<?php echo $unique_id; ?> .last-updated {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+#<?php echo $unique_id; ?> .update-time {
+    font-weight: 500;
+    color: #495057;
 }
 
 #<?php echo $unique_id; ?> .currency-dropdown {
@@ -340,15 +408,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const uniqueId = '<?php echo $unique_id; ?>';
     const currencySelect = document.getElementById('currency-select-' + uniqueId);
     const ratesTable = document.getElementById('rates-table-' + uniqueId);
+    const fetchLiveBtn = document.getElementById('fetch-live-rates-' + uniqueId);
+    const lastUpdatedEl = document.getElementById('last-updated-' + uniqueId);
     
     if (currencySelect) {
         currencySelect.addEventListener('change', function() {
             const selectedCurrency = this.value;
-            updateRates(selectedCurrency);
+            updateRates(selectedCurrency, false);
         });
     }
     
-    function updateRates(currency) {
+    if (fetchLiveBtn) {
+        fetchLiveBtn.addEventListener('click', function() {
+            const selectedCurrency = currencySelect.value;
+            fetchLiveRates(selectedCurrency);
+        });
+    }
+    
+    function updateRates(currency, fromLiveFetch = false) {
         // Show loading state
         ratesTable.style.opacity = '0.6';
         
@@ -358,14 +435,143 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.success) {
                     updateTableContent(data.data);
+                    if (fromLiveFetch) {
+                        updateLastUpdatedTime();
+                        showSuccessMessage('Məzənnələr uğurla yeniləndi!');
+                    }
                 }
                 ratesTable.style.opacity = '1';
             })
             .catch(error => {
                 console.error('Error fetching rates:', error);
                 ratesTable.style.opacity = '1';
+                if (fromLiveFetch) {
+                    showErrorMessage('Məzənnələr yenilənərkən xəta baş verdi.');
+                }
             });
     }
+    
+    function fetchLiveRates(currency) {
+        const btnText = fetchLiveBtn.querySelector('.btn-text');
+        const btnLoading = fetchLiveBtn.querySelector('.btn-loading');
+        
+        // Show loading state
+        btnText.style.display = 'none';
+        btnLoading.style.display = 'inline';
+        fetchLiveBtn.disabled = true;
+        ratesTable.style.opacity = '0.6';
+        
+        // Create FormData for POST request
+        const formData = new FormData();
+        formData.append('action', 'fetch_live_rates');
+        formData.append('currency', currency);
+        formData.append('force_refresh', 'true');
+        formData.append('nonce', '<?php echo wp_create_nonce('valyuta_fetch_rates'); ?>');
+        
+        // Make AJAX request to fetch live rates
+        fetch(ajaxurl, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update table with new rates
+                    updateTableContent(data.data.rates);
+                    updateLastUpdatedTime();
+                    showSuccessMessage(data.data.message || 'Canlı məzənnələr uğurla yeniləndi!');
+                } else {
+                    showErrorMessage(data.data || 'Canlı məzənnələr yenilənərkən xəta baş verdi.');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching live rates:', error);
+                showErrorMessage('API ilə əlaqə qurula bilmədi.');
+            })
+            .finally(() => {
+                // Reset button state
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+                fetchLiveBtn.disabled = false;
+                ratesTable.style.opacity = '1';
+            });
+    }
+    
+    function updateLastUpdatedTime() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('az-AZ', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        const updateTimeEl = lastUpdatedEl.querySelector('.update-time');
+        if (updateTimeEl) {
+            updateTimeEl.textContent = timeStr;
+        }
+    }
+    
+    function showSuccessMessage(message) {
+        showNotification(message, 'success');
+    }
+    
+    function showErrorMessage(message) {
+        showNotification(message, 'error');
+    }
+    
+    function showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `valyuta-notification ${type}`;
+        notification.textContent = message;
+        
+        // Style the notification
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            background: ${type === 'success' ? '#28a745' : '#dc3545'};
+            animation: slideInRight 0.3s ease;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Remove notification after 4 seconds
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 4000);
+    }
+    
+    // Add CSS animations
+    if (!document.getElementById('valyuta-animations')) {
+        const style = document.createElement('style');
+        style.id = 'valyuta-animations';
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Initialize with current time
+    updateLastUpdatedTime();
     
     function updateTableContent(banks) {
         const tbody = ratesTable.querySelector('tbody');

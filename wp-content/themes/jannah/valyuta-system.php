@@ -117,39 +117,124 @@ class ValyutaSystem {
             $wpdb->insert($this->table_banks, $bank);
         }
         
-        // Insert sample USD rates (matching screenshot values)
-        $sample_rates = array(
-            array('bank_slug' => 'abb', 'buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
-            array('bank_slug' => 'unibank', 'buy' => 1.6929, 'sell' => 1.6929, 'cash_buy' => 1.6929, 'cash_sell' => 1.6929),
-            array('bank_slug' => 'yelo-bank', 'buy' => 1.7000, 'sell' => 1.7000, 'cash_buy' => 1.7000, 'cash_sell' => 1.7000),
-            array('bank_slug' => 'kapital-bank', 'buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
-            array('bank_slug' => 'turanbank', 'buy' => 1.6900, 'sell' => null, 'cash_buy' => 1.6900, 'cash_sell' => null),
-            array('bank_slug' => 'vtb', 'buy' => 1.6929, 'sell' => 1.6929, 'cash_buy' => 1.6929, 'cash_sell' => 1.6929),
-            array('bank_slug' => 'rabitabank', 'buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
-            array('bank_slug' => 'pasha-bank', 'buy' => 1.7000, 'sell' => 1.7000, 'cash_buy' => 1.7000, 'cash_sell' => 1.7000),
-            array('bank_slug' => 'af-bank', 'buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
-            array('bank_slug' => 'btb-bank', 'buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
-            array('bank_slug' => 'expressbank', 'buy' => 1.7000, 'sell' => 1.7000, 'cash_buy' => 1.7000, 'cash_sell' => 1.7000),
-            array('bank_slug' => 'access-bank', 'buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
-            array('bank_slug' => 'asb-bank', 'buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
-            array('bank_slug' => 'abb-intl', 'buy' => 1.7000, 'sell' => 1.7000, 'cash_buy' => 1.7000, 'cash_sell' => 1.7000),
-            array('bank_slug' => 'gunay-bank', 'buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
-            array('bank_slug' => 'yapi-kredi', 'buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
-            array('bank_slug' => 'fatima-mmc', 'buy' => null, 'sell' => null, 'cash_buy' => null, 'cash_sell' => null),
-            array('bank_slug' => 'bank-respublika', 'buy' => 1.7000, 'sell' => 1.7000, 'cash_buy' => 1.7000, 'cash_sell' => 1.7000),
+        // Insert sample rates for all currencies (USD, EUR, RUB, GBP, TRY)
+        $currencies_data = array(
+            'USD' => array(
+                'abb' => array('buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
+                'unibank' => array('buy' => 1.6929, 'sell' => 1.6929, 'cash_buy' => 1.6929, 'cash_sell' => 1.6929),
+                'yelo-bank' => array('buy' => 1.7000, 'sell' => 1.7000, 'cash_buy' => 1.7000, 'cash_sell' => 1.7000),
+                'kapital-bank' => array('buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
+                'turanbank' => array('buy' => 1.6900, 'sell' => null, 'cash_buy' => 1.6900, 'cash_sell' => null),
+                'vtb' => array('buy' => 1.6929, 'sell' => 1.6929, 'cash_buy' => 1.6929, 'cash_sell' => 1.6929),
+                'rabitabank' => array('buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
+                'pasha-bank' => array('buy' => 1.7000, 'sell' => 1.7000, 'cash_buy' => 1.7000, 'cash_sell' => 1.7000),
+                'af-bank' => array('buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
+                'btb-bank' => array('buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
+                'expressbank' => array('buy' => 1.7000, 'sell' => 1.7000, 'cash_buy' => 1.7000, 'cash_sell' => 1.7000),
+                'access-bank' => array('buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
+                'asb-bank' => array('buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
+                'abb-intl' => array('buy' => 1.7000, 'sell' => 1.7000, 'cash_buy' => 1.7000, 'cash_sell' => 1.7000),
+                'gunay-bank' => array('buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
+                'yapi-kredi' => array('buy' => 1.6900, 'sell' => 1.6900, 'cash_buy' => 1.6900, 'cash_sell' => 1.6900),
+                'fatima-mmc' => array('buy' => null, 'sell' => null, 'cash_buy' => null, 'cash_sell' => null),
+                'bank-respublika' => array('buy' => 1.7000, 'sell' => 1.7000, 'cash_buy' => 1.7000, 'cash_sell' => 1.7000),
+            ),
+            'EUR' => array(
+                'abb' => array('buy' => 1.8200, 'sell' => 1.8250, 'cash_buy' => 1.8150, 'cash_sell' => 1.8300),
+                'unibank' => array('buy' => 1.8220, 'sell' => 1.8270, 'cash_buy' => 1.8170, 'cash_sell' => 1.8320),
+                'yelo-bank' => array('buy' => 1.8300, 'sell' => 1.8350, 'cash_buy' => 1.8250, 'cash_sell' => 1.8400),
+                'kapital-bank' => array('buy' => 1.8200, 'sell' => 1.8250, 'cash_buy' => 1.8150, 'cash_sell' => 1.8300),
+                'turanbank' => array('buy' => 1.8200, 'sell' => null, 'cash_buy' => 1.8150, 'cash_sell' => null),
+                'vtb' => array('buy' => 1.8220, 'sell' => 1.8270, 'cash_buy' => 1.8170, 'cash_sell' => 1.8320),
+                'rabitabank' => array('buy' => 1.8200, 'sell' => 1.8250, 'cash_buy' => 1.8150, 'cash_sell' => 1.8300),
+                'pasha-bank' => array('buy' => 1.8300, 'sell' => 1.8350, 'cash_buy' => 1.8250, 'cash_sell' => 1.8400),
+                'af-bank' => array('buy' => 1.8200, 'sell' => 1.8250, 'cash_buy' => 1.8150, 'cash_sell' => 1.8300),
+                'btb-bank' => array('buy' => 1.8200, 'sell' => 1.8250, 'cash_buy' => 1.8150, 'cash_sell' => 1.8300),
+                'expressbank' => array('buy' => 1.8300, 'sell' => 1.8350, 'cash_buy' => 1.8250, 'cash_sell' => 1.8400),
+                'access-bank' => array('buy' => 1.8200, 'sell' => 1.8250, 'cash_buy' => 1.8150, 'cash_sell' => 1.8300),
+                'asb-bank' => array('buy' => 1.8200, 'sell' => 1.8250, 'cash_buy' => 1.8150, 'cash_sell' => 1.8300),
+                'abb-intl' => array('buy' => 1.8300, 'sell' => 1.8350, 'cash_buy' => 1.8250, 'cash_sell' => 1.8400),
+                'gunay-bank' => array('buy' => 1.8200, 'sell' => 1.8250, 'cash_buy' => 1.8150, 'cash_sell' => 1.8300),
+                'yapi-kredi' => array('buy' => 1.8200, 'sell' => 1.8250, 'cash_buy' => 1.8150, 'cash_sell' => 1.8300),
+                'fatima-mmc' => array('buy' => null, 'sell' => null, 'cash_buy' => null, 'cash_sell' => null),
+                'bank-respublika' => array('buy' => 1.8300, 'sell' => 1.8350, 'cash_buy' => 1.8250, 'cash_sell' => 1.8400),
+            ),
+            'RUB' => array(
+                'abb' => array('buy' => 0.0175, 'sell' => 0.0180, 'cash_buy' => 0.0170, 'cash_sell' => 0.0185),
+                'unibank' => array('buy' => 0.0176, 'sell' => 0.0181, 'cash_buy' => 0.0171, 'cash_sell' => 0.0186),
+                'yelo-bank' => array('buy' => 0.0178, 'sell' => 0.0183, 'cash_buy' => 0.0173, 'cash_sell' => 0.0188),
+                'kapital-bank' => array('buy' => 0.0175, 'sell' => 0.0180, 'cash_buy' => 0.0170, 'cash_sell' => 0.0185),
+                'turanbank' => array('buy' => 0.0175, 'sell' => null, 'cash_buy' => 0.0170, 'cash_sell' => null),
+                'vtb' => array('buy' => 0.0176, 'sell' => 0.0181, 'cash_buy' => 0.0171, 'cash_sell' => 0.0186),
+                'rabitabank' => array('buy' => 0.0175, 'sell' => 0.0180, 'cash_buy' => 0.0170, 'cash_sell' => 0.0185),
+                'pasha-bank' => array('buy' => 0.0178, 'sell' => 0.0183, 'cash_buy' => 0.0173, 'cash_sell' => 0.0188),
+                'af-bank' => array('buy' => 0.0175, 'sell' => 0.0180, 'cash_buy' => 0.0170, 'cash_sell' => 0.0185),
+                'btb-bank' => array('buy' => 0.0175, 'sell' => 0.0180, 'cash_buy' => 0.0170, 'cash_sell' => 0.0185),
+                'expressbank' => array('buy' => 0.0178, 'sell' => 0.0183, 'cash_buy' => 0.0173, 'cash_sell' => 0.0188),
+                'access-bank' => array('buy' => 0.0175, 'sell' => 0.0180, 'cash_buy' => 0.0170, 'cash_sell' => 0.0185),
+                'asb-bank' => array('buy' => 0.0175, 'sell' => 0.0180, 'cash_buy' => 0.0170, 'cash_sell' => 0.0185),
+                'abb-intl' => array('buy' => 0.0178, 'sell' => 0.0183, 'cash_buy' => 0.0173, 'cash_sell' => 0.0188),
+                'gunay-bank' => array('buy' => 0.0175, 'sell' => 0.0180, 'cash_buy' => 0.0170, 'cash_sell' => 0.0185),
+                'yapi-kredi' => array('buy' => 0.0175, 'sell' => 0.0180, 'cash_buy' => 0.0170, 'cash_sell' => 0.0185),
+                'fatima-mmc' => array('buy' => null, 'sell' => null, 'cash_buy' => null, 'cash_sell' => null),
+                'bank-respublika' => array('buy' => 0.0178, 'sell' => 0.0183, 'cash_buy' => 0.0173, 'cash_sell' => 0.0188),
+            ),
+            'GBP' => array(
+                'abb' => array('buy' => 2.1500, 'sell' => 2.1600, 'cash_buy' => 2.1400, 'cash_sell' => 2.1700),
+                'unibank' => array('buy' => 2.1520, 'sell' => 2.1620, 'cash_buy' => 2.1420, 'cash_sell' => 2.1720),
+                'yelo-bank' => array('buy' => 2.1600, 'sell' => 2.1700, 'cash_buy' => 2.1500, 'cash_sell' => 2.1800),
+                'kapital-bank' => array('buy' => 2.1500, 'sell' => 2.1600, 'cash_buy' => 2.1400, 'cash_sell' => 2.1700),
+                'turanbank' => array('buy' => 2.1500, 'sell' => null, 'cash_buy' => 2.1400, 'cash_sell' => null),
+                'vtb' => array('buy' => 2.1520, 'sell' => 2.1620, 'cash_buy' => 2.1420, 'cash_sell' => 2.1720),
+                'rabitabank' => array('buy' => 2.1500, 'sell' => 2.1600, 'cash_buy' => 2.1400, 'cash_sell' => 2.1700),
+                'pasha-bank' => array('buy' => 2.1600, 'sell' => 2.1700, 'cash_buy' => 2.1500, 'cash_sell' => 2.1800),
+                'af-bank' => array('buy' => 2.1500, 'sell' => 2.1600, 'cash_buy' => 2.1400, 'cash_sell' => 2.1700),
+                'btb-bank' => array('buy' => 2.1500, 'sell' => 2.1600, 'cash_buy' => 2.1400, 'cash_sell' => 2.1700),
+                'expressbank' => array('buy' => 2.1600, 'sell' => 2.1700, 'cash_buy' => 2.1500, 'cash_sell' => 2.1800),
+                'access-bank' => array('buy' => 2.1500, 'sell' => 2.1600, 'cash_buy' => 2.1400, 'cash_sell' => 2.1700),
+                'asb-bank' => array('buy' => 2.1500, 'sell' => 2.1600, 'cash_buy' => 2.1400, 'cash_sell' => 2.1700),
+                'abb-intl' => array('buy' => 2.1600, 'sell' => 2.1700, 'cash_buy' => 2.1500, 'cash_sell' => 2.1800),
+                'gunay-bank' => array('buy' => 2.1500, 'sell' => 2.1600, 'cash_buy' => 2.1400, 'cash_sell' => 2.1700),
+                'yapi-kredi' => array('buy' => 2.1500, 'sell' => 2.1600, 'cash_buy' => 2.1400, 'cash_sell' => 2.1700),
+                'fatima-mmc' => array('buy' => null, 'sell' => null, 'cash_buy' => null, 'cash_sell' => null),
+                'bank-respublika' => array('buy' => 2.1600, 'sell' => 2.1700, 'cash_buy' => 2.1500, 'cash_sell' => 2.1800),
+            ),
+            'TRY' => array(
+                'abb' => array('buy' => 0.0485, 'sell' => 0.0495, 'cash_buy' => 0.0480, 'cash_sell' => 0.0500),
+                'unibank' => array('buy' => 0.0487, 'sell' => 0.0497, 'cash_buy' => 0.0482, 'cash_sell' => 0.0502),
+                'yelo-bank' => array('buy' => 0.0490, 'sell' => 0.0500, 'cash_buy' => 0.0485, 'cash_sell' => 0.0505),
+                'kapital-bank' => array('buy' => 0.0485, 'sell' => 0.0495, 'cash_buy' => 0.0480, 'cash_sell' => 0.0500),
+                'turanbank' => array('buy' => 0.0485, 'sell' => null, 'cash_buy' => 0.0480, 'cash_sell' => null),
+                'vtb' => array('buy' => 0.0487, 'sell' => 0.0497, 'cash_buy' => 0.0482, 'cash_sell' => 0.0502),
+                'rabitabank' => array('buy' => 0.0485, 'sell' => 0.0495, 'cash_buy' => 0.0480, 'cash_sell' => 0.0500),
+                'pasha-bank' => array('buy' => 0.0490, 'sell' => 0.0500, 'cash_buy' => 0.0485, 'cash_sell' => 0.0505),
+                'af-bank' => array('buy' => 0.0485, 'sell' => 0.0495, 'cash_buy' => 0.0480, 'cash_sell' => 0.0500),
+                'btb-bank' => array('buy' => 0.0485, 'sell' => 0.0495, 'cash_buy' => 0.0480, 'cash_sell' => 0.0500),
+                'expressbank' => array('buy' => 0.0490, 'sell' => 0.0500, 'cash_buy' => 0.0485, 'cash_sell' => 0.0505),
+                'access-bank' => array('buy' => 0.0485, 'sell' => 0.0495, 'cash_buy' => 0.0480, 'cash_sell' => 0.0500),
+                'asb-bank' => array('buy' => 0.0485, 'sell' => 0.0495, 'cash_buy' => 0.0480, 'cash_sell' => 0.0500),
+                'abb-intl' => array('buy' => 0.0490, 'sell' => 0.0500, 'cash_buy' => 0.0485, 'cash_sell' => 0.0505),
+                'gunay-bank' => array('buy' => 0.0485, 'sell' => 0.0495, 'cash_buy' => 0.0480, 'cash_sell' => 0.0500),
+                'yapi-kredi' => array('buy' => 0.0485, 'sell' => 0.0495, 'cash_buy' => 0.0480, 'cash_sell' => 0.0500),
+                'fatima-mmc' => array('buy' => null, 'sell' => null, 'cash_buy' => null, 'cash_sell' => null),
+                'bank-respublika' => array('buy' => 0.0490, 'sell' => 0.0500, 'cash_buy' => 0.0485, 'cash_sell' => 0.0505),
+            ),
         );
         
-        foreach ($sample_rates as $rate_data) {
-            $bank = $wpdb->get_row($wpdb->prepare("SELECT id FROM $this->table_banks WHERE slug = %s", $rate_data['bank_slug']));
-            if ($bank) {
-                $wpdb->insert($this->table_rates, array(
-                    'bank_id' => $bank->id,
-                    'currency_code' => 'USD',
-                    'buy_rate' => $rate_data['buy'],
-                    'sell_rate' => $rate_data['sell'],
-                    'cash_buy_rate' => $rate_data['cash_buy'],
-                    'cash_sell_rate' => $rate_data['cash_sell']
-                ));
+        // Insert rates for all currencies
+        foreach ($currencies_data as $currency => $currency_rates) {
+            foreach ($currency_rates as $bank_slug => $rates) {
+                $bank = $wpdb->get_row($wpdb->prepare("SELECT id FROM $this->table_banks WHERE slug = %s", $bank_slug));
+                if ($bank) {
+                    $wpdb->insert($this->table_rates, array(
+                        'bank_id' => $bank->id,
+                        'currency_code' => $currency,
+                        'buy_rate' => $rates['buy'],
+                        'sell_rate' => $rates['sell'],
+                        'cash_buy_rate' => $rates['cash_buy'],
+                        'cash_sell_rate' => $rates['cash_sell']
+                    ));
+                }
             }
         }
     }
