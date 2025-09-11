@@ -9,12 +9,8 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 // Include Financial Calculator Shortcode
 require_once get_template_directory() . '/calculator-shortcode.php';
 
-// Include Custom Multilingual System
-require_once get_template_directory() . '/multilingual-system.php';
-require_once get_template_directory() . '/multilingual-menu-setup.php';
-require_once get_template_directory() . '/multilingual-ajax-handlers.php';
-require_once get_template_directory() . '/multilingual-template-functions.php';
-require_once get_template_directory() . '/multilingual-activation.php';
+// Multilingual System moved to plugin: wp-content/plugins/budcedostu-multilingual/
+// The multilingual functionality is now handled by the "Budcedostu Multilingual System" plugin
 
 /*
  * Works with PHP 5.3 or Later
