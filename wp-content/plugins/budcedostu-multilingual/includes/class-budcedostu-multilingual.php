@@ -72,8 +72,8 @@ class BudcedostuMultilingual {
         // Menu handling
         add_filter('wp_nav_menu_args', array($this, 'language_specific_menu'));
         
-        // Search modifications
-        add_action('pre_get_posts', array($this, 'modify_search_query'));
+        // Query modifications for language isolation
+        add_action('pre_get_posts', array($this, 'filter_posts_by_language'));
         
         // Save post hook to ensure language is set
         add_action('save_post', array($this, 'ensure_post_language'), 5, 1);
@@ -518,6 +518,57 @@ class BudcedostuMultilingual {
             'side',
             'high'
         );
+        
+        // Handle translation creation from + icon clicks
+        $this->handle_translation_creation();
+    }
+    
+    /**
+     * Handle translation creation when clicking + icons
+     */
+    private function handle_translation_creation() {
+        global $pagenow;
+        
+        if ($pagenow === 'post-new.php' && isset($_GET['translate_from']) && isset($_GET['target_lang'])) {
+            $source_post_id = intval($_GET['translate_from']);
+            $target_language = sanitize_text_field($_GET['target_lang']);
+            
+            // Validate inputs
+            if ($source_post_id > 0 && isset($this->languages[$target_language])) {
+                $source_post = get_post($source_post_id);
+                if ($source_post) {
+                    // Add script to populate form with translation data
+                    add_action('admin_footer', function() use ($source_post, $target_language) {
+                        echo '<script>
+                        jQuery(document).ready(function($) {
+                            // Set the language
+                            $("#budcedostu_post_language").val("' . $target_language . '");
+                            
+                            // Copy title with language prefix
+                            var originalTitle = "' . esc_js($source_post->post_title) . '";
+                            var langPrefix = "' . strtoupper($target_language) . ': ";
+                            if ($("#title").val() === "") {
+                                $("#title").val(langPrefix + originalTitle);
+                            }
+                            
+                            // Store source post ID for linking
+                            if ($("#content").length > 0 && $("#content").val() === "") {
+                                var notice = "<p><em>Translate from: " + originalTitle + " (ID: ' . $source_post_id . ')</em></p>";
+                                $("#content").val(notice);
+                            }
+                            
+                            // Add hidden field to track source
+                            $("<input>").attr({
+                                type: "hidden",
+                                name: "budcedostu_translate_from",
+                                value: "' . $source_post_id . '"
+                            }).appendTo("#post");
+                        });
+                        </script>';
+                    });
+                }
+            }
+        }
     }
     
     /**
@@ -631,6 +682,20 @@ class BudcedostuMultilingual {
                 $this->set_post_language($post_id, $language);
             }
         }
+        
+        // Handle translation linking from + icon clicks
+        if (isset($_POST['budcedostu_translate_from']) && !empty($_POST['budcedostu_translate_from'])) {
+            $source_post_id = intval($_POST['budcedostu_translate_from']);
+            if ($source_post_id > 0 && $source_post_id !== $post_id) {
+                // Link this post as a translation of the source post
+                $source_language = $this->get_post_language($source_post_id);
+                $target_language = $this->get_post_language($post_id);
+                
+                if ($source_language !== $target_language) {
+                    $this->add_translation($source_post_id, $post_id, $target_language);
+                }
+            }
+        }
     }
     
     /**
@@ -642,13 +707,44 @@ class BudcedostuMultilingual {
     }
     
     /**
-     * Display language in columns
+     * Display language in columns (WPML style)
      */
     public function display_language_columns($column, $post_id) {
         if ($column == 'budcedostu_language') {
-            $language = $this->get_post_language($post_id);
-            $lang_data = isset($this->languages[$language]) ? $this->languages[$language] : $this->languages[$this->default_language];
-            echo $lang_data['flag'] . ' ' . strtoupper($language);
+            $translations = $this->get_all_translations($post_id);
+            $current_post_type = get_post_type($post_id);
+            
+            echo '<div class="budcedostu-language-flags" style="display: flex; gap: 2px;">';
+            
+            foreach ($this->languages as $lang_code => $lang_data) {
+                if (isset($translations[$lang_code])) {
+                    // Translation exists
+                    if ($translations[$lang_code] == $post_id) {
+                        // Current post
+                        echo '<span title="' . $lang_data['name'] . ' (Current)" style="padding: 2px 4px; background: #0073aa; color: white; border-radius: 3px; font-size: 11px; font-weight: bold;">';
+                        echo $lang_data['flag'];
+                        echo '</span>';
+                    } else {
+                        // Translation exists - link to edit
+                        $translation_post = get_post($translations[$lang_code]);
+                        if ($translation_post && $translation_post->post_status !== 'trash') {
+                            $edit_url = admin_url('post.php?post=' . $translations[$lang_code] . '&action=edit');
+                            $status_color = ($translation_post->post_status === 'publish') ? '#46b450' : '#ffb900';
+                            echo '<a href="' . $edit_url . '" title="Edit ' . $lang_data['name'] . ' translation (' . ucfirst($translation_post->post_status) . ')" style="padding: 2px 4px; background: ' . $status_color . '; color: white; border-radius: 3px; text-decoration: none; font-size: 11px; font-weight: bold;">';
+                            echo $lang_data['flag'];
+                            echo '</a>';
+                        }
+                    }
+                } else {
+                    // No translation - show + icon
+                    $create_url = admin_url('post-new.php?post_type=' . $current_post_type . '&translate_from=' . $post_id . '&target_lang=' . $lang_code);
+                    echo '<a href="' . $create_url . '" title="Add ' . $lang_data['name'] . ' translation" style="padding: 2px 4px; background: #ddd; color: #666; border-radius: 3px; text-decoration: none; font-size: 11px; font-weight: bold; border: 1px dashed #999;">';
+                    echo '+';
+                    echo '</a>';
+                }
+            }
+            
+            echo '</div>';
         }
     }
     
@@ -742,7 +838,49 @@ class BudcedostuMultilingual {
     /**
      * Modify search query (stub)
      */
-    public function modify_search_query($query) {
+    /**
+     * Filter posts by current language (Language Isolation)
+     */
+    public function filter_posts_by_language($query) {
+        // Skip if in admin area
+        if (is_admin()) {
+            return $query;
+        }
+        
+        // Skip if not the main query
+        if (!$query->is_main_query()) {
+            return $query;
+        }
+        
+        // Get current language
+        $current_language = $this->get_current_language();
+        
+        // Create language filter with fallback for posts without language meta
+        $meta_query = $query->get('meta_query') ?: array();
+        
+        if ($current_language === $this->default_language) {
+            // For default language, include posts with no language meta OR default language
+            $meta_query['relation'] = 'OR';
+            $meta_query[] = array(
+                'key' => '_budcedostu_language',
+                'value' => $current_language,
+                'compare' => '='
+            );
+            $meta_query[] = array(
+                'key' => '_budcedostu_language',
+                'compare' => 'NOT EXISTS'
+            );
+        } else {
+            // For non-default languages, only show posts explicitly set to that language
+            $meta_query[] = array(
+                'key' => '_budcedostu_language',
+                'value' => $current_language,
+                'compare' => '='
+            );
+        }
+        
+        $query->set('meta_query', $meta_query);
+        
         return $query;
     }
     
