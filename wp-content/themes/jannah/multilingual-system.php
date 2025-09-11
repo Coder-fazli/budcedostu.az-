@@ -82,12 +82,15 @@ class BudcedostuMultilingual {
         // Sitemap modifications
         add_filter('wp_sitemaps_posts_entry', array($this, 'filter_sitemap_entry'), 10, 3);
         
-        // TEMPORARILY DISABLED - Permalink modifications causing double domains
-        // add_filter('post_link', array($this, 'modify_post_permalink'), 10, 3);
-        // add_filter('page_link', array($this, 'modify_page_permalink'), 10, 2);
+        // Permalink modifications - Re-enabled with fixes
+        add_filter('post_link', array($this, 'modify_post_permalink'), 10, 3);
+        add_filter('page_link', array($this, 'modify_page_permalink'), 10, 2);
         
         // Save post hook to ensure language is set
         add_action('save_post', array($this, 'ensure_post_language'), 5, 1);
+        
+        // Enforce locale-specific slugs
+        add_action('save_post', array($this, 'enforce_locale_specific_slugs'), 10, 1);
         
         // Protect WordPress admin bar from multilingual interference
         add_action('wp_before_admin_bar_render', array($this, 'preserve_admin_bar_structure'), 1);
@@ -109,6 +112,15 @@ class BudcedostuMultilingual {
         
         // Simple redirect solution for WordPress assets with language prefix
         add_action('template_redirect', array($this, 'redirect_wp_assets'), 1);
+        
+        // Canonicalization - redirect unprefixed/wrong-locale URLs to correct canonical URLs
+        add_action('template_redirect', array($this, 'canonicalize_urls'), 5);
+        
+        // Debug function for troubleshooting URL issues
+        add_action('wp_footer', array($this, 'debug_url_info'));
+        
+        // Force flush rewrite rules on admin visits to refresh URL structure
+        add_action('admin_init', array($this, 'maybe_flush_rewrite_rules'));
     }
     
     /**
@@ -486,19 +498,19 @@ class BudcedostuMultilingual {
         $current_post_lang = $this->get_post_language($post_id);
         
         if ($current_post_lang == $lang) {
-            // This is the current language version
-            echo '<span style="color: green; font-weight: bold;">●</span>';
+            // This is the current language version - show green dot
+            echo '<span style="color: green; font-weight: bold;" title="Current language">●</span>';
         } else {
-            // Check if translation exists
+            // Check if translation exists for this language
             $translation_id = $this->get_translation_id($post_id, $lang);
-            if ($translation_id) {
-                // Translation exists - show edit link
+            if ($translation_id && get_post_status($translation_id) === 'publish') {
+                // Translation exists and is published - show blue edit link
                 $edit_url = admin_url('post.php?post=' . $translation_id . '&action=edit');
-                echo '<a href="' . $edit_url . '" style="color: blue;">●</a>';
+                echo '<a href="' . $edit_url . '" style="color: blue;" title="Edit ' . strtoupper($lang) . ' translation">●</a>';
             } else {
-                // No translation - show + button
+                // No translation exists - show + button ONLY if translation doesn't exist
                 $create_url = $this->get_create_translation_url($post_id, $lang);
-                echo '<a href="' . $create_url . '" style="color: #ccc; text-decoration: none; font-size: 16px;">+</a>';
+                echo '<a href="' . $create_url . '" style="color: #999; text-decoration: none; font-size: 14px; font-weight: bold;" title="Create ' . strtoupper($lang) . ' translation">+</a>';
             }
         }
     }
@@ -529,12 +541,14 @@ class BudcedostuMultilingual {
                 echo '<p>';
                 echo '<strong>' . $lang_data['name'] . ' (' . strtoupper($lang_code) . '):</strong> ';
                 
-                if ($translation_id) {
+                if ($translation_id && get_post_status($translation_id) === 'publish') {
+                    // Translation exists and is published
                     $edit_url = admin_url('post.php?post=' . $translation_id . '&action=edit');
-                    echo '<a href="' . $edit_url . '">Edit</a>';
+                    echo '<a href="' . $edit_url . '" style="color: blue;">✓ Edit</a>';
                 } else {
+                    // No translation exists - show create link
                     $create_url = $this->get_create_translation_url($post->ID, $lang_code);
-                    echo '<a href="' . $create_url . '">+ Create</a>';
+                    echo '<a href="' . $create_url . '" style="color: #0073aa;">+ Create</a>';
                 }
                 echo '</p>';
             }
@@ -780,28 +794,33 @@ class BudcedostuMultilingual {
             return $permalink;
         }
         
-        // If this is already a non-default language post, don't modify
-        if ($this->get_current_language() !== $this->default_language) {
-            return $permalink;
-        }
-        
         $post_language = $this->get_post_language($post->ID);
         
         // Only modify if post is in a non-default language
         if ($post_language !== $this->default_language && isset($this->languages[$post_language])) {
             $lang_prefix = $this->languages[$post_language]['url_prefix'];
             
+            // Check if permalink already has the correct language prefix
+            if (strpos($permalink, '/' . $lang_prefix . '/') !== false) {
+                return $permalink;
+            }
+            
             // Get clean base URL
             $site_url = untrailingslashit(home_url());
             
-            // Get the post slug/path
-            $post_name = $post->post_name;
-            if (empty($post_name)) {
-                $post_name = sanitize_title($post->post_title);
-            }
+            // Extract the post slug from current permalink
+            $parsed_url = parse_url($permalink);
+            $path = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+            $path = trim($path, '/');
             
-            // Build clean URL from scratch
-            $permalink = $site_url . '/' . $lang_prefix . '/' . $post_name . '/';
+            // Remove any existing language prefixes
+            $path = preg_replace('#^(ru|en)/#', '', $path);
+            
+            // Build clean URL with correct language prefix
+            $permalink = $site_url . '/' . $lang_prefix . '/' . $path;
+            if (!empty($path)) {
+                $permalink .= '/';
+            }
         }
         
         return $permalink;
@@ -828,27 +847,27 @@ class BudcedostuMultilingual {
                 return home_url('/' . $lang_prefix . '/');
             }
             
-            // Check if permalink already contains the language prefix
+            // Check if permalink already has the correct language prefix
             if (strpos($permalink, '/' . $lang_prefix . '/') !== false) {
-                // Already has language prefix, return as-is
                 return $permalink;
             }
             
-            // Clean up malformed URLs with multiple domains
+            // Get clean base URL
             $site_url = untrailingslashit(home_url());
             
-            // Remove multiple occurrences of the site URL
-            $clean_url = $permalink;
-            while (strpos($clean_url, $site_url) !== false) {
-                $clean_url = str_replace($site_url, '', $clean_url);
+            // Extract the page path from current permalink
+            $parsed_url = parse_url($permalink);
+            $path = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+            $path = trim($path, '/');
+            
+            // Remove any existing language prefixes
+            $path = preg_replace('#^(ru|en)/#', '', $path);
+            
+            // Build clean URL with correct language prefix
+            $permalink = $site_url . '/' . $lang_prefix . '/' . $path;
+            if (!empty($path)) {
+                $permalink .= '/';
             }
-            
-            // Clean up any remaining protocols and slashes
-            $clean_url = preg_replace('#^https?://#', '', $clean_url);
-            $clean_url = ltrim($clean_url, '/');
-            
-            // Build clean URL with language prefix
-            $permalink = $site_url . '/' . $lang_prefix . '/' . $clean_url;
         }
         
         return $permalink;
@@ -872,6 +891,72 @@ class BudcedostuMultilingual {
         // Check if this post is a translation of the homepage
         $translation_group = $this->get_all_translations($homepage_id);
         return in_array($post_id, $translation_group);
+    }
+    
+    /**
+     * Enforce locale-specific slugs to prevent slug reuse across languages
+     */
+    public function enforce_locale_specific_slugs($post_id) {
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+        
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+        
+        $post = get_post($post_id);
+        if (!$post || $post->post_status !== 'publish') {
+            return;
+        }
+        
+        $post_language = $this->get_post_language($post_id);
+        $post_slug = $post->post_name;
+        
+        // Check if this slug is already used by another language version
+        global $wpdb;
+        $conflicting_posts = $wpdb->get_results($wpdb->prepare("
+            SELECT p.ID, pm.meta_value as language 
+            FROM {$wpdb->posts} p 
+            LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_budcedostu_language'
+            WHERE p.post_name = %s 
+            AND p.post_type = %s 
+            AND p.post_status = 'publish'
+            AND p.ID != %d
+        ", $post_slug, $post->post_type, $post_id));
+        
+        if (!empty($conflicting_posts)) {
+            foreach ($conflicting_posts as $conflicting_post) {
+                $conflicting_language = $conflicting_post->language ?: $this->default_language;
+                
+                // If slug conflict exists with different language, add language suffix
+                if ($conflicting_language !== $post_language) {
+                    $new_slug = $post_slug . '-' . $post_language;
+                    
+                    // Make sure this new slug is unique
+                    $counter = 1;
+                    $temp_slug = $new_slug;
+                    while ($wpdb->get_var($wpdb->prepare(
+                        "SELECT ID FROM {$wpdb->posts} WHERE post_name = %s AND post_type = %s AND post_status = 'publish' AND ID != %d",
+                        $temp_slug, $post->post_type, $post_id
+                    ))) {
+                        $temp_slug = $new_slug . '-' . $counter;
+                        $counter++;
+                    }
+                    
+                    // Update the post slug
+                    $wpdb->update(
+                        $wpdb->posts,
+                        array('post_name' => $temp_slug),
+                        array('ID' => $post_id),
+                        array('%s'),
+                        array('%d')
+                    );
+                    
+                    break;
+                }
+            }
+        }
     }
     
     /**
@@ -917,21 +1002,23 @@ class BudcedostuMultilingual {
             if ($current_post_id) {
                 $translation_id = ($lang_code == $current_lang) ? $current_post_id : $this->get_translation_id($current_post_id, $lang_code);
                 
-                if ($translation_id) {
+                // Only show link if translation exists and is published
+                if ($translation_id && get_post_status($translation_id) === 'publish') {
                     $url = $this->get_permalink_for_language($translation_id, $lang_code);
-                    $html .= '<a href="' . $url . '" class="lang-switch ' . $class . '" data-lang="' . $lang_code . '">';
+                    $html .= '<a href="' . $url . '" class="lang-switch ' . $class . '" data-lang="' . $lang_code . '" title="' . $lang_data['name'] . ' version">';
                     $html .= $lang_data['flag'] . ' ' . $lang_data['name'];
                     $html .= '</a>';
-                } else {
-                    // No translation available - gray out
-                    $html .= '<span class="lang-switch disabled ' . $class . '" data-lang="' . $lang_code . '">';
+                } elseif ($current_lang == $lang_code) {
+                    // Current language - always show even if it's the only one
+                    $html .= '<span class="lang-switch current ' . $class . '" data-lang="' . $lang_code . '" title="Currently viewing in ' . $lang_data['name'] . '">';
                     $html .= $lang_data['flag'] . ' ' . $lang_data['name'];
                     $html .= '</span>';
                 }
+                // Don't show anything for missing translations (no grayed out links)
             } else {
-                // For homepage and archives
+                // For homepage and archives - always show all languages
                 $url = ($lang_code == $this->default_language) ? home_url('/') : home_url('/' . $lang_data['url_prefix'] . '/');
-                $html .= '<a href="' . $url . '" class="lang-switch ' . $class . '" data-lang="' . $lang_code . '">';
+                $html .= '<a href="' . $url . '" class="lang-switch ' . $class . '" data-lang="' . $lang_code . '" title="Switch to ' . $lang_data['name'] . '">';
                 $html .= $lang_data['flag'] . ' ' . $lang_data['name'];
                 $html .= '</a>';
             }
@@ -1065,6 +1152,59 @@ class BudcedostuMultilingual {
             // Perform 301 redirect to correct URL
             wp_redirect($redirect_url, 301);
             exit;
+        }
+    }
+    
+    /**
+     * Canonicalize URLs - redirect unprefixed or wrong-locale URLs to correct canonical URLs
+     */
+    public function canonicalize_urls() {
+        // Don't interfere with admin, AJAX, or feeds
+        if (is_admin() || wp_doing_ajax() || is_feed()) {
+            return;
+        }
+        
+        $request_uri = $_SERVER['REQUEST_URI'];
+        $current_url = home_url($request_uri);
+        
+        // Skip WordPress core directories
+        if (preg_match('#/(wp-admin|wp-includes|wp-content)/#', $request_uri)) {
+            return;
+        }
+        
+        // Get current detected language
+        $detected_lang = $this->get_current_language();
+        
+        // Check if we're on a singular post/page
+        if (is_singular()) {
+            $post_id = get_queried_object_id();
+            $post_lang = $this->get_post_language($post_id);
+            
+            // Get the canonical URL for this post in its proper language
+            $canonical_url = $this->get_permalink_for_language($post_id, $post_lang);
+            
+            // If current URL doesn't match canonical URL, redirect
+            if (untrailingslashit($current_url) !== untrailingslashit($canonical_url)) {
+                wp_redirect($canonical_url, 301);
+                exit;
+            }
+        }
+        // Handle homepage canonicalization
+        elseif (is_home() || is_front_page()) {
+            $correct_url = null;
+            
+            // If we detected a language from URL but we're on homepage
+            if ($detected_lang !== $this->default_language) {
+                $correct_url = home_url('/' . $this->languages[$detected_lang]['url_prefix'] . '/');
+            } else {
+                // Default language homepage should not have prefix
+                $correct_url = home_url('/');
+            }
+            
+            if ($correct_url && untrailingslashit($current_url) !== untrailingslashit($correct_url)) {
+                wp_redirect($correct_url, 301);
+                exit;
+            }
         }
     }
     
