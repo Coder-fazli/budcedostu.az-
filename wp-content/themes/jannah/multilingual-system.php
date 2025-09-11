@@ -62,8 +62,6 @@ class BudcedostuMultilingual {
         add_action('manage_posts_custom_column', array($this, 'display_language_columns'), 10, 2);
         add_action('manage_pages_custom_column', array($this, 'display_language_columns'), 10, 2);
         
-        // Fix admin bar issues on frontend
-        add_action('wp_before_admin_bar_render', array($this, 'fix_admin_bar_render'));
         
         // Frontend
         add_action('wp_head', array($this, 'add_hreflang_tags'));
@@ -578,18 +576,6 @@ class BudcedostuMultilingual {
             'languages' => $this->languages
         ));
     }
-    
-    /**
-     * Fix admin bar rendering issues
-     */
-    public function fix_admin_bar_render() {
-        // Make sure WordPress admin bar CSS and JS are properly loaded
-        if (!is_admin() && is_admin_bar_showing()) {
-            wp_enqueue_style('admin-bar');
-            wp_enqueue_script('admin-bar');
-        }
-    }
-    
     
     public function admin_enqueue_scripts($hook) {
         if (in_array($hook, array('edit.php', 'post.php', 'post-new.php'))) {
