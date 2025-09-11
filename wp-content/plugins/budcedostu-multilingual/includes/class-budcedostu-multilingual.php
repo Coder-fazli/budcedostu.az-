@@ -87,6 +87,9 @@ class BudcedostuMultilingual {
         
         // Template redirect for language handling
         add_action('template_redirect', array($this, 'handle_language_redirects'), 1);
+        
+        // Language-aware home URL
+        add_filter('home_url', array($this, 'language_aware_home_url'), 10, 2);
     }
     
     /**
@@ -836,8 +839,27 @@ class BudcedostuMultilingual {
     }
     
     /**
-     * Modify search query (stub)
+     * Make home URL language-aware (for logo clicks)
      */
+    public function language_aware_home_url($url, $path = '') {
+        // Skip if in admin area
+        if (is_admin()) {
+            return $url;
+        }
+        
+        // Only modify if requesting home URL without path
+        if (empty($path) || $path === '/') {
+            $current_language = $this->get_current_language();
+            
+            // For non-default languages, add language prefix
+            if ($current_language !== $this->default_language) {
+                $url = home_url('/' . $this->languages[$current_language]['url_prefix'] . '/');
+            }
+        }
+        
+        return $url;
+    }
+    
     /**
      * Filter posts by current language (Language Isolation)
      */
@@ -859,16 +881,25 @@ class BudcedostuMultilingual {
         $meta_query = $query->get('meta_query') ?: array();
         
         if ($current_language === $this->default_language) {
-            // For default language, include posts with no language meta OR default language
-            $meta_query['relation'] = 'OR';
+            // For default language, ONLY show posts explicitly set to AZ or posts without language meta
+            // BUT exclude posts explicitly set to RU or EN
+            $meta_query['relation'] = 'AND';
             $meta_query[] = array(
-                'key' => '_budcedostu_language',
-                'value' => $current_language,
-                'compare' => '='
+                'relation' => 'OR',
+                array(
+                    'key' => '_budcedostu_language',
+                    'value' => $current_language,
+                    'compare' => '='
+                ),
+                array(
+                    'key' => '_budcedostu_language',
+                    'compare' => 'NOT EXISTS'
+                )
             );
             $meta_query[] = array(
                 'key' => '_budcedostu_language',
-                'compare' => 'NOT EXISTS'
+                'value' => array('ru', 'en'),
+                'compare' => 'NOT IN'
             );
         } else {
             // For non-default languages, only show posts explicitly set to that language

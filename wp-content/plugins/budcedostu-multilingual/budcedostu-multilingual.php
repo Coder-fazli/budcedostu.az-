@@ -89,25 +89,50 @@ register_deactivation_hook(__FILE__, 'budcedostu_multilingual_deactivate');
  * Helper functions for templates
  */
 function budcedostu_get_current_language() {
+    // Check if plugin is active
+    if (!is_plugin_active(BUDCEDOSTU_MULTILINGUAL_PLUGIN_BASENAME)) {
+        return 'az';
+    }
+    
     global $budcedostu_multilingual;
     return $budcedostu_multilingual ? $budcedostu_multilingual->get_current_language() : 'az';
 }
 
 function budcedostu_get_language_switcher($post_id = null) {
+    // Check if plugin is active
+    if (!is_plugin_active(BUDCEDOSTU_MULTILINGUAL_PLUGIN_BASENAME)) {
+        return '';
+    }
+    
     global $budcedostu_multilingual;
     return $budcedostu_multilingual ? $budcedostu_multilingual->get_language_switcher($post_id) : '';
 }
 
 function budcedostu_get_translation_id($post_id, $language) {
+    // Check if plugin is active
+    if (!is_plugin_active(BUDCEDOSTU_MULTILINGUAL_PLUGIN_BASENAME)) {
+        return null;
+    }
+    
     global $budcedostu_multilingual;
     return $budcedostu_multilingual ? $budcedostu_multilingual->get_translation_id($post_id, $language) : null;
 }
 
 function budcedostu_get_post_language($post_id) {
+    // Check if plugin is active
+    if (!is_plugin_active(BUDCEDOSTU_MULTILINGUAL_PLUGIN_BASENAME)) {
+        return 'az';
+    }
+    
     global $budcedostu_multilingual;
     return $budcedostu_multilingual ? $budcedostu_multilingual->get_post_language($post_id) : 'az';
 }
 
 function budcedostu_display_language_switcher($post_id = null) {
+    // Check if plugin is active
+    if (!is_plugin_active(BUDCEDOSTU_MULTILINGUAL_PLUGIN_BASENAME)) {
+        return;
+    }
+    
     echo budcedostu_get_language_switcher($post_id);
 }
