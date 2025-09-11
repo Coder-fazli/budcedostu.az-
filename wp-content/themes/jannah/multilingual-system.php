@@ -206,6 +206,11 @@ class BudcedostuMultilingual {
         if (isset($wp->query_vars['is_home']) && isset($wp->query_vars['lang'])) {
             $this->handle_language_homepage($wp->query_vars['lang']);
         }
+        
+        // Handle language-specific post/page queries
+        if (isset($wp->query_vars['lang']) && (isset($wp->query_vars['name']) || isset($wp->query_vars['pagename']))) {
+            $this->handle_language_post_query($wp);
+        }
     }
     
     public function handle_language_homepage($language) {
@@ -245,6 +250,80 @@ class BudcedostuMultilingual {
             
             $query->set('meta_query', $meta_query);
         }
+    }
+    
+    /**
+     * Handle language-specific post/page queries
+     */
+    public function handle_language_post_query($wp) {
+        $language = $wp->query_vars['lang'];
+        $this->current_language = $language;
+        
+        // For posts (name parameter)
+        if (isset($wp->query_vars['name'])) {
+            $post_name = $wp->query_vars['name'];
+            
+            // Find post by slug and language
+            $post = $this->get_post_by_name_and_language($post_name, $language);
+            
+            if ($post) {
+                // Override query vars to point to the correct post
+                $wp->query_vars['p'] = $post->ID;
+                $wp->query_vars['post_type'] = $post->post_type;
+                unset($wp->query_vars['name']); // Remove name to avoid conflicts
+                
+                // Set query flags
+                global $wp_query;
+                $wp_query->is_single = true;
+                $wp_query->is_singular = true;
+                $wp_query->is_404 = false;
+            }
+        }
+        
+        // For pages (pagename parameter)
+        if (isset($wp->query_vars['pagename'])) {
+            $page_name = $wp->query_vars['pagename'];
+            
+            // Handle nested pages
+            $page_path = trim($page_name, '/');
+            $page_parts = explode('/', $page_path);
+            $page_slug = end($page_parts);
+            
+            // Find page by slug and language
+            $page = $this->get_post_by_name_and_language($page_slug, $language, 'page');
+            
+            if ($page) {
+                // Override query vars to point to the correct page
+                $wp->query_vars['page_id'] = $page->ID;
+                unset($wp->query_vars['pagename']); // Remove pagename to avoid conflicts
+                
+                // Set query flags
+                global $wp_query;
+                $wp_query->is_page = true;
+                $wp_query->is_singular = true;
+                $wp_query->is_404 = false;
+            }
+        }
+    }
+    
+    /**
+     * Get post by slug and language
+     */
+    public function get_post_by_name_and_language($post_name, $language, $post_type = 'post') {
+        global $wpdb;
+        
+        $query = $wpdb->prepare("
+            SELECT p.* 
+            FROM {$wpdb->posts} p 
+            LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_budcedostu_language'
+            WHERE p.post_name = %s 
+            AND p.post_type = %s 
+            AND p.post_status = 'publish'
+            AND (pm.meta_value = %s OR (pm.meta_value IS NULL AND %s = 'az'))
+            LIMIT 1
+        ", $post_name, $post_type, $language, $language);
+        
+        return $wpdb->get_row($query);
     }
     
     public function detect_language() {
