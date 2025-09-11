@@ -252,19 +252,72 @@ function budcedostu_translation_notice($post_id = null, $echo = true) {
 }
 
 /**
- * Modify query for language-specific content
+ * Modify query for language-specific content - STRICT language filtering
  */
 function budcedostu_modify_main_query($query) {
     if (!is_admin() && $query->is_main_query()) {
         $current_lang = budcedostu_current_language();
         
-        // Add language filter to main queries
+        // STRICT language filtering - only show content in current language
+        // No fallbacks to "NOT EXISTS" - each language must have its own content
         $meta_query = $query->get('meta_query', array());
+        
+        if ($current_lang === 'az') {
+            // For Azerbaijani, show posts that are explicitly AZ or have no language set (legacy)
+            $meta_query[] = array(
+                'relation' => 'OR',
+                array(
+                    'key' => '_budcedostu_language',
+                    'value' => 'az',
+                    'compare' => '='
+                ),
+                array(
+                    'key' => '_budcedostu_language',
+                    'compare' => 'NOT EXISTS'
+                )
+            );
+        } else {
+            // For Russian/English - ONLY show content explicitly marked for that language
+            $meta_query[] = array(
+                'key' => '_budcedostu_language',
+                'value' => $current_lang,
+                'compare' => '='
+            );
+        }
+        
+        $query->set('meta_query', $meta_query);
+        
+        // Debug info for testing
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('Multilingual Query Filter: Current language = ' . $current_lang . ' | URL = ' . $_SERVER['REQUEST_URI']);
+        }
+    }
+}
+add_action('pre_get_posts', 'budcedostu_modify_main_query');
+
+/**
+ * Apply language filtering to all WP_Query instances (including widgets)
+ */
+function budcedostu_filter_all_queries($query) {
+    if (is_admin()) {
+        return;
+    }
+    
+    // Skip if this query already has language filtering
+    if ($query->get('budcedostu_filtered')) {
+        return;
+    }
+    
+    $current_lang = budcedostu_current_language();
+    $meta_query = $query->get('meta_query', array());
+    
+    if ($current_lang === 'az') {
+        // For Azerbaijani, show posts that are explicitly AZ or have no language set (legacy)
         $meta_query[] = array(
             'relation' => 'OR',
             array(
                 'key' => '_budcedostu_language',
-                'value' => $current_lang,
+                'value' => 'az',
                 'compare' => '='
             ),
             array(
@@ -272,11 +325,156 @@ function budcedostu_modify_main_query($query) {
                 'compare' => 'NOT EXISTS'
             )
         );
+    } else {
+        // For Russian/English - ONLY show content explicitly marked for that language
+        $meta_query[] = array(
+            'key' => '_budcedostu_language',
+            'value' => $current_lang,
+            'compare' => '='
+        );
+    }
+    
+    $query->set('meta_query', $meta_query);
+    $query->set('budcedostu_filtered', true);
+}
+add_action('pre_get_posts', 'budcedostu_filter_all_queries', 5);
+
+/**
+ * Make home_url() context-aware based on current language
+ */
+function budcedostu_filter_home_url($url, $path, $orig_scheme, $blog_id) {
+    // Only modify if we're not in admin and no specific path is requested
+    if (is_admin() || !empty($path) || $blog_id !== null) {
+        return $url;
+    }
+    
+    $current_lang = budcedostu_current_language();
+    
+    // If we're in a non-default language context, return language-specific home URL
+    if ($current_lang !== 'az') {
+        $languages = budcedostu_get_languages();
+        if (isset($languages[$current_lang]['url_prefix'])) {
+            return trailingslashit(get_option('home')) . $languages[$current_lang]['url_prefix'] . '/';
+        }
+    }
+    
+    return $url;
+}
+add_filter('home_url', 'budcedostu_filter_home_url', 10, 4);
+
+/**
+ * Make site_url() context-aware for navigation elements
+ */
+function budcedostu_filter_site_url($url, $path, $orig_scheme, $blog_id) {
+    // Only modify if this looks like a home link (empty path or just "/")
+    if (is_admin() || $blog_id !== null || (!empty($path) && $path !== '/')) {
+        return $url;
+    }
+    
+    $current_lang = budcedostu_current_language();
+    
+    // If we're in a non-default language context, return language-specific URL
+    if ($current_lang !== 'az') {
+        $languages = budcedostu_get_languages();
+        if (isset($languages[$current_lang]['url_prefix'])) {
+            return trailingslashit(get_option('siteurl')) . $languages[$current_lang]['url_prefix'] . '/';
+        }
+    }
+    
+    return $url;
+}
+add_filter('site_url', 'budcedostu_filter_site_url', 10, 4);
+
+/**
+ * Filter menu item URLs to be language-context aware
+ */
+function budcedostu_filter_nav_menu_link_attributes($atts, $item, $args) {
+    // Check if this is a home link
+    if (isset($atts['href'])) {
+        $home_url = untrailingslashit(home_url());
+        $site_url = untrailingslashit(site_url());
         
-        $query->set('meta_query', $meta_query);
+        // If the link points to home or site root
+        if ($atts['href'] === $home_url . '/' || $atts['href'] === $home_url || 
+            $atts['href'] === $site_url . '/' || $atts['href'] === $site_url) {
+            
+            $current_lang = budcedostu_current_language();
+            
+            if ($current_lang !== 'az') {
+                $languages = budcedostu_get_languages();
+                if (isset($languages[$current_lang]['url_prefix'])) {
+                    $atts['href'] = $home_url . '/' . $languages[$current_lang]['url_prefix'] . '/';
+                }
+            }
+        }
+    }
+    
+    return $atts;
+}
+add_filter('nav_menu_link_attributes', 'budcedostu_filter_nav_menu_link_attributes', 10, 3);
+
+/**
+ * Add JavaScript to handle logo clicks dynamically
+ */
+function budcedostu_add_logo_context_script() {
+    $current_lang = budcedostu_current_language();
+    
+    if ($current_lang !== 'az') {
+        $languages = budcedostu_get_languages();
+        $home_url = home_url('/' . $languages[$current_lang]['url_prefix'] . '/');
+        ?>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Find and update logo links
+            var logoLinks = document.querySelectorAll('.site-logo a, .logo a, [class*="logo"] a, .site-title a');
+            
+            logoLinks.forEach(function(link) {
+                var href = link.getAttribute('href');
+                var homeUrl = '<?php echo esc_js(untrailingslashit(home_url())); ?>';
+                
+                // If this is a home link, update it to language-specific home
+                if (href === homeUrl + '/' || href === homeUrl || href === '/') {
+                    link.setAttribute('href', '<?php echo esc_js($home_url); ?>');
+                    
+                    // Also update any onclick handlers if they exist
+                    if (link.onclick) {
+                        link.onclick = function(e) {
+                            e.preventDefault();
+                            window.location.href = '<?php echo esc_js($home_url); ?>';
+                            return false;
+                        };
+                    }
+                }
+            });
+            
+            // Also handle any custom logo click handlers
+            document.addEventListener('click', function(e) {
+                var target = e.target;
+                
+                // Check if clicked element or its parent is a logo
+                while (target && target !== document) {
+                    if (target.matches && (
+                        target.matches('.site-logo, .logo, [class*="logo"], .site-title') ||
+                        target.classList.contains('logo') ||
+                        target.className.includes('logo')
+                    )) {
+                        // If it's a clickable logo without a proper href, redirect to language home
+                        if (target.tagName !== 'A' || target.getAttribute('href') === '<?php echo esc_js(home_url()); ?>') {
+                            e.preventDefault();
+                            window.location.href = '<?php echo esc_js($home_url); ?>';
+                            return false;
+                        }
+                        break;
+                    }
+                    target = target.parentElement;
+                }
+            });
+        });
+        </script>
+        <?php
     }
 }
-add_action('pre_get_posts', 'budcedostu_modify_main_query');
+add_action('wp_footer', 'budcedostu_add_logo_context_script');
 
 /**
  * Add language to body class
