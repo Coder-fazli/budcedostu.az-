@@ -91,28 +91,47 @@ class ValyutaAPIIntegration {
         
         $rates = array();
         
-        // Try each API source in order of priority
-        foreach ($this->api_sources as $source_key => $source_config) {
-            if (!$source_config['active'] || !in_array($currency, $source_config['currencies'])) {
-                continue;
-            }
-            
-            try {
-                $method = $source_config['method'];
-                if (method_exists($this, $method)) {
-                    $source_rates = $this->$method($currency);
-                    if (!empty($source_rates)) {
-                        $rates = array_merge($rates, $source_rates);
-                        break; // Use first successful source
+        // Priority 1: Try real bank scraping first
+        try {
+            if (class_exists('ValyutaRealScraper')) {
+                $scraper = new ValyutaRealScraper();
+                $scraped_rates = $scraper->scrape_all_banks($currency);
+                
+                if (!empty($scraped_rates)) {
+                    $formatted_rates = $scraper->convert_to_database_format($scraped_rates);
+                    if (!empty($formatted_rates)) {
+                        $rates = $formatted_rates;
                     }
                 }
-            } catch (Exception $e) {
-                error_log("Valyuta API Error ({$source_key}): " . $e->getMessage());
-                continue;
+            }
+        } catch (Exception $e) {
+            error_log('Real scraper error: ' . $e->getMessage());
+        }
+        
+        // Priority 2: Try each API source in order of priority if scraping failed
+        if (empty($rates)) {
+            foreach ($this->api_sources as $source_key => $source_config) {
+                if (!$source_config['active'] || !in_array($currency, $source_config['currencies'])) {
+                    continue;
+                }
+                
+                try {
+                    $method = $source_config['method'];
+                    if (method_exists($this, $method)) {
+                        $source_rates = $this->$method($currency);
+                        if (!empty($source_rates)) {
+                            $rates = array_merge($rates, $source_rates);
+                            break; // Use first successful source
+                        }
+                    }
+                } catch (Exception $e) {
+                    error_log("Valyuta API Error ({$source_key}): " . $e->getMessage());
+                    continue;
+                }
             }
         }
         
-        // If no API worked, use existing database rates
+        // Priority 3: If no API worked, use existing database rates
         if (empty($rates)) {
             $rates = $this->get_existing_rates($currency);
         }
