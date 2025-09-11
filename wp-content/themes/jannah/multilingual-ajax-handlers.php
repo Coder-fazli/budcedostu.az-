@@ -335,7 +335,11 @@ function budcedostu_translation_dashboard_widget_callback() {
  * Add language filter to post lists
  */
 function budcedostu_add_language_filter_to_posts() {
-    $screen = get_current_screen();
+    if (!is_admin()) {
+        return;
+    }
+    
+    $screen = function_exists('get_current_screen') ? get_current_screen() : null;
     
     if ($screen && in_array($screen->id, array('edit-post', 'edit-page'))) {
         $selected_language = isset($_GET['language_filter']) ? $_GET['language_filter'] : '';
@@ -358,7 +362,7 @@ function budcedostu_filter_posts_by_language($query) {
         return;
     }
     
-    $screen = get_current_screen();
+    $screen = function_exists('get_current_screen') ? get_current_screen() : null;
     if (!$screen || !in_array($screen->id, array('edit-post', 'edit-page'))) {
         return;
     }
