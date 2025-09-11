@@ -67,6 +67,9 @@ class BudcedostuMultilingual {
         add_action('wp_head', array($this, 'add_hreflang_tags'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         
+        // Ensure jQuery loads with highest priority on multilingual pages
+        add_action('wp_enqueue_scripts', array($this, 'force_early_jquery'), 1);
+        
         // Language switching
         add_action('wp', array($this, 'detect_language'));
         
@@ -569,10 +572,23 @@ class BudcedostuMultilingual {
         }
     }
     
+    /**
+     * Force jQuery to load early with highest priority
+     */
+    public function force_early_jquery() {
+        if (!is_admin()) {
+            // Force jQuery to load early, before any other scripts
+            wp_enqueue_script('jquery');
+            
+            // Also ensure admin bar dependencies are loaded
+            if (is_admin_bar_showing()) {
+                wp_enqueue_style('admin-bar');
+                wp_enqueue_script('admin-bar');
+            }
+        }
+    }
+    
     public function enqueue_scripts() {
-        // Ensure jQuery is always loaded first
-        wp_enqueue_script('jquery');
-        
         wp_enqueue_script('budcedostu-multilingual', get_template_directory_uri() . '/assets/js/multilingual.js', array('jquery'), '1.0.0', true);
         wp_enqueue_style('budcedostu-multilingual', get_template_directory_uri() . '/assets/css/multilingual.css', array(), '1.0.0');
         
@@ -884,9 +900,11 @@ class BudcedostuMultilingual {
      * Force jQuery to load properly for admin bar functionality
      */
     public function force_jquery_load() {
-        if (!is_admin() && is_admin_bar_showing()) {
-            // Ensure jQuery is available for admin bar
-            wp_print_scripts('jquery');
+        if (!is_admin()) {
+            // Force output jQuery in head if it's queued
+            if (wp_script_is('jquery', 'enqueued')) {
+                wp_print_scripts('jquery');
+            }
         }
     }
     
