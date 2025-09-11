@@ -1,0 +1,232 @@
+/*
+ * Budcedostu Custom Multilingual System - Admin Styles
+ */
+
+/* Language columns in admin lists */
+.wp-list-table .column-lang_az,
+.wp-list-table .column-lang_ru, 
+.wp-list-table .column-lang_en {
+    width: 60px;
+    text-align: center;
+}
+
+.wp-list-table .column-lang_az .lang-status,
+.wp-list-table .column-lang_ru .lang-status,
+.wp-list-table .column-lang_en .lang-status {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 20px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* Translation status indicators */
+.wp-list-table .lang-current {
+    background-color: #00a32a;
+    color: white;
+}
+
+.wp-list-table .lang-translated {
+    background-color: #0073aa;
+    color: white;
+}
+
+.wp-list-table .lang-translated:hover {
+    background-color: #005a87;
+}
+
+.wp-list-table .lang-missing {
+    background-color: #ddd;
+    color: #666;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 18px;
+}
+
+.wp-list-table .lang-missing:hover {
+    background-color: #0073aa;
+    color: white;
+}
+
+/* Translation metabox */
+#budcedostu_translations {
+    font-size: 13px;
+}
+
+#budcedostu_translations h4 {
+    margin: 15px 0 10px 0;
+    font-size: 14px;
+}
+
+#budcedostu_translations p {
+    margin: 8px 0;
+}
+
+#budcedostu_translations a {
+    color: #0073aa;
+    text-decoration: none;
+}
+
+#budcedostu_translations a:hover {
+    color: #005a87;
+    text-decoration: underline;
+}
+
+#budcedostu_translations select {
+    width: 100%;
+    margin-top: 5px;
+}
+
+/* Language filter dropdown */
+.alignleft.actions select[name="language_filter"] {
+    margin-right: 8px;
+}
+
+/* Translation creation page styles */
+.translation-source-info {
+    background-color: #f0f6fc;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 10px 0 20px 0;
+}
+
+.translation-source-info h3 {
+    margin-top: 0;
+    color: #0073aa;
+}
+
+.translation-source-info p {
+    margin: 5px 0;
+}
+
+.translation-source-info .source-content {
+    background-color: white;
+    padding: 10px;
+    border-radius: 3px;
+    margin-top: 10px;
+    font-style: italic;
+    color: #666;
+}
+
+/* Bulk translation actions */
+.bulk-translate-notice {
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+    color: #0c5460;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.bulk-translate-actions {
+    margin-top: 10px;
+}
+
+.bulk-translate-actions select {
+    margin-right: 10px;
+}
+
+/* Language statistics widget */
+.translation-stats {
+    background-color: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 10px 0;
+}
+
+.translation-stats h4 {
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.translation-stats .stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+}
+
+.translation-stats .stat-row.total {
+    font-weight: bold;
+    border-top: 1px solid #eee;
+    margin-top: 8px;
+    padding-top: 8px;
+}
+
+.translation-stats .lang-flag {
+    margin-right: 5px;
+}
+
+/* Admin notices for multilingual system */
+.notice.multilingual-notice {
+    border-left-color: #0073aa;
+}
+
+.notice.multilingual-notice .notice-title {
+    font-weight: bold;
+    color: #0073aa;
+}
+
+/* Translation progress bar */
+.translation-progress {
+    width: 100%;
+    height: 20px;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.translation-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #00a32a 0%, #0073aa 100%);
+    transition: width 0.3s ease;
+    text-align: center;
+    line-height: 20px;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Quick edit language selector */
+.inline-edit-row .language-selector {
+    float: left;
+    margin-right: 15px;
+}
+
+.inline-edit-row .language-selector label {
+    display: block;
+    margin-bottom: 3px;
+    font-weight: bold;
+}
+
+.inline-edit-row .language-selector select {
+    width: 100px;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 782px) {
+    .wp-list-table .column-lang_az,
+    .wp-list-table .column-lang_ru,
+    .wp-list-table .column-lang_en {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .translation-stats .stat-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .bulk-translate-actions select,
+    .bulk-translate-actions .button {
+        width: 100%;
+        margin: 5px 0;
+    }
+}

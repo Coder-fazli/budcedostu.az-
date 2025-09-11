@@ -9,6 +9,13 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 // Include Financial Calculator Shortcode
 require_once get_template_directory() . '/calculator-shortcode.php';
 
+// Include Custom Multilingual System
+require_once get_template_directory() . '/multilingual-system.php';
+require_once get_template_directory() . '/multilingual-menu-setup.php';
+require_once get_template_directory() . '/multilingual-ajax-handlers.php';
+require_once get_template_directory() . '/multilingual-template-functions.php';
+require_once get_template_directory() . '/multilingual-activation.php';
+
 /*
  * Works with PHP 5.3 or Later
  */
@@ -159,3 +166,15 @@ add_action('init', function() {
         create_calculator_page();
     }
 });
+
+/**
+ * Add language switcher to header
+ */
+function budcedostu_add_header_language_switcher() {
+    if (function_exists('budcedostu_language_switcher')) {
+        echo '<div class="header-language-switcher" style="float: right; margin: 10px;">';
+        budcedostu_language_switcher(true);
+        echo '</div>';
+    }
+}
+add_action('TieLabs/before_main_content', 'budcedostu_add_header_language_switcher');

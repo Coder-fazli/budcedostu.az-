@@ -1,0 +1,126 @@
+/*
+ * Budcedostu Custom Multilingual System - Frontend Styles
+ */
+
+.budcedostu-language-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.budcedostu-language-switcher .lang-switch {
+    padding: 4px 8px;
+    text-decoration: none;
+    color: #333;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+    min-width: 50px;
+    justify-content: center;
+}
+
+.budcedostu-language-switcher .lang-switch:hover {
+    background-color: #f0f0f0;
+    text-decoration: none;
+}
+
+.budcedostu-language-switcher .lang-switch.current {
+    background-color: #0088ff;
+    color: white;
+    font-weight: bold;
+}
+
+.budcedostu-language-switcher .lang-switch.current:hover {
+    background-color: #0077dd;
+}
+
+.budcedostu-language-switcher .lang-switch.disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    background-color: #f8f8f8;
+}
+
+.budcedostu-language-switcher .lang-switch.disabled:hover {
+    background-color: #f8f8f8;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .budcedostu-language-switcher {
+        font-size: 12px;
+        gap: 4px;
+    }
+    
+    .budcedostu-language-switcher .lang-switch {
+        padding: 3px 6px;
+        min-width: 40px;
+    }
+}
+
+/* Header integration styles */
+.site-header .budcedostu-language-switcher {
+    margin-left: auto;
+}
+
+.main-nav .budcedostu-language-switcher {
+    margin-left: 20px;
+}
+
+/* Footer integration styles */
+.site-footer .budcedostu-language-switcher {
+    margin-top: 10px;
+}
+
+/* Language indicator for content */
+.post-language-indicator {
+    display: inline-block;
+    background-color: #f0f0f0;
+    color: #666;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    text-transform: uppercase;
+    margin-left: 8px;
+    font-weight: bold;
+}
+
+.post-language-indicator.lang-az {
+    background-color: #e8f4f8;
+    color: #0088ff;
+}
+
+.post-language-indicator.lang-ru {
+    background-color: #ffeaea;
+    color: #d63031;
+}
+
+.post-language-indicator.lang-en {
+    background-color: #eafaf1;
+    color: #00b894;
+}
+
+/* Translation notice */
+.translation-notice {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin: 10px 0;
+    color: #856404;
+    font-size: 14px;
+}
+
+.translation-notice a {
+    color: #0088ff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.translation-notice a:hover {
+    text-decoration: underline;
+}
