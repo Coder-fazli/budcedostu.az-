@@ -5,10 +5,15 @@
  */
 
 function create_calculator_page() {
-    // Check if page already exists
-    $existing_page = get_page_by_title('Kalkulyatorlar');
+    // Check if page already exists using more reliable method
+    $existing_pages = get_posts(array(
+        'title' => 'Kalkulyatorlar',
+        'post_type' => 'page',
+        'post_status' => array('publish', 'draft', 'private'),
+        'numberposts' => 1
+    ));
     
-    if (!$existing_page) {
+    if (empty($existing_pages)) {
         // Create the page
         $page_data = array(
             'post_title'    => 'Kalkulyatorlar',
@@ -35,14 +40,21 @@ function create_calculator_page() {
     }
 }
 
-// Hook to create page when theme is activated
-add_action('after_switch_theme', 'create_calculator_page');
+// DISABLED - Hooks that were causing duplicate pages
+// add_action('after_switch_theme', 'create_calculator_page');
+// add_action('init', function() {
+//     $existing_pages = get_posts(array(
+//         'title' => 'Kalkulyatorlar',
+//         'post_type' => 'page',
+//         'post_status' => array('publish', 'draft', 'private'),
+//         'numberposts' => 1
+//     ));
+//     
+//     if (empty($existing_pages)) {
+//         create_calculator_page();
+//     }
+// });
 
-// Also create on init if doesn't exist (backup)
-add_action('init', function() {
-    if (!get_page_by_title('Kalkulyatorlar')) {
-        create_calculator_page();
-    }
-});
+// NOTE: Use create-calculator-page.php script manually instead of automatic hooks
 
 ?>

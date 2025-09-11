@@ -8,10 +8,15 @@
 require_once('wp-config.php');
 require_once('wp-blog-header.php');
 
-// Check if page already exists
-$existing_page = get_page_by_title('Kalkulyatorlar');
+// Check if page already exists using more reliable method
+$existing_pages = get_posts(array(
+    'title' => 'Kalkulyatorlar',
+    'post_type' => 'page',
+    'post_status' => array('publish', 'draft', 'private'),
+    'numberposts' => 1
+));
 
-if (!$existing_page) {
+if (empty($existing_pages)) {
     // Create the page
     $page_data = array(
         'post_title'    => 'Kalkulyatorlar',
@@ -38,6 +43,7 @@ if (!$existing_page) {
     }
 } else {
     echo "📄 Calculator page already exists!\n";
-    echo "🔗 URL: " . get_permalink($existing_page->ID) . "\n";
+    echo "🔗 URL: " . get_permalink($existing_pages[0]->ID) . "\n";
+    echo "📊 Found " . count($existing_pages) . " existing page(s)\n";
 }
 ?>
