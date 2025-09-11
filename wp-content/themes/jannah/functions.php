@@ -9,6 +9,9 @@ defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 // Include Financial Calculator Shortcodes
 require_once get_template_directory() . '/calculator-shortcodes.php';
 
+// Include Valyuta (Currency) Exchange Rates System
+require_once get_template_directory() . '/valyuta-system.php';
+
 // Multilingual System moved to plugin: wp-content/plugins/budcedostu-multilingual/
 // The multilingual functionality is now handled by the "Budcedostu Multilingual System" plugin
 
