@@ -727,21 +727,25 @@ class BudcedostuMultilingual {
                 return $permalink;
             }
             
-            // Clean up malformed URLs with multiple domains
+            // Get clean base URL
             $site_url = untrailingslashit(home_url());
             
-            // Remove multiple occurrences of the site URL
-            $clean_url = $permalink;
-            while (strpos($clean_url, $site_url) !== false) {
-                $clean_url = str_replace($site_url, '', $clean_url);
+            // Extract path from permalink
+            $parsed_url = parse_url($permalink);
+            $path = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+            $path = trim($path, '/');
+            
+            // Remove ALL existing language prefixes to prevent duplicates
+            $path = preg_replace('#^(ru|en)(/|$)#', '', $path);
+            $path = preg_replace('#^(ru|en)(/.*)?$#', '$2', $path);
+            $path = trim($path, '/');
+            
+            // Build clean URL with single language prefix
+            if (!empty($path)) {
+                $permalink = $site_url . '/' . $lang_prefix . '/' . $path . '/';
+            } else {
+                $permalink = $site_url . '/' . $lang_prefix . '/';
             }
-            
-            // Clean up any remaining protocols and slashes
-            $clean_url = preg_replace('#^https?://#', '', $clean_url);
-            $clean_url = ltrim($clean_url, '/');
-            
-            // Build clean URL with language prefix
-            $permalink = $site_url . '/' . $lang_prefix . '/' . $clean_url;
         }
         
         return $permalink;
@@ -798,7 +802,7 @@ class BudcedostuMultilingual {
         if ($post_language !== $this->default_language && isset($this->languages[$post_language])) {
             $lang_prefix = $this->languages[$post_language]['url_prefix'];
             
-            // Check if permalink already has the correct language prefix
+            // Prevent double prefixes - more robust check
             if (strpos($permalink, '/' . $lang_prefix . '/') !== false) {
                 return $permalink;
             }
@@ -806,18 +810,21 @@ class BudcedostuMultilingual {
             // Get clean base URL
             $site_url = untrailingslashit(home_url());
             
-            // Extract the post slug from current permalink
+            // Extract the path from current permalink
             $parsed_url = parse_url($permalink);
             $path = isset($parsed_url['path']) ? $parsed_url['path'] : '';
             $path = trim($path, '/');
             
-            // Remove any existing language prefixes
-            $path = preg_replace('#^(ru|en)/#', '', $path);
+            // Remove ALL existing language prefixes to prevent duplicates
+            $path = preg_replace('#^(ru|en)(/|$)#', '', $path);
+            $path = preg_replace('#^(ru|en)(/.*)?$#', '$2', $path);
+            $path = trim($path, '/');
             
-            // Build clean URL with correct language prefix
-            $permalink = $site_url . '/' . $lang_prefix . '/' . $path;
+            // Build clean URL with single language prefix
             if (!empty($path)) {
-                $permalink .= '/';
+                $permalink = $site_url . '/' . $lang_prefix . '/' . $path . '/';
+            } else {
+                $permalink = $site_url . '/' . $lang_prefix . '/';
             }
         }
         
@@ -858,13 +865,16 @@ class BudcedostuMultilingual {
             $path = isset($parsed_url['path']) ? $parsed_url['path'] : '';
             $path = trim($path, '/');
             
-            // Remove any existing language prefixes
-            $path = preg_replace('#^(ru|en)/#', '', $path);
+            // Remove ALL existing language prefixes to prevent duplicates
+            $path = preg_replace('#^(ru|en)(/|$)#', '', $path);
+            $path = preg_replace('#^(ru|en)(/.*)?$#', '$2', $path);
+            $path = trim($path, '/');
             
-            // Build clean URL with correct language prefix
-            $permalink = $site_url . '/' . $lang_prefix . '/' . $path;
+            // Build clean URL with single language prefix
             if (!empty($path)) {
-                $permalink .= '/';
+                $permalink = $site_url . '/' . $lang_prefix . '/' . $path . '/';
+            } else {
+                $permalink = $site_url . '/' . $lang_prefix . '/';
             }
         }
         
