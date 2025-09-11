@@ -43,8 +43,20 @@ function budcedostu_multilingual_init() {
     return $budcedostu_multilingual;
 }
 
-// Initialize plugin
-add_action('plugins_loaded', 'budcedostu_multilingual_init');
+// Initialize plugin immediately  
+add_action('init', 'budcedostu_multilingual_init', 0);
+
+/**
+ * Auto-activate plugin if not already active
+ */
+function budcedostu_multilingual_auto_activate() {
+    $plugin = BUDCEDOSTU_MULTILINGUAL_PLUGIN_BASENAME;
+    
+    if (!is_plugin_active($plugin)) {
+        activate_plugin($plugin);
+    }
+}
+add_action('admin_init', 'budcedostu_multilingual_auto_activate');
 
 /**
  * Plugin activation hook

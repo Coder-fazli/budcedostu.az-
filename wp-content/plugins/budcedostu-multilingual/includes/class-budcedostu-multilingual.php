@@ -53,10 +53,14 @@ class BudcedostuMultilingual {
         
         // Admin interface
         add_action('admin_init', array($this, 'admin_init'));
+        add_action('admin_menu', array($this, 'add_admin_menu'));
         add_filter('manage_posts_columns', array($this, 'add_language_columns'));
         add_filter('manage_pages_columns', array($this, 'add_language_columns'));
         add_action('manage_posts_custom_column', array($this, 'display_language_columns'), 10, 2);
         add_action('manage_pages_custom_column', array($this, 'display_language_columns'), 10, 2);
+        
+        // Handle saving post language
+        add_action('save_post', array($this, 'save_post_language'), 10, 2);
         
         // Frontend
         add_action('wp_head', array($this, 'add_hreflang_tags'));
@@ -111,23 +115,35 @@ class BudcedostuMultilingual {
      * Add rewrite rules for language prefixes
      */
     public function add_rewrite_rules() {
-        // Add rules for Russian and English prefixes
+        // Russian rules
         add_rewrite_rule(
-            '^ru/(.+)/?$',
-            'index.php?budcedostu_lang=ru&pagename=$matches[1]',
+            '^ru/([^/]+)/?$',
+            'index.php?budcedostu_lang=ru&name=$matches[1]',
             'top'
         );
         
         add_rewrite_rule(
-            '^en/(.+)/?$',
-            'index.php?budcedostu_lang=en&pagename=$matches[1]',
+            '^ru/([^/]+)/page/?([0-9]{1,})/?$',
+            'index.php?budcedostu_lang=ru&name=$matches[1]&paged=$matches[2]',
             'top'
         );
         
-        // Homepage rules
         add_rewrite_rule(
             '^ru/?$',
             'index.php?budcedostu_lang=ru',
+            'top'
+        );
+        
+        // English rules  
+        add_rewrite_rule(
+            '^en/([^/]+)/?$',
+            'index.php?budcedostu_lang=en&name=$matches[1]',
+            'top'
+        );
+        
+        add_rewrite_rule(
+            '^en/([^/]+)/page/?([0-9]{1,})/?$',
+            'index.php?budcedostu_lang=en&name=$matches[1]&paged=$matches[2]',
             'top'
         );
         
@@ -136,6 +152,12 @@ class BudcedostuMultilingual {
             'index.php?budcedostu_lang=en',
             'top'
         );
+        
+        // Flush rewrite rules if this is the first time
+        if (get_option('budcedostu_multilingual_rewrite_flushed') !== 'yes') {
+            flush_rewrite_rules(false);
+            update_option('budcedostu_multilingual_rewrite_flushed', 'yes');
+        }
     }
     
     /**
@@ -152,6 +174,29 @@ class BudcedostuMultilingual {
     public function parse_language_request($wp) {
         if (isset($wp->query_vars['budcedostu_lang'])) {
             $this->current_language = $wp->query_vars['budcedostu_lang'];
+            
+            // If we have a post name, try to find the post in this language
+            if (isset($wp->query_vars['name']) && !empty($wp->query_vars['name'])) {
+                $post_name = $wp->query_vars['name'];
+                
+                // Look for a post with this name in the specified language
+                global $wpdb;
+                $post_id = $wpdb->get_var($wpdb->prepare(
+                    "SELECT p.ID FROM {$wpdb->posts} p 
+                     LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_budcedostu_language'
+                     WHERE p.post_name = %s 
+                     AND p.post_status = 'publish'
+                     AND p.post_type IN ('post', 'page')
+                     AND (pm.meta_value = %s OR (pm.meta_value IS NULL AND %s = 'az'))",
+                    $post_name, $this->current_language, $this->current_language
+                ));
+                
+                if ($post_id) {
+                    $wp->query_vars['p'] = $post_id;
+                    $wp->query_vars['post_type'] = get_post_type($post_id);
+                    unset($wp->query_vars['name']);
+                }
+            }
         }
     }
     
@@ -294,12 +339,120 @@ class BudcedostuMultilingual {
     }
     
     /**
+     * Add admin menu
+     */
+    public function add_admin_menu() {
+        add_options_page(
+            'Budcedostu Multilingual',
+            'Multilingual',
+            'manage_options',
+            'budcedostu-multilingual',
+            array($this, 'admin_page')
+        );
+    }
+    
+    /**
+     * Admin page
+     */
+    public function admin_page() {
+        if (isset($_POST['flush_rewrite_rules'])) {
+            flush_rewrite_rules();
+            echo '<div class="notice notice-success"><p>Rewrite rules flushed successfully!</p></div>';
+        }
+        
+        if (isset($_POST['set_all_posts_az'])) {
+            $this->set_all_posts_to_language('az');
+            echo '<div class="notice notice-success"><p>All posts set to Azerbaijani!</p></div>';
+        }
+        ?>
+        <div class="wrap">
+            <h1>Budcedostu Multilingual System</h1>
+            
+            <div class="card">
+                <h2>Language Statistics</h2>
+                <?php $this->display_language_stats(); ?>
+            </div>
+            
+            <div class="card">
+                <h2>Tools</h2>
+                <form method="post" style="display: inline-block; margin-right: 20px;">
+                    <input type="hidden" name="flush_rewrite_rules" value="1">
+                    <button type="submit" class="button button-secondary">Flush Rewrite Rules</button>
+                    <p class="description">Use this if URLs are not working correctly</p>
+                </form>
+                
+                <form method="post" style="display: inline-block;">
+                    <input type="hidden" name="set_all_posts_az" value="1">
+                    <button type="submit" class="button button-secondary">Set All Posts to Azerbaijani</button>
+                    <p class="description">Set all posts without language to Azerbaijani (default)</p>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h2>How to Use</h2>
+                <ol>
+                    <li><strong>Set Post Language:</strong> Edit any post/page and select language in the "Language" metabox</li>
+                    <li><strong>URL Structure:</strong>
+                        <ul>
+                            <li>Azerbaijani: <code>https://budcedostu.az/post-title/</code></li>
+                            <li>Russian: <code>https://budcedostu.az/ru/post-title/</code></li>
+                            <li>English: <code>https://budcedostu.az/en/post-title/</code></li>
+                        </ul>
+                    </li>
+                    <li><strong>Language Switcher:</strong> Use <code>budcedostu_display_language_switcher();</code> in your theme</li>
+                </ol>
+            </div>
+        </div>
+        <?php
+    }
+    
+    /**
+     * Display language statistics
+     */
+    private function display_language_stats() {
+        global $wpdb;
+        
+        foreach ($this->languages as $lang_code => $lang_data) {
+            $count = $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->posts} p 
+                 LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_budcedostu_language'
+                 WHERE p.post_status = 'publish' 
+                 AND p.post_type IN ('post', 'page')
+                 AND (pm.meta_value = %s OR (pm.meta_value IS NULL AND %s = 'az'))",
+                $lang_code, $lang_code
+            ));
+            
+            echo '<p><strong>' . $lang_data['flag'] . ' ' . $lang_data['name'] . ':</strong> ' . $count . ' posts/pages</p>';
+        }
+    }
+    
+    /**
+     * Set all posts to a specific language
+     */
+    private function set_all_posts_to_language($language) {
+        global $wpdb;
+        
+        $posts = $wpdb->get_results(
+            "SELECT ID FROM {$wpdb->posts} 
+             WHERE post_status = 'publish' 
+             AND post_type IN ('post', 'page')"
+        );
+        
+        foreach ($posts as $post) {
+            $existing_lang = get_post_meta($post->ID, '_budcedostu_language', true);
+            if (empty($existing_lang)) {
+                update_post_meta($post->ID, '_budcedostu_language', $language);
+            }
+        }
+    }
+    
+    /**
      * Admin initialization
      */
     public function admin_init() {
         add_meta_box(
             'budcedostu_translations',
-            'Language & Translations',
+            'Language',
             array($this, 'translation_metabox'),
             array('post', 'page'),
             'side',
@@ -313,19 +466,71 @@ class BudcedostuMultilingual {
     public function translation_metabox($post) {
         $current_lang = $this->get_post_language($post->ID);
         
-        echo '<p><strong>Current Language:</strong> ' . strtoupper($current_lang) . '</p>';
+        // Add nonce field for security
+        wp_nonce_field('budcedostu_save_language', 'budcedostu_language_nonce');
         
-        echo '<h4>Set Language:</h4>';
-        echo '<select name="budcedostu_post_language">';
+        echo '<table class="form-table"><tbody>';
+        echo '<tr>';
+        echo '<th scope="row">Current Language</th>';
+        echo '<td><strong>' . $this->languages[$current_lang]['flag'] . ' ' . $this->languages[$current_lang]['name'] . '</strong></td>';
+        echo '</tr>';
+        echo '<tr>';
+        echo '<th scope="row"><label for="budcedostu_post_language">Set Language</label></th>';
+        echo '<td>';
+        echo '<select name="budcedostu_post_language" id="budcedostu_post_language" class="regular-text">';
         foreach ($this->languages as $lang_code => $lang_data) {
             $selected = ($current_lang == $lang_code) ? 'selected' : '';
-            echo '<option value="' . $lang_code . '" ' . $selected . '>' . $lang_data['name'] . ' (' . strtoupper($lang_code) . ')</option>';
+            echo '<option value="' . $lang_code . '" ' . $selected . '>' . $lang_data['flag'] . ' ' . $lang_data['name'] . ' (' . strtoupper($lang_code) . ')</option>';
         }
         echo '</select>';
+        echo '<p class="description">Select the language for this post/page.</p>';
+        echo '</td>';
+        echo '</tr>';
+        echo '</tbody></table>';
         
-        // Save language when post is saved
+        // Show URL preview
+        $site_url = home_url();
+        echo '<div style="background: #f9f9f9; padding: 10px; border-radius: 4px; margin-top: 15px;">';
+        echo '<h4 style="margin-top: 0;">URL Preview:</h4>';
+        foreach ($this->languages as $lang_code => $lang_data) {
+            $url_preview = $site_url;
+            if ($lang_code !== $this->default_language) {
+                $url_preview .= '/' . $lang_data['url_prefix'];
+            }
+            $url_preview .= '/your-post-slug/';
+            
+            $active = ($current_lang == $lang_code) ? ' (current)' : '';
+            echo '<p><strong>' . $lang_data['flag'] . ' ' . $lang_data['name'] . ':</strong> <code>' . $url_preview . '</code>' . $active . '</p>';
+        }
+        echo '</div>';
+    }
+    
+    /**
+     * Save post language
+     */
+    public function save_post_language($post_id, $post) {
+        // Verify nonce
+        if (!isset($_POST['budcedostu_language_nonce']) || 
+            !wp_verify_nonce($_POST['budcedostu_language_nonce'], 'budcedostu_save_language')) {
+            return;
+        }
+        
+        // Check if user can edit post
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+        
+        // Don't save on autosave
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+        
+        // Save language
         if (isset($_POST['budcedostu_post_language'])) {
-            $this->set_post_language($post->ID, sanitize_text_field($_POST['budcedostu_post_language']));
+            $language = sanitize_text_field($_POST['budcedostu_post_language']);
+            if (isset($this->languages[$language])) {
+                $this->set_post_language($post_id, $language);
+            }
         }
     }
     
