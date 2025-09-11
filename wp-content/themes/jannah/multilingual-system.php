@@ -116,11 +116,9 @@ class BudcedostuMultilingual {
         // Canonicalization - redirect unprefixed/wrong-locale URLs to correct canonical URLs
         add_action('template_redirect', array($this, 'canonicalize_urls'), 5);
         
-        // Debug function for troubleshooting URL issues
-        add_action('wp_footer', array($this, 'debug_url_info'));
-        
-        // Force flush rewrite rules on admin visits to refresh URL structure
-        add_action('admin_init', array($this, 'maybe_flush_rewrite_rules'));
+        // Remove debug hooks that don't have methods
+        // add_action('wp_footer', array($this, 'debug_url_info'));
+        // add_action('admin_init', array($this, 'maybe_flush_rewrite_rules'));
     }
     
     /**
