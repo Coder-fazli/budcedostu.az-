@@ -61,9 +61,9 @@ function budcedostu_check_multilingual_activation() {
     }
     
     // Check if we need to flush rewrite rules for homepage fix
-    if (get_option('budcedostu_homepage_rules_updated') !== 'yes') {
+    if (get_option('budcedostu_permalink_rules_updated') !== 'yes') {
         flush_rewrite_rules();
-        update_option('budcedostu_homepage_rules_updated', 'yes');
+        update_option('budcedostu_permalink_rules_updated', 'yes');
     }
 }
 add_action('init', 'budcedostu_check_multilingual_activation');

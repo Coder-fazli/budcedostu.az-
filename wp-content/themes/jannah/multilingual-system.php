@@ -136,15 +136,15 @@ class BudcedostuMultilingual {
      * Setup rewrite rules for language URLs
      */
     public function add_rewrite_rules() {
-        // Add rules for /ru/ and /en/ prefixes
-        add_rewrite_rule('^ru/(.*)/?', 'index.php?lang=ru&pagename=$matches[1]', 'top');
-        add_rewrite_rule('^en/(.*)/?', 'index.php?lang=en&pagename=$matches[1]', 'top');
+        // Homepage for languages - MUST come first to avoid conflicts
+        add_rewrite_rule('^ru/?$', 'index.php?lang=ru&is_home=1', 'top');
+        add_rewrite_rule('^en/?$', 'index.php?lang=en&is_home=1', 'top');
         
         // Redirect /az/ to root
         add_rewrite_rule('^az/(.*)/?', 'index.php?redirect_az=1&path=$matches[1]', 'top');
         add_rewrite_rule('^az/?$', 'index.php?redirect_az=1', 'top');
         
-        // Handle category, tag, and other taxonomy URLs
+        // Handle category, tag, and other taxonomy URLs (specific rules first)
         add_rewrite_rule('^ru/category/(.+?)/?$', 'index.php?lang=ru&category_name=$matches[1]', 'top');
         add_rewrite_rule('^en/category/(.+?)/?$', 'index.php?lang=en&category_name=$matches[1]', 'top');
         
@@ -159,9 +159,23 @@ class BudcedostuMultilingual {
         add_rewrite_rule('^ru/search/(.+)/?$', 'index.php?lang=ru&s=$matches[1]', 'top');
         add_rewrite_rule('^en/search/(.+)/?$', 'index.php?lang=en&s=$matches[1]', 'top');
         
-        // Homepage for languages - specific rules for homepage translations
-        add_rewrite_rule('^ru/?$', 'index.php?lang=ru&is_home=1', 'top');
-        add_rewrite_rule('^en/?$', 'index.php?lang=en&is_home=1', 'top');
+        // Date archives
+        add_rewrite_rule('^ru/([0-9]{4})/?$', 'index.php?lang=ru&year=$matches[1]', 'top');
+        add_rewrite_rule('^en/([0-9]{4})/?$', 'index.php?lang=en&year=$matches[1]', 'top');
+        add_rewrite_rule('^ru/([0-9]{4})/([0-9]{1,2})/?$', 'index.php?lang=ru&year=$matches[1]&monthnum=$matches[2]', 'top');
+        add_rewrite_rule('^en/([0-9]{4})/([0-9]{1,2})/?$', 'index.php?lang=en&year=$matches[1]&monthnum=$matches[2]', 'top');
+        
+        // Posts with date structure (if using /%year%/%monthnum%/%postname%/)
+        add_rewrite_rule('^ru/([0-9]{4})/([0-9]{1,2})/([^/]+)/?$', 'index.php?lang=ru&year=$matches[1]&monthnum=$matches[2]&name=$matches[3]', 'top');
+        add_rewrite_rule('^en/([0-9]{4})/([0-9]{1,2})/([^/]+)/?$', 'index.php?lang=en&year=$matches[1]&monthnum=$matches[2]&name=$matches[3]', 'top');
+        
+        // Generic posts and pages (catch-all for simple permalinks like /%postname%/)
+        add_rewrite_rule('^ru/([^/]+)/?$', 'index.php?lang=ru&name=$matches[1]', 'top');
+        add_rewrite_rule('^en/([^/]+)/?$', 'index.php?lang=en&name=$matches[1]', 'top');
+        
+        // Nested pages (for hierarchical pages)
+        add_rewrite_rule('^ru/(.+?)/?$', 'index.php?lang=ru&pagename=$matches[1]', 'top');
+        add_rewrite_rule('^en/(.+?)/?$', 'index.php?lang=en&pagename=$matches[1]', 'top');
     }
     
     public function add_query_vars($vars) {
@@ -577,12 +591,39 @@ class BudcedostuMultilingual {
         
         // If it's not the default language, add language prefix
         if ($post_language !== $this->default_language && isset($this->languages[$post_language])) {
-            $site_url = trailingslashit(home_url());
-            $relative_url = str_replace($site_url, '', $permalink);
-            $permalink = $site_url . $this->languages[$post_language]['url_prefix'] . '/' . ltrim($relative_url, '/');
+            // Check if this is a homepage translation
+            if ($this->is_homepage_translation($post_id)) {
+                // Return clean language URL for homepage translations
+                return home_url('/' . $this->languages[$post_language]['url_prefix'] . '/');
+            } else {
+                // Regular page - add language prefix
+                $site_url = trailingslashit(home_url());
+                $relative_url = str_replace($site_url, '', $permalink);
+                $permalink = $site_url . $this->languages[$post_language]['url_prefix'] . '/' . ltrim($relative_url, '/');
+            }
         }
         
         return $permalink;
+    }
+    
+    /**
+     * Check if a post is a homepage translation
+     */
+    public function is_homepage_translation($post_id) {
+        // Check if this post is linked to the homepage as a translation
+        $homepage_id = get_option('page_on_front');
+        if (!$homepage_id) {
+            // No static homepage set, check if this is named like a homepage translation
+            $post = get_post($post_id);
+            if ($post && in_array($post->post_name, array('home', 'homepage', 'glavnaya', 'главная'))) {
+                return true;
+            }
+            return false;
+        }
+        
+        // Check if this post is a translation of the homepage
+        $translation_group = $this->get_all_translations($homepage_id);
+        return in_array($post_id, $translation_group);
     }
     
     /**
