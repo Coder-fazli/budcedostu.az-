@@ -187,6 +187,12 @@ class BudcedostuMultilingual {
     }
     
     public function parse_language_request($wp) {
+        // Debug logging
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('Multilingual parse_request: ' . print_r($wp->query_vars, true));
+            error_log('Request URI: ' . $_SERVER['REQUEST_URI']);
+        }
+        
         // Handle /az/ redirects
         if (isset($wp->query_vars['redirect_az'])) {
             $path = isset($wp->query_vars['path']) ? $wp->query_vars['path'] : '';
@@ -195,19 +201,50 @@ class BudcedostuMultilingual {
             exit;
         }
         
+        // Detect language from URL if not set by rewrite rules
+        $request_uri = $_SERVER['REQUEST_URI'];
+        $detected_lang = null;
+        
+        if (strpos($request_uri, '/ru/') === 0 || $request_uri === '/ru' || $request_uri === '/ru/') {
+            $detected_lang = 'ru';
+        } elseif (strpos($request_uri, '/en/') === 0 || $request_uri === '/en' || $request_uri === '/en/') {
+            $detected_lang = 'en';
+        }
+        
         // Set current language
         if (isset($wp->query_vars['lang'])) {
             $this->current_language = $wp->query_vars['lang'];
+        } elseif ($detected_lang) {
+            $this->current_language = $detected_lang;
+            $wp->query_vars['lang'] = $detected_lang;
         } else {
             $this->current_language = $this->default_language;
         }
         
-        // Handle language-specific homepage
-        if (isset($wp->query_vars['is_home']) && isset($wp->query_vars['lang'])) {
-            $this->handle_language_homepage($wp->query_vars['lang']);
+        // Handle Russian homepage specifically
+        if ($request_uri === '/ru' || $request_uri === '/ru/') {
+            $this->handle_language_homepage('ru');
+            return;
         }
         
-        // Handle language-specific post/page queries
+        // Handle English homepage specifically  
+        if ($request_uri === '/en' || $request_uri === '/en/') {
+            $this->handle_language_homepage('en');
+            return;
+        }
+        
+        // Handle language-specific homepage from rewrite rules
+        if (isset($wp->query_vars['is_home']) && isset($wp->query_vars['lang'])) {
+            $this->handle_language_homepage($wp->query_vars['lang']);
+            return;
+        }
+        
+        // Handle Russian posts/pages specifically
+        if ($detected_lang && ($detected_lang === 'ru' || $detected_lang === 'en')) {
+            $this->handle_language_url_parsing($request_uri, $detected_lang, $wp);
+        }
+        
+        // Handle language-specific post/page queries from rewrite rules
         if (isset($wp->query_vars['lang']) && (isset($wp->query_vars['name']) || isset($wp->query_vars['pagename']))) {
             $this->handle_language_post_query($wp);
         }
@@ -249,6 +286,58 @@ class BudcedostuMultilingual {
             );
             
             $query->set('meta_query', $meta_query);
+        }
+    }
+    
+    /**
+     * Handle language URL parsing manually
+     */
+    public function handle_language_url_parsing($request_uri, $language, $wp) {
+        // Remove language prefix from URI
+        $clean_uri = preg_replace('#^/' . $language . '/?#', '/', $request_uri);
+        $clean_uri = trim($clean_uri, '/');
+        
+        if (empty($clean_uri)) {
+            // This is the homepage
+            $this->handle_language_homepage($language);
+            return;
+        }
+        
+        // Try to find post/page by slug
+        $parts = explode('/', $clean_uri);
+        $slug = end($parts);
+        
+        if (!empty($slug)) {
+            // Try to find post first
+            $post = $this->get_post_by_name_and_language($slug, $language, 'post');
+            if ($post) {
+                $wp->query_vars['p'] = $post->ID;
+                $wp->query_vars['post_type'] = 'post';
+                $wp->query_vars['name'] = $slug;
+                
+                global $wp_query;
+                $wp_query->is_single = true;
+                $wp_query->is_singular = true;
+                $wp_query->is_404 = false;
+                $wp_query->is_home = false;
+                $wp_query->is_front_page = false;
+                return;
+            }
+            
+            // Try to find page
+            $page = $this->get_post_by_name_and_language($slug, $language, 'page');
+            if ($page) {
+                $wp->query_vars['page_id'] = $page->ID;
+                $wp->query_vars['pagename'] = $slug;
+                
+                global $wp_query;
+                $wp_query->is_page = true;
+                $wp_query->is_singular = true; 
+                $wp_query->is_404 = false;
+                $wp_query->is_home = false;
+                $wp_query->is_front_page = false;
+                return;
+            }
         }
     }
     

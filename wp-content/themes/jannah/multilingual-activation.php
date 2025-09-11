@@ -61,9 +61,17 @@ function budcedostu_check_multilingual_activation() {
     }
     
     // Check if we need to flush rewrite rules for homepage fix
-    if (get_option('budcedostu_permalink_rules_updated') !== 'yes') {
+    if (get_option('budcedostu_query_fix_rules_updated') !== 'yes') {
         flush_rewrite_rules();
-        update_option('budcedostu_permalink_rules_updated', 'yes');
+        update_option('budcedostu_query_fix_rules_updated', 'yes');
+    }
+    
+    // Force flush rewrite rules periodically for debugging
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        if (!get_transient('budcedostu_debug_rules_flushed')) {
+            flush_rewrite_rules();
+            set_transient('budcedostu_debug_rules_flushed', true, 300); // 5 minutes
+        }
     }
 }
 add_action('init', 'budcedostu_check_multilingual_activation');
