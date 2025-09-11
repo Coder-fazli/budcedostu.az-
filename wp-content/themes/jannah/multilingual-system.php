@@ -77,6 +77,13 @@ class BudcedostuMultilingual {
         
         // Sitemap modifications
         add_filter('wp_sitemaps_posts_entry', array($this, 'filter_sitemap_entry'), 10, 3);
+        
+        // Permalink modifications
+        add_filter('post_link', array($this, 'modify_post_permalink'), 10, 3);
+        add_filter('page_link', array($this, 'modify_page_permalink'), 10, 2);
+        
+        // Save post hook to ensure language is set
+        add_action('save_post', array($this, 'ensure_post_language'), 5, 1);
     }
     
     /**
@@ -535,6 +542,77 @@ class BudcedostuMultilingual {
         $post_lang = $this->get_post_language($post->ID);
         $entry['loc'] = $this->get_permalink_for_language($post->ID, $post_lang);
         return $entry;
+    }
+    
+    /**
+     * Modify post permalink to include language prefix
+     */
+    public function modify_post_permalink($permalink, $post, $leavename = false) {
+        if (!$post) {
+            return $permalink;
+        }
+        
+        $post_language = $this->get_post_language($post->ID);
+        
+        // If it's not the default language, add language prefix
+        if ($post_language !== $this->default_language && isset($this->languages[$post_language])) {
+            $site_url = trailingslashit(home_url());
+            $relative_url = str_replace($site_url, '', $permalink);
+            $permalink = $site_url . $this->languages[$post_language]['url_prefix'] . '/' . ltrim($relative_url, '/');
+        }
+        
+        return $permalink;
+    }
+    
+    /**
+     * Modify page permalink to include language prefix
+     */
+    public function modify_page_permalink($permalink, $post_id) {
+        $post = get_post($post_id);
+        if (!$post) {
+            return $permalink;
+        }
+        
+        $post_language = $this->get_post_language($post_id);
+        
+        // If it's not the default language, add language prefix
+        if ($post_language !== $this->default_language && isset($this->languages[$post_language])) {
+            $site_url = trailingslashit(home_url());
+            $relative_url = str_replace($site_url, '', $permalink);
+            $permalink = $site_url . $this->languages[$post_language]['url_prefix'] . '/' . ltrim($relative_url, '/');
+        }
+        
+        return $permalink;
+    }
+    
+    /**
+     * Ensure post has a language set when saved
+     */
+    public function ensure_post_language($post_id) {
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+        
+        if (!current_user_can('edit_post', $post_id)) {
+            return;
+        }
+        
+        // Check if language is already set
+        $current_language = get_post_meta($post_id, '_budcedostu_language', true);
+        
+        if (empty($current_language)) {
+            // Set default language if none is set
+            $language_to_set = $this->default_language;
+            
+            // Check if this is a translation being created
+            if (isset($_POST['budcedostu_post_language'])) {
+                $language_to_set = sanitize_text_field($_POST['budcedostu_post_language']);
+            } elseif (isset($_GET['target_lang'])) {
+                $language_to_set = sanitize_text_field($_GET['target_lang']);
+            }
+            
+            $this->set_post_language($post_id, $language_to_set);
+        }
     }
     
     /**
