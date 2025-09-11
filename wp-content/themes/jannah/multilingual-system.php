@@ -251,18 +251,11 @@ class BudcedostuMultilingual {
     }
     
     public function handle_language_homepage($language) {
-        // Force WordPress to show the homepage for the specific language
-        global $wp_query;
-        $wp_query->is_home = true;
-        $wp_query->is_front_page = true;
-        $wp_query->is_page = false;
-        $wp_query->is_singular = false;
-        $wp_query->is_404 = false;
-        
         // Set the current language
         $this->current_language = $language;
         
-        // Modify the main query to show language-specific content
+        // Don't override WordPress query flags - let WordPress handle template loading normally
+        // Just ensure language filtering is applied
         add_action('pre_get_posts', array($this, 'modify_homepage_query_for_language'), 1);
     }
     
@@ -311,31 +304,20 @@ class BudcedostuMultilingual {
             // Try to find post first
             $post = $this->get_post_by_name_and_language($slug, $language, 'post');
             if ($post) {
+                // Set query vars to load the correct post
                 $wp->query_vars['p'] = $post->ID;
-                $wp->query_vars['post_type'] = 'post';
                 $wp->query_vars['name'] = $slug;
-                
-                global $wp_query;
-                $wp_query->is_single = true;
-                $wp_query->is_singular = true;
-                $wp_query->is_404 = false;
-                $wp_query->is_home = false;
-                $wp_query->is_front_page = false;
+                // Don't override WordPress query flags - let WP handle template loading
                 return;
             }
             
             // Try to find page
             $page = $this->get_post_by_name_and_language($slug, $language, 'page');
             if ($page) {
-                $wp->query_vars['page_id'] = $page->ID;
+                // Set query vars to load the correct page
+                $wp->query_vars['page_id'] = $page->ID; 
                 $wp->query_vars['pagename'] = $slug;
-                
-                global $wp_query;
-                $wp_query->is_page = true;
-                $wp_query->is_singular = true; 
-                $wp_query->is_404 = false;
-                $wp_query->is_home = false;
-                $wp_query->is_front_page = false;
+                // Don't override WordPress query flags - let WP handle template loading
                 return;
             }
         }
@@ -356,20 +338,13 @@ class BudcedostuMultilingual {
             $post = $this->get_post_by_name_and_language($post_name, $language);
             
             if ($post) {
-                // Override query vars to point to the correct post
+                // Set the correct post ID
                 $wp->query_vars['p'] = $post->ID;
-                $wp->query_vars['post_type'] = $post->post_type;
-                unset($wp->query_vars['name']); // Remove name to avoid conflicts
-                
-                // Set query flags
-                global $wp_query;
-                $wp_query->is_single = true;
-                $wp_query->is_singular = true;
-                $wp_query->is_404 = false;
+                // Keep the name for WordPress to handle properly
             }
         }
         
-        // For pages (pagename parameter)
+        // For pages (pagename parameter)  
         if (isset($wp->query_vars['pagename'])) {
             $page_name = $wp->query_vars['pagename'];
             
@@ -382,15 +357,9 @@ class BudcedostuMultilingual {
             $page = $this->get_post_by_name_and_language($page_slug, $language, 'page');
             
             if ($page) {
-                // Override query vars to point to the correct page
+                // Set the correct page ID
                 $wp->query_vars['page_id'] = $page->ID;
-                unset($wp->query_vars['pagename']); // Remove pagename to avoid conflicts
-                
-                // Set query flags
-                global $wp_query;
-                $wp_query->is_page = true;
-                $wp_query->is_singular = true;
-                $wp_query->is_404 = false;
+                // Keep the pagename for WordPress to handle properly
             }
         }
     }

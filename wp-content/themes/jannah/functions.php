@@ -137,7 +137,13 @@ function jannah_post_content_width( $content ) {
  */
 function create_calculator_page() {
     // Check if page already exists
-    $existing_page = get_page_by_title('Kalkulyatorlar');
+    $existing_page = get_posts(array(
+        'post_type' => 'page',
+        'title' => 'Kalkulyatorlar',
+        'post_status' => 'publish',
+        'numberposts' => 1
+    ));
+    $existing_page = !empty($existing_page) ? $existing_page[0] : null;
     
     if (!$existing_page) {
         // Create the page
@@ -162,7 +168,13 @@ function create_calculator_page() {
 
 // Create page on init if doesn't exist
 add_action('init', function() {
-    if (!get_page_by_title('Kalkulyatorlar')) {
+    $existing_page = get_posts(array(
+        'post_type' => 'page',
+        'title' => 'Kalkulyatorlar',
+        'post_status' => 'publish',
+        'numberposts' => 1
+    ));
+    if (empty($existing_page)) {
         create_calculator_page();
     }
 });
