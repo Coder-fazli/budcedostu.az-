@@ -82,9 +82,9 @@ class BudcedostuMultilingual {
         // Sitemap modifications
         add_filter('wp_sitemaps_posts_entry', array($this, 'filter_sitemap_entry'), 10, 3);
         
-        // Permalink modifications with higher priority to prevent double processing
-        add_filter('post_link', array($this, 'modify_post_permalink'), 1, 3);
-        add_filter('page_link', array($this, 'modify_page_permalink'), 1, 2);
+        // TEMPORARILY DISABLED - Permalink modifications causing admin errors
+        // add_filter('post_link', array($this, 'modify_post_permalink'), 1, 3);
+        // add_filter('page_link', array($this, 'modify_page_permalink'), 1, 2);
         
         // Save post hook to ensure language is set
         add_action('save_post', array($this, 'ensure_post_language'), 5, 1);
@@ -104,11 +104,9 @@ class BudcedostuMultilingual {
         add_filter('content_url', array($this, 'fix_core_asset_urls'));
         add_filter('home_url', array($this, 'fix_wp_assets_home_url'), 10, 2);
         
-        // Force rewrite rules flush for new exclusions  
-        add_action('init', array($this, 'flush_rules_once'), 999);
-        
-        // Force permalink refresh on admin visits
-        add_action('admin_init', array($this, 'force_permalink_refresh'));
+        // TEMPORARILY DISABLED - Rewrite rule modifications causing errors
+        // add_action('init', array($this, 'flush_rules_once'), 999);
+        // add_action('admin_init', array($this, 'force_permalink_refresh'));
         
         // TEMPORARILY DISABLED - might be causing duplicates
         // add_action('pre_get_posts', array($this, 'fix_russian_post_queries'), 5);
@@ -116,8 +114,8 @@ class BudcedostuMultilingual {
         // Simple redirect solution for WordPress assets with language prefix
         add_action('template_redirect', array($this, 'redirect_wp_assets'), 1);
         
-        // Canonicalization - redirect unprefixed/wrong-locale URLs to correct canonical URLs
-        add_action('template_redirect', array($this, 'canonicalize_urls'), 5);
+        // TEMPORARILY DISABLED - Canonicalization causing errors
+        // add_action('template_redirect', array($this, 'canonicalize_urls'), 5);
         
         // Remove debug hooks that don't have methods
         // add_action('wp_footer', array($this, 'debug_url_info'));
