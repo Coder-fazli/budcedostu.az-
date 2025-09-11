@@ -82,9 +82,9 @@ class BudcedostuMultilingual {
         // Sitemap modifications
         add_filter('wp_sitemaps_posts_entry', array($this, 'filter_sitemap_entry'), 10, 3);
         
-        // Permalink modifications - Re-enabled with fixes
-        add_filter('post_link', array($this, 'modify_post_permalink'), 10, 3);
-        add_filter('page_link', array($this, 'modify_page_permalink'), 10, 2);
+        // Permalink modifications with higher priority to prevent double processing
+        add_filter('post_link', array($this, 'modify_post_permalink'), 1, 3);
+        add_filter('page_link', array($this, 'modify_page_permalink'), 1, 2);
         
         // Save post hook to ensure language is set
         add_action('save_post', array($this, 'ensure_post_language'), 5, 1);
@@ -104,8 +104,11 @@ class BudcedostuMultilingual {
         add_filter('content_url', array($this, 'fix_core_asset_urls'));
         add_filter('home_url', array($this, 'fix_wp_assets_home_url'), 10, 2);
         
-        // Force rewrite rules flush for new exclusions
+        // Force rewrite rules flush for new exclusions  
         add_action('init', array($this, 'flush_rules_once'), 999);
+        
+        // Force permalink refresh on admin visits
+        add_action('admin_init', array($this, 'force_permalink_refresh'));
         
         // TEMPORARILY DISABLED - might be causing duplicates
         // add_action('pre_get_posts', array($this, 'fix_russian_post_queries'), 5);
@@ -802,25 +805,36 @@ class BudcedostuMultilingual {
         if ($post_language !== $this->default_language && isset($this->languages[$post_language])) {
             $lang_prefix = $this->languages[$post_language]['url_prefix'];
             
-            // Prevent double prefixes - more robust check
-            if (strpos($permalink, '/' . $lang_prefix . '/') !== false) {
-                return $permalink;
+            // AGGRESSIVE check - if ANY language prefix exists, fix the whole URL
+            if (strpos($permalink, '/ru/') !== false || strpos($permalink, '/en/') !== false) {
+                // Get clean base URL
+                $site_url = untrailingslashit(home_url());
+                
+                // Extract the path and completely rebuild URL
+                $parsed_url = parse_url($permalink);
+                $path = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+                $path = trim($path, '/');
+                
+                // Aggressively remove ALL language prefixes
+                $path = preg_replace('#^(ru|en)#', '', $path);
+                $path = preg_replace('#^/(ru|en)#', '', $path);  
+                $path = preg_replace('#(ru|en)/#', '', $path);
+                $path = trim($path, '/');
+                
+                // Build clean URL with single prefix
+                if (!empty($path)) {
+                    return $site_url . '/' . $lang_prefix . '/' . $path . '/';
+                } else {
+                    return $site_url . '/' . $lang_prefix . '/';
+                }
             }
             
-            // Get clean base URL
+            // If no existing prefix, add it normally
             $site_url = untrailingslashit(home_url());
-            
-            // Extract the path from current permalink
             $parsed_url = parse_url($permalink);
             $path = isset($parsed_url['path']) ? $parsed_url['path'] : '';
             $path = trim($path, '/');
             
-            // Remove ALL existing language prefixes to prevent duplicates
-            $path = preg_replace('#^(ru|en)(/|$)#', '', $path);
-            $path = preg_replace('#^(ru|en)(/.*)?$#', '$2', $path);
-            $path = trim($path, '/');
-            
-            // Build clean URL with single language prefix
             if (!empty($path)) {
                 $permalink = $site_url . '/' . $lang_prefix . '/' . $path . '/';
             } else {
@@ -1107,6 +1121,19 @@ class BudcedostuMultilingual {
         if (!$flushed) {
             flush_rewrite_rules();
             $flushed = true;
+        }
+    }
+    
+    /**
+     * Force permalink refresh to clear cached URLs
+     */
+    public function force_permalink_refresh() {
+        static $refreshed = false;
+        if (!$refreshed) {
+            // Clear permalink cache
+            delete_option('rewrite_rules');
+            flush_rewrite_rules(false);
+            $refreshed = true;
         }
     }
     
