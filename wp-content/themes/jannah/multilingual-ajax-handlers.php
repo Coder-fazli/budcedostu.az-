@@ -178,6 +178,13 @@ function budcedostu_create_translation_draft($source_post_id, $target_language) 
         'post_name' => $source_post->post_name . '-' . $target_language
     );
     
+    // Safety check - prevent creating multiple translations of the same post
+    $existing_translation = $budcedostu_multilingual->get_translation_id($source_post_id, $target_language);
+    if ($existing_translation) {
+        // Translation already exists, don't create duplicate
+        return $existing_translation;
+    }
+    
     $translation_id = wp_insert_post($translation_data);
     
     if (is_wp_error($translation_id)) {
