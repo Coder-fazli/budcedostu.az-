@@ -598,55 +598,119 @@ class BudcedostuMultilingual {
         if (!is_admin() && is_admin_bar_showing()) {
             ?>
             <style type="text/css">
-            /* Fix admin bar on multilingual pages */
+            /* Force WordPress admin bar to default horizontal layout */
             html {
                 margin-top: 32px !important;
             }
             
-            @media screen and (max-width: 782px) {
-                html {
-                    margin-top: 46px !important;
-                }
+            body {
+                margin-top: 0 !important;
+                padding-top: 0 !important;
             }
             
+            /* Reset admin bar to default WordPress layout */
             #wpadminbar {
                 position: fixed !important;
                 top: 0 !important;
                 left: 0 !important;
+                right: 0 !important;
                 width: 100% !important;
-                z-index: 99999 !important;
                 height: 32px !important;
                 min-height: 32px !important;
+                max-height: 32px !important;
+                z-index: 99999 !important;
+                background: #23282d !important;
+                color: #b4b9be !important;
+                display: block !important;
+                overflow: visible !important;
+                box-sizing: border-box !important;
+                direction: ltr !important;
             }
             
-            @media screen and (max-width: 782px) {
-                #wpadminbar {
-                    height: 46px !important;
-                    min-height: 46px !important;
-                }
+            /* Force horizontal layout for admin bar items */
+            #wpadminbar .ab-top-menu {
+                float: left !important;
+                height: 32px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                list-style: none !important;
+                display: block !important;
             }
             
-            #wpadminbar .ab-top-menu,
             #wpadminbar .ab-top-secondary {
-                display: flex !important;
-                flex-direction: row !important;
+                float: right !important;
+                height: 32px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                list-style: none !important;
+                display: block !important;
             }
             
             #wpadminbar .ab-item {
-                display: inline-block !important;
-            }
-            
-            /* Ensure proper admin bar background */
-            #wpadminbar {
-                background: #23282d !important;
+                display: block !important;
+                float: left !important;
+                height: 32px !important;
+                line-height: 32px !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                position: relative !important;
+                text-decoration: none !important;
                 color: #b4b9be !important;
             }
             
-            /* Fix admin bar sub-menus */
+            #wpadminbar .ab-top-secondary .ab-item {
+                float: right !important;
+            }
+            
+            /* Fix dropdown menus */
             #wpadminbar .ab-sub-wrapper {
                 position: absolute !important;
-                top: 100% !important;
+                top: 32px !important;
                 left: 0 !important;
+                background: #32373c !important;
+                display: none !important;
+                z-index: 100000 !important;
+            }
+            
+            /* Mobile responsive */
+            @media screen and (max-width: 782px) {
+                html {
+                    margin-top: 46px !important;
+                }
+                
+                #wpadminbar {
+                    height: 46px !important;
+                    min-height: 46px !important;
+                    max-height: 46px !important;
+                }
+                
+                #wpadminbar .ab-top-menu,
+                #wpadminbar .ab-top-secondary {
+                    height: 46px !important;
+                }
+                
+                #wpadminbar .ab-item {
+                    height: 46px !important;
+                    line-height: 46px !important;
+                }
+                
+                #wpadminbar .ab-sub-wrapper {
+                    top: 46px !important;
+                }
+            }
+            
+            /* Hide any vertical/sidebar admin bar styles */
+            #wpadminbar.vertical {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 32px !important;
+            }
+            
+            /* Override any theme or plugin interference */
+            #wpadminbar * {
+                box-sizing: border-box !important;
             }
             </style>
             <?php
