@@ -82,9 +82,9 @@ class BudcedostuMultilingual {
         // Sitemap modifications
         add_filter('wp_sitemaps_posts_entry', array($this, 'filter_sitemap_entry'), 10, 3);
         
-        // Permalink modifications
-        add_filter('post_link', array($this, 'modify_post_permalink'), 10, 3);
-        add_filter('page_link', array($this, 'modify_page_permalink'), 10, 2);
+        // TEMPORARILY DISABLED - Permalink modifications causing double domains
+        // add_filter('post_link', array($this, 'modify_post_permalink'), 10, 3);
+        // add_filter('page_link', array($this, 'modify_page_permalink'), 10, 2);
         
         // Save post hook to ensure language is set
         add_action('save_post', array($this, 'ensure_post_language'), 5, 1);
@@ -777,33 +777,28 @@ class BudcedostuMultilingual {
             return $permalink;
         }
         
+        // If this is already a non-default language post, don't modify
+        if ($this->get_current_language() !== $this->default_language) {
+            return $permalink;
+        }
+        
         $post_language = $this->get_post_language($post->ID);
         
-        // If it's not the default language, add language prefix
+        // Only modify if post is in a non-default language
         if ($post_language !== $this->default_language && isset($this->languages[$post_language])) {
             $lang_prefix = $this->languages[$post_language]['url_prefix'];
             
-            // Check if permalink already contains the language prefix
-            if (strpos($permalink, '/' . $lang_prefix . '/') !== false) {
-                // Already has language prefix, return as-is
-                return $permalink;
-            }
-            
-            // Clean up malformed URLs with multiple domains
+            // Get clean base URL
             $site_url = untrailingslashit(home_url());
             
-            // Remove multiple occurrences of the site URL
-            $clean_url = $permalink;
-            while (strpos($clean_url, $site_url) !== false) {
-                $clean_url = str_replace($site_url, '', $clean_url);
+            // Get the post slug/path
+            $post_name = $post->post_name;
+            if (empty($post_name)) {
+                $post_name = sanitize_title($post->post_title);
             }
             
-            // Clean up any remaining protocols and slashes
-            $clean_url = preg_replace('#^https?://#', '', $clean_url);
-            $clean_url = ltrim($clean_url, '/');
-            
-            // Build clean URL with language prefix
-            $permalink = $site_url . '/' . $lang_prefix . '/' . $clean_url;
+            // Build clean URL from scratch
+            $permalink = $site_url . '/' . $lang_prefix . '/' . $post_name . '/';
         }
         
         return $permalink;
