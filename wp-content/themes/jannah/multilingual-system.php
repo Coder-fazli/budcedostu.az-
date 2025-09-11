@@ -53,7 +53,7 @@ class BudcedostuMultilingual {
         // URL rewriting
         add_action('init', array($this, 'add_rewrite_rules'), 1);
         add_filter('query_vars', array($this, 'add_query_vars'));
-        add_action('parse_request', array($this, 'parse_language_request'));
+        // TEMP DISABLED - add_action('parse_request', array($this, 'parse_language_request'));
         
         // Admin interface
         add_action('admin_init', array($this, 'admin_init'));
@@ -68,13 +68,13 @@ class BudcedostuMultilingual {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         
         // Language switching
-        add_action('wp', array($this, 'detect_language'));
+        // TEMP DISABLED - add_action('wp', array($this, 'detect_language'));
         
         // Menu handling
         add_filter('wp_nav_menu_args', array($this, 'language_specific_menu'));
         
         // Search modifications
-        add_action('pre_get_posts', array($this, 'modify_search_query'));
+        // TEMP DISABLED - add_action('pre_get_posts', array($this, 'modify_search_query'));
         
         // Sitemap modifications
         add_filter('wp_sitemaps_posts_entry', array($this, 'filter_sitemap_entry'), 10, 3);
@@ -267,7 +267,7 @@ class BudcedostuMultilingual {
         
         // Don't override WordPress query flags - let WordPress handle template loading normally
         // Just ensure language filtering is applied
-        add_action('pre_get_posts', array($this, 'modify_homepage_query_for_language'), 1);
+        // TEMP DISABLED - add_action('pre_get_posts', array($this, 'modify_homepage_query_for_language'), 1);
     }
     
     public function modify_homepage_query_for_language($query) {
