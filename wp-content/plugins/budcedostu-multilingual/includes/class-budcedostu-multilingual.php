@@ -72,8 +72,8 @@ class BudcedostuMultilingual {
         // Menu handling
         add_filter('wp_nav_menu_args', array($this, 'language_specific_menu'));
         
-        // Query modifications for language isolation
-        add_action('pre_get_posts', array($this, 'filter_posts_by_language'));
+        // Query modifications for language isolation (temporarily disabled)
+        // add_action('pre_get_posts', array($this, 'filter_posts_by_language'));
         
         // Save post hook to ensure language is set
         add_action('save_post', array($this, 'ensure_post_language'), 5, 1);
@@ -88,8 +88,8 @@ class BudcedostuMultilingual {
         // Template redirect for language handling
         add_action('template_redirect', array($this, 'handle_language_redirects'), 1);
         
-        // Language-aware home URL
-        add_filter('home_url', array($this, 'language_aware_home_url'), 10, 2);
+        // Language-aware home URL (temporarily disabled)
+        // add_filter('home_url', array($this, 'language_aware_home_url'), 10, 2);
     }
     
     /**
