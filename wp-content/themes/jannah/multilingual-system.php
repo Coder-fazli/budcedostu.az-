@@ -96,6 +96,9 @@ class BudcedostuMultilingual {
         // Prevent language prefix from being added to WordPress core assets
         add_filter('script_loader_src', array($this, 'fix_core_asset_urls'));
         add_filter('style_loader_src', array($this, 'fix_core_asset_urls'));
+        add_filter('plugins_url', array($this, 'fix_core_asset_urls'));
+        add_filter('includes_url', array($this, 'fix_core_asset_urls'));
+        add_filter('content_url', array($this, 'fix_core_asset_urls'));
     }
     
     /**
@@ -876,18 +879,37 @@ class BudcedostuMultilingual {
             return $src;
         }
         
-        $site_url = home_url('/');
         $current_lang = $this->get_current_language();
         
-        // If we're on a non-default language page and the URL has the language prefix
-        if ($current_lang !== $this->default_language) {
-            $lang_prefix = $this->languages[$current_lang]['url_prefix'];
-            $prefixed_url = home_url('/' . $lang_prefix . '/');
-            
-            // Check if this is a WordPress core asset URL with language prefix
-            if (strpos($src, $prefixed_url . 'wp-') === 0) {
-                // Remove the language prefix from WordPress core assets
-                $src = str_replace($prefixed_url . 'wp-', $site_url . 'wp-', $src);
+        // Only fix for non-default languages
+        if ($current_lang === $this->default_language) {
+            return $src;
+        }
+        
+        $lang_prefix = isset($this->languages[$current_lang]) ? $this->languages[$current_lang]['url_prefix'] : '';
+        if (!$lang_prefix) {
+            return $src;
+        }
+        
+        $site_url = untrailingslashit(home_url());
+        
+        // Fix various patterns of WordPress core URLs with language prefix
+        $patterns = array(
+            $site_url . '/' . $lang_prefix . '/wp-includes/' => $site_url . '/wp-includes/',
+            $site_url . '/' . $lang_prefix . '/wp-admin/' => $site_url . '/wp-admin/',
+            $site_url . '/' . $lang_prefix . '/wp-content/' => $site_url . '/wp-content/',
+            '/' . $lang_prefix . '/wp-includes/' => '/wp-includes/',
+            '/' . $lang_prefix . '/wp-admin/' => '/wp-admin/',
+            '/' . $lang_prefix . '/wp-content/' => '/wp-content/',
+            $lang_prefix . '/wp-includes/' => '/wp-includes/',
+            $lang_prefix . '/wp-admin/' => '/wp-admin/',
+            $lang_prefix . '/wp-content/' => '/wp-content/'
+        );
+        
+        foreach ($patterns as $from => $to) {
+            if (strpos($src, $from) !== false) {
+                $src = str_replace($from, $to, $src);
+                break;
             }
         }
         
