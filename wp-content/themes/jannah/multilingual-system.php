@@ -88,10 +88,6 @@ class BudcedostuMultilingual {
         
         // Save post hook to ensure language is set
         add_action('save_post', array($this, 'ensure_post_language'), 5, 1);
-        
-        // Fix admin bar on multilingual pages
-        add_action('wp_head', array($this, 'add_admin_bar_fix_styles'));
-        add_action('wp_footer', array($this, 'add_admin_bar_fix_scripts'));
     }
     
     /**
@@ -919,75 +915,6 @@ class BudcedostuMultilingual {
         
         $html .= '</div>';
         return $html;
-    }
-    
-    /**
-     * Add CSS fixes for admin bar on multilingual pages
-     */
-    public function add_admin_bar_fix_styles() {
-        if (!is_admin() && is_admin_bar_showing()) {
-            ?>
-            <style type="text/css">
-            /* Fix admin bar on multilingual pages */
-            html {
-                margin-top: 32px !important;
-            }
-            * html body {
-                margin-top: 32px !important;
-            }
-            #wpadminbar {
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                z-index: 99999 !important;
-                height: 32px !important;
-                display: block !important;
-            }
-            #wpadminbar .ab-top-menu,
-            #wpadminbar .ab-top-secondary {
-                float: left !important;
-            }
-            #wpadminbar .ab-top-secondary {
-                float: right !important;
-            }
-            @media screen and (max-width: 782px) {
-                html {
-                    margin-top: 46px !important;
-                }
-                * html body {
-                    margin-top: 46px !important;
-                }
-                #wpadminbar {
-                    height: 46px !important;
-                }
-            }
-            </style>
-            <?php
-        }
-    }
-    
-    /**
-     * Add JavaScript fixes for admin bar behavior
-     */
-    public function add_admin_bar_fix_scripts() {
-        if (!is_admin() && is_admin_bar_showing()) {
-            ?>
-            <script type="text/javascript">
-            document.addEventListener('DOMContentLoaded', function() {
-                // Ensure admin bar is properly positioned
-                var adminBar = document.getElementById('wpadminbar');
-                if (adminBar) {
-                    adminBar.style.position = 'fixed';
-                    adminBar.style.top = '0';
-                    adminBar.style.left = '0';
-                    adminBar.style.width = '100%';
-                    adminBar.style.zIndex = '99999';
-                }
-            });
-            </script>
-            <?php
-        }
     }
 }
 
