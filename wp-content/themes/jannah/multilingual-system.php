@@ -53,7 +53,7 @@ class BudcedostuMultilingual {
         // URL rewriting
         add_action('init', array($this, 'add_rewrite_rules'), 1);
         add_filter('query_vars', array($this, 'add_query_vars'));
-        // TEMP DISABLED - add_action('parse_request', array($this, 'parse_language_request'));
+        add_action('parse_request', array($this, 'parse_language_request'));
         
         // Admin interface
         add_action('admin_init', array($this, 'admin_init'));
@@ -68,13 +68,13 @@ class BudcedostuMultilingual {
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         
         // Language switching
-        // TEMP DISABLED - add_action('wp', array($this, 'detect_language'));
+        add_action('wp', array($this, 'detect_language'));
         
         // Menu handling
         add_filter('wp_nav_menu_args', array($this, 'language_specific_menu'));
         
         // Search modifications
-        // TEMP DISABLED - add_action('pre_get_posts', array($this, 'modify_search_query'));
+        add_action('pre_get_posts', array($this, 'modify_search_query'));
         
         // Sitemap modifications
         add_filter('wp_sitemaps_posts_entry', array($this, 'filter_sitemap_entry'), 10, 3);
@@ -85,6 +85,10 @@ class BudcedostuMultilingual {
         
         // Save post hook to ensure language is set
         add_action('save_post', array($this, 'ensure_post_language'), 5, 1);
+        
+        // Protect WordPress admin bar from multilingual interference
+        add_action('wp_before_admin_bar_render', array($this, 'preserve_admin_bar_structure'), 1);
+        add_action('admin_bar_menu', array($this, 'ensure_admin_bar_integrity'), 999);
     }
     
     /**
@@ -267,7 +271,7 @@ class BudcedostuMultilingual {
         
         // Don't override WordPress query flags - let WordPress handle template loading normally
         // Just ensure language filtering is applied
-        // TEMP DISABLED - add_action('pre_get_posts', array($this, 'modify_homepage_query_for_language'), 1);
+        add_action('pre_get_posts', array($this, 'modify_homepage_query_for_language'), 1);
     }
     
     public function modify_homepage_query_for_language($query) {
@@ -839,6 +843,103 @@ class BudcedostuMultilingual {
         
         $html .= '</div>';
         return $html;
+    }
+    
+    /**
+     * Preserve WordPress admin bar structure and prevent multilingual interference
+     */
+    public function preserve_admin_bar_structure() {
+        if (!is_admin() && is_admin_bar_showing()) {
+            // Ensure WordPress admin bar assets are loaded properly
+            wp_enqueue_style('admin-bar');
+            wp_enqueue_script('admin-bar');
+            
+            // Add CSS to ensure admin bar maintains its default structure
+            add_action('wp_head', array($this, 'admin_bar_protection_css'), 999999);
+        }
+    }
+    
+    /**
+     * Ensure admin bar maintains its default integrity
+     */
+    public function ensure_admin_bar_integrity($wp_admin_bar) {
+        // Don't interfere with admin bar - just ensure it loads properly
+        if (!is_admin() && is_admin_bar_showing()) {
+            // Force admin bar to use WordPress defaults
+            remove_action('wp_head', '_admin_bar_bump_cb');
+            add_action('wp_head', '_admin_bar_bump_cb');
+        }
+    }
+    
+    /**
+     * Add protective CSS to maintain admin bar default appearance
+     */
+    public function admin_bar_protection_css() {
+        if (!is_admin() && is_admin_bar_showing()) {
+            ?>
+            <style type="text/css" id="budcedostu-admin-bar-protection">
+            /* Ensure WordPress admin bar stays in default horizontal layout */
+            #wpadminbar {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 32px !important;
+                z-index: 99999 !important;
+                background: #23282d !important;
+                direction: ltr !important;
+                font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif !important;
+            }
+            
+            /* Ensure proper admin bar menu layout */
+            #wpadminbar .ab-top-menu,
+            #wpadminbar .ab-top-secondary {
+                display: block !important;
+                float: left !important;
+                height: 32px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            #wpadminbar .ab-top-secondary {
+                float: right !important;
+            }
+            
+            #wpadminbar .ab-item {
+                display: block !important;
+                float: left !important;
+                height: 32px !important;
+                line-height: 32px !important;
+                color: #b4b9be !important;
+            }
+            
+            /* Mobile responsive for admin bar */
+            @media screen and (max-width: 782px) {
+                #wpadminbar {
+                    height: 46px !important;
+                }
+                
+                #wpadminbar .ab-top-menu,
+                #wpadminbar .ab-top-secondary,
+                #wpadminbar .ab-item {
+                    height: 46px !important;
+                    line-height: 46px !important;
+                }
+            }
+            
+            /* Ensure body has proper margin for admin bar */
+            html {
+                margin-top: 32px !important;
+            }
+            
+            @media screen and (max-width: 782px) {
+                html {
+                    margin-top: 46px !important;
+                }
+            }
+            </style>
+            <?php
+        }
     }
 }
 
