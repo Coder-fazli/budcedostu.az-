@@ -99,6 +99,10 @@ class BudcedostuMultilingual {
         add_filter('plugins_url', array($this, 'fix_core_asset_urls'));
         add_filter('includes_url', array($this, 'fix_core_asset_urls'));
         add_filter('content_url', array($this, 'fix_core_asset_urls'));
+        add_filter('home_url', array($this, 'fix_wp_assets_home_url'), 10, 2);
+        
+        // Force rewrite rules flush for new exclusions
+        add_action('init', array($this, 'flush_rules_once'), 999);
     }
     
     /**
@@ -151,6 +155,12 @@ class BudcedostuMultilingual {
      * Setup rewrite rules for language URLs
      */
     public function add_rewrite_rules() {
+        // CRITICAL: Exclude WordPress core directories from language rewrites
+        // This prevents /ru/wp-includes/ from being processed by our multilingual system
+        add_rewrite_rule('^(wp-admin|wp-includes|wp-content)/', false, 'top');
+        add_rewrite_rule('^ru/(wp-admin|wp-includes|wp-content)/', false, 'top');
+        add_rewrite_rule('^en/(wp-admin|wp-includes|wp-content)/', false, 'top');
+        
         // Homepage for languages - MUST come first to avoid conflicts
         add_rewrite_rule('^ru/?$', 'index.php?lang=ru&is_home=1', 'top');
         add_rewrite_rule('^en/?$', 'index.php?lang=en&is_home=1', 'top');
@@ -914,6 +924,35 @@ class BudcedostuMultilingual {
         }
         
         return $src;
+    }
+    
+    /**
+     * Fix home_url for WordPress core assets to prevent language prefix
+     */
+    public function fix_wp_assets_home_url($url, $path) {
+        // Only fix URLs that are for WordPress core assets
+        if ($path && (
+            strpos($path, 'wp-includes/') === 0 ||
+            strpos($path, 'wp-admin/') === 0 ||
+            strpos($path, 'wp-content/') === 0
+        )) {
+            // Return the URL without language prefix for WordPress assets
+            $base_url = untrailingslashit(get_site_url());
+            return $base_url . '/' . ltrim($path, '/');
+        }
+        
+        return $url;
+    }
+    
+    /**
+     * Flush rewrite rules once to apply WordPress core directory exclusions
+     */
+    public function flush_rules_once() {
+        static $flushed = false;
+        if (!$flushed) {
+            flush_rewrite_rules();
+            $flushed = true;
+        }
     }
     
     /**
