@@ -570,6 +570,9 @@ class BudcedostuMultilingual {
     }
     
     public function enqueue_scripts() {
+        // Ensure jQuery is always loaded first
+        wp_enqueue_script('jquery');
+        
         wp_enqueue_script('budcedostu-multilingual', get_template_directory_uri() . '/assets/js/multilingual.js', array('jquery'), '1.0.0', true);
         wp_enqueue_style('budcedostu-multilingual', get_template_directory_uri() . '/assets/css/multilingual.css', array(), '1.0.0');
         
@@ -850,9 +853,15 @@ class BudcedostuMultilingual {
      */
     public function preserve_admin_bar_structure() {
         if (!is_admin() && is_admin_bar_showing()) {
+            // Ensure jQuery is loaded first (admin bar depends on it)
+            wp_enqueue_script('jquery');
+            
             // Ensure WordPress admin bar assets are loaded properly
             wp_enqueue_style('admin-bar');
             wp_enqueue_script('admin-bar');
+            
+            // Force jQuery to load in head for admin bar
+            add_action('wp_head', array($this, 'force_jquery_load'), 1);
             
             // Add CSS to ensure admin bar maintains its default structure
             add_action('wp_head', array($this, 'admin_bar_protection_css'), 999999);
@@ -868,6 +877,16 @@ class BudcedostuMultilingual {
             // Force admin bar to use WordPress defaults
             remove_action('wp_head', '_admin_bar_bump_cb');
             add_action('wp_head', '_admin_bar_bump_cb');
+        }
+    }
+    
+    /**
+     * Force jQuery to load properly for admin bar functionality
+     */
+    public function force_jquery_load() {
+        if (!is_admin() && is_admin_bar_showing()) {
+            // Ensure jQuery is available for admin bar
+            wp_print_scripts('jquery');
         }
     }
     
