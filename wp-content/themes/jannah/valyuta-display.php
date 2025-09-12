@@ -9,6 +9,10 @@ $unique_id = uniqid('valyuta_');
 $current_currency = !empty($atts['currency']) ? $atts['currency'] : 'USD';
 $show_cash = $atts['show_cash'] === 'true';
 
+// Debug output for currency
+error_log("VALYUTA DEBUG - Current currency: " . $current_currency);
+error_log("VALYUTA DEBUG - Show cash: " . ($show_cash ? 'true' : 'false'));
+
 // Debug information
 if (WP_DEBUG) {
     error_log('Valyuta Display Debug:');
@@ -28,11 +32,11 @@ if (WP_DEBUG) {
         <div class="controls-left">
             <div class="currency-selector">
                 <select id="currency-select-<?php echo $unique_id; ?>" class="currency-dropdown">
-                    <option value="USD" <?php echo ($current_currency === 'USD') ? 'selected="selected"' : ''; ?>>🇺🇸 USD</option>
-                    <option value="EUR" <?php echo ($current_currency === 'EUR') ? 'selected="selected"' : ''; ?>>🇪🇺 EUR</option>
-                    <option value="RUB" <?php echo ($current_currency === 'RUB') ? 'selected="selected"' : ''; ?>>🇷🇺 RUB</option>
-                    <option value="GBP" <?php echo ($current_currency === 'GBP') ? 'selected="selected"' : ''; ?>>🇬🇧 GBP</option>
-                    <option value="TRY" <?php echo ($current_currency === 'TRY') ? 'selected="selected"' : ''; ?>>🇹🇷 TRY</option>
+                    <option value="USD" selected="selected">🇺🇸 USD</option>
+                    <option value="EUR">🇪🇺 EUR</option>
+                    <option value="RUB">🇷🇺 RUB</option>
+                    <option value="GBP">🇬🇧 GBP</option>
+                    <option value="TRY">🇹🇷 TRY</option>
                 </select>
             </div>
         </div>
@@ -412,8 +416,10 @@ if (WP_DEBUG) {
 </style>
 
 <script>
-// Debug and localize ajaxurl for frontend
-const ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+// Debug and localize ajaxurl for frontend (check if already exists)
+if (typeof ajaxurl === 'undefined') {
+    var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+}
 console.log('AJAX URL:', ajaxurl);
 
 document.addEventListener('DOMContentLoaded', function() {
