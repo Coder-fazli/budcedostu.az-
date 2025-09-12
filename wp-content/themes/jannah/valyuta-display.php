@@ -221,11 +221,18 @@ if (WP_DEBUG) {
     cursor: pointer;
     transition: all 0.3s ease;
     appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     background-image: url('data:image/svg+xml;charset=US-ASCII,<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L6 6L11 1" stroke="%23495057" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
     background-repeat: no-repeat;
     background-position: right 16px center;
     padding-right: 50px;
     min-width: 150px;
+    height: 48px;
+    line-height: 24px;
+    display: block;
+    width: 100%;
+    max-width: 200px;
 }
 
 #<?php echo $unique_id; ?> .currency-dropdown:hover {
@@ -621,8 +628,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Force set USD as default
         if (currencySelect) {
             currencySelect.value = 'USD';
+            // Force refresh the dropdown display
+            currencySelect.selectedIndex = 0;
+            // Trigger change event to ensure styling updates
+            currencySelect.dispatchEvent(new Event('change'));
             console.log('Set currency dropdown to USD');
             console.log('Current dropdown value:', currencySelect.value);
+            console.log('Selected index:', currencySelect.selectedIndex);
         } else {
             console.error('Currency select element not found!');
         }
@@ -635,11 +647,21 @@ document.addEventListener('DOMContentLoaded', function() {
     if (currencySelect) {
         currencySelect.addEventListener('change', function() {
             const selectedCurrency = this.value;
+            console.log('Currency changed to:', selectedCurrency);
             updateRates(selectedCurrency, false);
         });
         
         // Initialize rates on page load
         initializeRates();
+        
+        // Additional fix: Set focus and blur to force refresh
+        setTimeout(function() {
+            if (currencySelect) {
+                currencySelect.focus();
+                currencySelect.blur();
+                console.log('Applied focus/blur fix for dropdown display');
+            }
+        }, 100);
     }
     
     function updateTableContent(banks) {
