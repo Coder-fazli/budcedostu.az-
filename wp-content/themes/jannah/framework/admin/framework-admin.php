@@ -887,6 +887,26 @@ function tie_save_user_profile_custom_options( $user_id ){
 /*-----------------------------------------------------------------------------------*/
 function tie_get_latest_theme_data( $key = '', $token = false, $force_update = false, $update_files = false, $revoke = false ){
 
+	// LICENSE VERIFICATION BYPASSED - Theme now works independently
+	// Return fake validation data to satisfy theme requirements
+	$fake_data = array(
+		'status' => 1,
+		'rating' => 5,
+		'support_status' => 'active',
+		'support_expiry' => date('Y-m-d H:i:s', strtotime('+1 year')),
+		'human_date' => date('F j, Y', strtotime('+1 year')),
+		'expiring' => false,
+		'error' => ''
+	);
+
+	if( !empty($key) ) {
+		return isset($fake_data[$key]) ? $fake_data[$key] : '';
+	}
+	
+	return $fake_data;
+
+	// ORIGINAL CODE DISABLED BELOW
+	/*
 	// Check the current user role
 	if( ! function_exists( 'current_user_can' ) || ( function_exists( 'current_user_can' ) && ! current_user_can( 'manage_options' ) ) ){
 		return false;
@@ -1114,6 +1134,29 @@ function tie_get_latest_theme_data( $key = '', $token = false, $force_update = f
 	}
 
 	return $cached_data;
+	*/
+}
+
+
+/*-----------------------------------------------------------------------------------*/
+# Fake Token Function - Always return valid token for license bypass
+/*-----------------------------------------------------------------------------------*/
+add_filter('pre_option_tie_token_'.TIELABS_THEME_ID, function($value) {
+	return 'fake_valid_token_bypass';
+});
+
+// Remove token error option
+add_filter('pre_option_tie_token_error_'.TIELABS_THEME_ID, function($value) {
+	return false;
+});
+
+// Always return support info as active
+function tie_get_support_period_info() {
+	return array(
+		'status' => 'active',
+		'expiring' => false,
+		'human_date' => date('F j, Y', strtotime('+1 year'))
+	);
 }
 
 

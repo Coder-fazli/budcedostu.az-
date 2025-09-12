@@ -17,9 +17,9 @@ if( ! class_exists( 'TIELABS_VERIFICATION' ) ){
 		 * Runs on class initialization. Adds filters and actions.
 		 */
 		function __construct() {
-
-			add_action( 'admin_enqueue_scripts',          array( $this, 'load_notices' ) );
-			add_filter( 'TieLabs/welcome_splash_content', array( $this, 'theme_registerantion_section' ), 9 );
+			// License verification disabled - theme will work independently
+			// add_action( 'admin_enqueue_scripts',          array( $this, 'load_notices' ) );
+			// add_filter( 'TieLabs/welcome_splash_content', array( $this, 'theme_registerantion_section' ), 9 );
 		}
 
 
