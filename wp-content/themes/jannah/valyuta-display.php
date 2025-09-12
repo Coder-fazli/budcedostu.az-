@@ -412,15 +412,23 @@ if (WP_DEBUG) {
 </style>
 
 <script>
-// Localize ajaxurl for frontend
+// Debug and localize ajaxurl for frontend
 const ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+console.log('AJAX URL:', ajaxurl);
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing valyuta system...');
     const uniqueId = '<?php echo $unique_id; ?>';
+    console.log('Unique ID:', uniqueId);
+    
     const currencySelect = document.getElementById('currency-select-' + uniqueId);
     const ratesTable = document.getElementById('rates-table-' + uniqueId);
     const fetchLiveBtn = document.getElementById('fetch-live-rates-' + uniqueId);
     const lastUpdatedEl = document.getElementById('last-updated-' + uniqueId);
+    
+    console.log('Currency select found:', currencySelect);
+    console.log('Rates table found:', ratesTable);
+    console.log('Fetch button found:', fetchLiveBtn);
     
     
     if (fetchLiveBtn) {
@@ -442,10 +450,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Make AJAX request to get new rates
         const url = ajaxurl + '?action=get_rates&currency=' + currency;
+        console.log('Making AJAX request to:', url);
         
         fetch(url)
-            .then(response => response.json())
+            .then(response => {
+                console.log('AJAX response status:', response.status);
+                console.log('AJAX response headers:', response.headers);
+                return response.json();
+            })
             .then(data => {
+                console.log('AJAX response data:', data);
                 if (data.success && data.data && data.data.length > 0) {
                     updateTableContent(data.data);
                     if (fromLiveFetch) {
@@ -601,6 +615,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Force set USD as default
         if (currencySelect) {
             currencySelect.value = 'USD';
+            console.log('Set currency dropdown to USD');
+            console.log('Current dropdown value:', currencySelect.value);
+        } else {
+            console.error('Currency select element not found!');
         }
         const selectedCurrency = 'USD';
         console.log('Initializing with currency:', selectedCurrency);
