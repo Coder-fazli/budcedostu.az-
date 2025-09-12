@@ -6,7 +6,7 @@
 
 // Get unique ID for this instance
 $unique_id = uniqid('valyuta_');
-$current_currency = $atts['currency'];
+$current_currency = !empty($atts['currency']) ? $atts['currency'] : 'USD';
 $show_cash = $atts['show_cash'] === 'true';
 ?>
 
@@ -404,6 +404,9 @@ $show_cash = $atts['show_cash'] === 'true';
 </style>
 
 <script>
+// Localize ajaxurl for frontend
+const ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
+
 document.addEventListener('DOMContentLoaded', function() {
     const uniqueId = '<?php echo $unique_id; ?>';
     const currencySelect = document.getElementById('currency-select-' + uniqueId);
@@ -411,12 +414,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const fetchLiveBtn = document.getElementById('fetch-live-rates-' + uniqueId);
     const lastUpdatedEl = document.getElementById('last-updated-' + uniqueId);
     
-    if (currencySelect) {
-        currencySelect.addEventListener('change', function() {
-            const selectedCurrency = this.value;
-            updateRates(selectedCurrency, false);
-        });
-    }
     
     if (fetchLiveBtn) {
         fetchLiveBtn.addEventListener('click', function() {
@@ -429,21 +426,37 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show loading state
         ratesTable.style.opacity = '0.6';
         
+        // Show loading message in table
+        const tbody = ratesTable.querySelector('tbody');
+        const originalContent = tbody.innerHTML;
+        const colCount = <?php echo $show_cash ? '5' : '3'; ?>;
+        tbody.innerHTML = '<tr><td colspan="' + colCount + '" style="text-align: center; padding: 40px;"><span style="color: #667eea;">📊 Məzənnələr yüklənir...</span></td></tr>';
+        
         // Make AJAX request to get new rates
         fetch(ajaxurl + '?action=get_rates&currency=' + currency)
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
+                if (data.success && data.data && data.data.length > 0) {
                     updateTableContent(data.data);
                     if (fromLiveFetch) {
                         updateLastUpdatedTime();
                         showSuccessMessage('Məzənnələr uğurla yeniləndi!');
+                    }
+                } else {
+                    // If no data, try to fetch live rates automatically
+                    console.log('No cached data found, fetching live rates...');
+                    if (!fromLiveFetch) {
+                        fetchLiveRates(currency);
+                        return; // fetchLiveRates will handle the UI updates
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="' + colCount + '" style="text-align: center; padding: 40px;"><span style="color: #dc3545;">❌ Bu valyuta üçün məlumat tapılmadı</span></td></tr>';
                     }
                 }
                 ratesTable.style.opacity = '1';
             })
             .catch(error => {
                 console.error('Error fetching rates:', error);
+                tbody.innerHTML = originalContent; // Restore original content on error
                 ratesTable.style.opacity = '1';
                 if (fromLiveFetch) {
                     showErrorMessage('Məzənnələr yenilənərkən xəta baş verdi.');
@@ -572,6 +585,28 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize with current time
     updateLastUpdatedTime();
+    
+    // Auto-load data on page load and when currency changes
+    function initializeRates() {
+        const selectedCurrency = currencySelect.value || 'USD';
+        // Set USD as default if no currency is selected
+        if (!currencySelect.value) {
+            currencySelect.value = 'USD';
+        }
+        console.log('Initializing with currency:', selectedCurrency);
+        updateRates(selectedCurrency, false);
+    }
+    
+    // Auto-load rates when currency dropdown changes
+    if (currencySelect) {
+        currencySelect.addEventListener('change', function() {
+            const selectedCurrency = this.value;
+            updateRates(selectedCurrency, false);
+        });
+        
+        // Initialize rates on page load
+        initializeRates();
+    }
     
     function updateTableContent(banks) {
         const tbody = ratesTable.querySelector('tbody');
