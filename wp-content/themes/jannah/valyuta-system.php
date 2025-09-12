@@ -34,7 +34,7 @@ class ValyutaSystem {
     /**
      * Create database tables
      */
-    private function create_tables() {
+    public function create_tables() {
         global $wpdb;
         
         $charset_collate = $wpdb->get_charset_collate();
@@ -81,7 +81,7 @@ class ValyutaSystem {
     /**
      * Populate default banks and sample data
      */
-    private function populate_default_data() {
+    public function populate_default_data() {
         global $wpdb;
         
         // Check if data already exists
@@ -468,10 +468,60 @@ function valyuta_rates_shortcode($atts) {
         'show_cash' => 'true'
     ), $atts);
     
+    // Debug output
+    $debug_output = '';
+    if (current_user_can('administrator')) {
+        $debug_output .= '<!-- VALYUTA DEBUG START -->';
+        $debug_output .= '<!-- Currency: ' . $atts['currency'] . ' -->';
+        $debug_output .= '<!-- Show cash: ' . $atts['show_cash'] . ' -->';
+    }
+    
+    // Force initialization
     $valyuta = new ValyutaSystem();
+    $valyuta->init(); // Force table creation and data population
     $banks_with_rates = $valyuta->get_banks_with_rates($atts['currency']);
     
+    // Fallback: If no data, create some basic data
+    if (empty($banks_with_rates)) {
+        global $wpdb;
+        $table_banks = $wpdb->prefix . 'valyuta_banks';
+        
+        // Check if tables exist
+        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_banks'");
+        if (!$table_exists) {
+            if (current_user_can('administrator')) {
+                $debug_output .= '<!-- ERROR: Tables do not exist! -->';
+            }
+            // Force table creation
+            $valyuta->create_tables();
+            $valyuta->populate_default_data();
+            $banks_with_rates = $valyuta->get_banks_with_rates($atts['currency']);
+        }
+    }
+    
+    if (current_user_can('administrator')) {
+        $debug_output .= '<!-- Banks found: ' . count($banks_with_rates) . ' -->';
+        $debug_output .= '<!-- Banks data: ' . print_r($banks_with_rates, true) . ' -->';
+        $debug_output .= '<!-- VALYUTA DEBUG END -->';
+    }
+    
     ob_start();
+    echo $debug_output;
+    
+    // Emergency fallback - just show that shortcode is working
+    if (empty($banks_with_rates)) {
+        echo '<div style="border: 2px solid red; padding: 20px; margin: 20px;">';
+        echo '<h3>🔧 VALYUTA SYSTEM DEBUG</h3>';
+        echo '<p>Shortcode is working but no bank data found.</p>';
+        echo '<p>Currency: ' . esc_html($atts['currency']) . '</p>';
+        echo '<p>Show cash: ' . esc_html($atts['show_cash']) . '</p>';
+        if (current_user_can('administrator')) {
+            echo '<p><strong>Admin Debug:</strong> Check database tables or contact developer.</p>';
+        }
+        echo '</div>';
+        return ob_get_clean();
+    }
+    
     include(get_template_directory() . '/valyuta-display.php');
     return ob_get_clean();
 }
