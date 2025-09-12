@@ -8,6 +8,14 @@
 $unique_id = uniqid('valyuta_');
 $current_currency = !empty($atts['currency']) ? $atts['currency'] : 'USD';
 $show_cash = $atts['show_cash'] === 'true';
+
+// Debug information
+if (WP_DEBUG) {
+    error_log('Valyuta Display Debug:');
+    error_log('Current currency: ' . $current_currency);
+    error_log('Show cash: ' . ($show_cash ? 'true' : 'false'));
+    error_log('Banks with rates count: ' . count($banks_with_rates));
+}
 ?>
 
 <div class="valyuta-rates-container" id="<?php echo $unique_id; ?>">
@@ -433,9 +441,16 @@ document.addEventListener('DOMContentLoaded', function() {
         tbody.innerHTML = '<tr><td colspan="' + colCount + '" style="text-align: center; padding: 40px;"><span style="color: #667eea;">📊 Məzənnələr yüklənir...</span></td></tr>';
         
         // Make AJAX request to get new rates
-        fetch(ajaxurl + '?action=get_rates&currency=' + currency)
-            .then(response => response.json())
+        const url = ajaxurl + '?action=get_rates&currency=' + currency;
+        console.log('Making AJAX request to:', url);
+        
+        fetch(url)
+            .then(response => {
+                console.log('AJAX response status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('AJAX response data:', data);
                 if (data.success && data.data && data.data.length > 0) {
                     updateTableContent(data.data);
                     if (fromLiveFetch) {
@@ -481,13 +496,20 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('force_refresh', 'true');
         formData.append('nonce', '<?php echo wp_create_nonce('valyuta_fetch_rates'); ?>');
         
+        console.log('Fetching live rates for currency:', currency);
+        console.log('AJAX URL:', ajaxurl);
+        
         // Make AJAX request to fetch live rates
         fetch(ajaxurl, {
             method: 'POST',
             body: formData
         })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Live rates response status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('Live rates response data:', data);
                 if (data.success) {
                     // Update table with new rates
                     updateTableContent(data.data.rates);
@@ -594,6 +616,8 @@ document.addEventListener('DOMContentLoaded', function() {
             currencySelect.value = 'USD';
         }
         console.log('Initializing with currency:', selectedCurrency);
+        console.log('Currency select element:', currencySelect);
+        console.log('Currency select value:', currencySelect.value);
         updateRates(selectedCurrency, false);
     }
     
