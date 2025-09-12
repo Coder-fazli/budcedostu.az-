@@ -28,11 +28,11 @@ if (WP_DEBUG) {
         <div class="controls-left">
             <div class="currency-selector">
                 <select id="currency-select-<?php echo $unique_id; ?>" class="currency-dropdown">
-                    <option value="USD" <?php selected($current_currency, 'USD'); ?>>🇺🇸 USD</option>
-                    <option value="EUR" <?php selected($current_currency, 'EUR'); ?>>🇪🇺 EUR</option>
-                    <option value="RUB" <?php selected($current_currency, 'RUB'); ?>>🇷🇺 RUB</option>
-                    <option value="GBP" <?php selected($current_currency, 'GBP'); ?>>🇬🇧 GBP</option>
-                    <option value="TRY" <?php selected($current_currency, 'TRY'); ?>>🇹🇷 TRY</option>
+                    <option value="USD" <?php echo ($current_currency === 'USD') ? 'selected="selected"' : ''; ?>>🇺🇸 USD</option>
+                    <option value="EUR" <?php echo ($current_currency === 'EUR') ? 'selected="selected"' : ''; ?>>🇪🇺 EUR</option>
+                    <option value="RUB" <?php echo ($current_currency === 'RUB') ? 'selected="selected"' : ''; ?>>🇷🇺 RUB</option>
+                    <option value="GBP" <?php echo ($current_currency === 'GBP') ? 'selected="selected"' : ''; ?>>🇬🇧 GBP</option>
+                    <option value="TRY" <?php echo ($current_currency === 'TRY') ? 'selected="selected"' : ''; ?>>🇹🇷 TRY</option>
                 </select>
             </div>
         </div>
@@ -442,15 +442,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Make AJAX request to get new rates
         const url = ajaxurl + '?action=get_rates&currency=' + currency;
-        console.log('Making AJAX request to:', url);
         
         fetch(url)
-            .then(response => {
-                console.log('AJAX response status:', response.status);
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                console.log('AJAX response data:', data);
                 if (data.success && data.data && data.data.length > 0) {
                     updateTableContent(data.data);
                     if (fromLiveFetch) {
@@ -496,20 +491,13 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('force_refresh', 'true');
         formData.append('nonce', '<?php echo wp_create_nonce('valyuta_fetch_rates'); ?>');
         
-        console.log('Fetching live rates for currency:', currency);
-        console.log('AJAX URL:', ajaxurl);
-        
         // Make AJAX request to fetch live rates
         fetch(ajaxurl, {
             method: 'POST',
             body: formData
         })
-            .then(response => {
-                console.log('Live rates response status:', response.status);
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                console.log('Live rates response data:', data);
                 if (data.success) {
                     // Update table with new rates
                     updateTableContent(data.data.rates);
@@ -610,14 +598,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Auto-load data on page load and when currency changes
     function initializeRates() {
-        const selectedCurrency = currencySelect.value || 'USD';
-        // Set USD as default if no currency is selected
-        if (!currencySelect.value) {
+        // Force set USD as default
+        if (currencySelect) {
             currencySelect.value = 'USD';
         }
+        const selectedCurrency = 'USD';
         console.log('Initializing with currency:', selectedCurrency);
-        console.log('Currency select element:', currencySelect);
-        console.log('Currency select value:', currencySelect.value);
         updateRates(selectedCurrency, false);
     }
     

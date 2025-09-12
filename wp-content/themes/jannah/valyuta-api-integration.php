@@ -91,7 +91,9 @@ class ValyutaAPIIntegration {
         
         $rates = array();
         
-        // Priority 1: Try real bank scraping first
+        // Priority 1: TEMPORARILY DISABLED - Real bank scraping (causing slow loading)
+        // TODO: Re-enable with caching and background processing
+        /*
         try {
             if (class_exists('ValyutaRealScraper')) {
                 $scraper = new ValyutaRealScraper();
@@ -107,6 +109,7 @@ class ValyutaAPIIntegration {
         } catch (Exception $e) {
             error_log('Real scraper error: ' . $e->getMessage());
         }
+        */
         
         // Priority 2: Try each API source in order of priority if scraping failed
         if (empty($rates)) {
