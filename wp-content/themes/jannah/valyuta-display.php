@@ -115,6 +115,34 @@ if (WP_DEBUG) {
             <a class="info-link" href="/contact">Bankda oldum və məzənə fərqlidir.</a>
         </div>
     </div>
+    
+    <!-- FAQ Section -->
+    <div class="faq-section">
+        <div class="faq-header">
+            <h2 class="faq-title">Ən çox soruşulanlar</h2>
+        </div>
+        <div class="faq-accordion">
+            <?php 
+            $faqs = get_valyuta_faqs();
+            foreach ($faqs as $index => $faq): 
+                $faq_id = 'faq-' . $unique_id . '-' . $faq->id;
+            ?>
+            <div class="faq-item" data-faq-id="<?php echo $faq->id; ?>">
+                <button type="button" class="faq-question" aria-expanded="false" data-target="#<?php echo $faq_id; ?>">
+                    <span class="faq-question-text"><?php echo esc_html($faq->question); ?></span>
+                    <svg class="faq-arrow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none">
+                        <path stroke="#8199D3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m4 9 8 8 8-8"/>
+                    </svg>
+                </button>
+                <div class="faq-answer" id="<?php echo $faq_id; ?>">
+                    <div class="faq-answer-content">
+                        <?php echo wp_kses_post($faq->answer); ?>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -340,6 +368,91 @@ if (WP_DEBUG) {
     text-decoration: underline;
 }
 
+#<?php echo $unique_id; ?> .faq-section {
+    margin-top: 40px;
+    margin-bottom: 80px;
+}
+
+#<?php echo $unique_id; ?> .faq-header {
+    max-width: 46vw;
+    margin-bottom: 32px;
+}
+
+#<?php echo $unique_id; ?> .faq-title {
+    font-size: 30px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    line-height: 1.2;
+}
+
+#<?php echo $unique_id; ?> .faq-accordion {
+    space-y: 16px;
+}
+
+#<?php echo $unique_id; ?> .faq-item {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+#<?php echo $unique_id; ?> .faq-question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.3s ease;
+}
+
+#<?php echo $unique_id; ?> .faq-question:hover {
+    text-decoration: underline;
+}
+
+#<?php echo $unique_id; ?> .faq-question-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    flex: 1;
+    padding-right: 16px;
+}
+
+#<?php echo $unique_id; ?> .faq-arrow {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+#<?php echo $unique_id; ?> .faq-question[aria-expanded="true"] .faq-arrow {
+    transform: rotate(180deg);
+}
+
+#<?php echo $unique_id; ?> .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+#<?php echo $unique_id; ?> .faq-answer.open {
+    max-height: 500px;
+    padding-bottom: 16px;
+}
+
+#<?php echo $unique_id; ?> .faq-answer-content {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #666;
+}
+
+#<?php echo $unique_id; ?> .faq-answer-content p {
+    margin: 0;
+}
+
+#<?php echo $unique_id; ?> .faq-answer-content p + p {
+    margin-top: 12px;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     #<?php echo $unique_id; ?> .valyuta-container {
@@ -440,6 +553,23 @@ if (WP_DEBUG) {
     #<?php echo $unique_id; ?> .info-icon-wrapper svg {
         width: 32px;
         height: 32px;
+    }
+    
+    #<?php echo $unique_id; ?> .faq-header {
+        max-width: 100%;
+        margin-bottom: 24px;
+    }
+    
+    #<?php echo $unique_id; ?> .faq-title {
+        font-size: 24px;
+    }
+    
+    #<?php echo $unique_id; ?> .faq-question-text {
+        font-size: 16px;
+    }
+    
+    #<?php echo $unique_id; ?> .faq-section {
+        margin-bottom: 40px;
     }
 }
 </style>
@@ -686,6 +816,38 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         document.head.appendChild(style);
     }
+    
+    // FAQ Accordion functionality
+    const faqQuestions = ratesContainer.querySelectorAll('.faq-question');
+    faqQuestions.forEach(question => {
+        question.addEventListener('click', function() {
+            const isExpanded = this.getAttribute('aria-expanded') === 'true';
+            const targetId = this.getAttribute('data-target');
+            const targetAnswer = document.querySelector(targetId);
+            
+            if (isExpanded) {
+                // Close this FAQ
+                this.setAttribute('aria-expanded', 'false');
+                targetAnswer.classList.remove('open');
+            } else {
+                // Close all other FAQs first
+                faqQuestions.forEach(otherQuestion => {
+                    if (otherQuestion !== this) {
+                        otherQuestion.setAttribute('aria-expanded', 'false');
+                        const otherTargetId = otherQuestion.getAttribute('data-target');
+                        const otherTargetAnswer = document.querySelector(otherTargetId);
+                        if (otherTargetAnswer) {
+                            otherTargetAnswer.classList.remove('open');
+                        }
+                    }
+                });
+                
+                // Open this FAQ
+                this.setAttribute('aria-expanded', 'true');
+                targetAnswer.classList.add('open');
+            }
+        });
+    });
     
     // Initialize with current time
     updateLastUpdatedTime();

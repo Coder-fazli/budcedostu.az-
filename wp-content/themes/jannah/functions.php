@@ -13,6 +13,7 @@ require_once get_template_directory() . '/calculator-shortcodes.php';
 require_once get_template_directory() . '/valyuta-system.php';
 require_once get_template_directory() . '/valyuta-api-integration.php';
 require_once get_template_directory() . '/valyuta-real-scraper.php';
+require_once get_template_directory() . '/valyuta-faq-system.php';
 
 // Multilingual System moved to plugin: wp-content/plugins/budcedostu-multilingual/
 // The multilingual functionality is now handled by the "Budcedostu Multilingual System" plugin
