@@ -23,245 +23,242 @@ if (WP_DEBUG) {
 ?>
 
 <div class="valyuta-container" id="<?php echo $unique_id; ?>">
-    <div class="valyuta-header">
-        <h2 class="valyuta-title">Bank məzənnələri</h2>
-        <p class="valyuta-subtitle">Məzənnələrin saytlardan ilk</p>
+    <div class="overflow-x-auto">
+        <div class="w-full min-w-[800px] grid grid-cols-3 gap-5">
+            <div class="space-y-3 w-auto">
+                <select id="currency-select-<?php echo $unique_id; ?>" class="currency-dropdown">
+                    <option value="USD" selected="selected">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="RUB">RUB</option>
+                    <option value="GBP">GBP</option>
+                    <option value="TRY">TRY</option>
+                </select>
+                <div class="bank-header">Banklar</div>
+                <div class="bank-list">
+                    <?php foreach ($banks_with_rates as $bank): ?>
+                    <div class="bank-name"><?php echo esc_html($bank->bank_name); ?></div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            
+            <div class="space-y-3">
+                <h4 class="column-header">Nağd</h4>
+                <div class="rate-subheader">
+                    <div class="text-center">Alış</div>
+                    <div class="text-center">Satış</div>
+                </div>
+                <div class="rate-list">
+                    <?php foreach ($banks_with_rates as $bank): ?>
+                    <div class="rate-row">
+                        <div class="rate-cell"><?php echo $bank->cash_buy_rate ? number_format($bank->cash_buy_rate, 4) : '-'; ?></div>
+                        <div class="rate-cell"><?php echo $bank->cash_sell_rate ? number_format($bank->cash_sell_rate, 4) : '-'; ?></div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            
+            <div class="space-y-3">
+                <h4 class="column-header">Nağdsız</h4>
+                <div class="rate-subheader">
+                    <div class="text-center">Alış</div>
+                    <div class="text-center">Satış</div>
+                </div>
+                <div class="rate-list">
+                    <?php foreach ($banks_with_rates as $bank): ?>
+                    <div class="rate-row">
+                        <div class="rate-cell"><?php echo $bank->buy_rate ? number_format($bank->buy_rate, 4) : '-'; ?></div>
+                        <div class="rate-cell"><?php echo $bank->sell_rate ? number_format($bank->sell_rate, 4) : '-'; ?></div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
     </div>
     
-    <table class="valyuta-table" id="rates-table-<?php echo $unique_id; ?>">
-        <thead>
-            <tr>
-                <th rowspan="2" class="bank-column">
-                    <select id="currency-select-<?php echo $unique_id; ?>" class="currency-dropdown">
-                        <option value="USD" selected="selected">USD 🇺🇸</option>
-                        <option value="EUR">EUR 🇪🇺</option>
-                        <option value="RUB">RUB 🇷🇺</option>
-                        <option value="GBP">GBP 🇬🇧</option>
-                        <option value="TRY">TRY 🇹🇷</option>
-                    </select>
-                </th>
-                <th colspan="2">Nağd</th>
-                <th colspan="2">Nağdsız</th>
-            </tr>
-            <tr>
-                <th>Alış</th>
-                <th>Satış</th>
-                <th>Alış</th>
-                <th>Satış</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($banks_with_rates as $bank): ?>
-            <tr>
-                <td class="bank-name"><?php echo esc_html($bank->bank_name); ?></td>
-                <td class="rate-cell"><?php echo $bank->cash_buy_rate ? number_format($bank->cash_buy_rate, 4) : '-'; ?></td>
-                <td class="rate-cell"><?php echo $bank->cash_sell_rate ? number_format($bank->cash_sell_rate, 4) : '-'; ?></td>
-                <td class="rate-cell"><?php echo $bank->buy_rate ? number_format($bank->buy_rate, 4) : '-'; ?></td>
-                <td class="rate-cell"><?php echo $bank->sell_rate ? number_format($bank->sell_rate, 4) : '-'; ?></td>
-            </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-    
-    <!-- Hidden button for functionality -->
     <button id="fetch-live-rates-<?php echo $unique_id; ?>" style="display: none;"></button>
 </div>
 
 <style>
 #<?php echo $unique_id; ?> .valyuta-container {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0;
-    background: transparent;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-#<?php echo $unique_id; ?> .valyuta-header {
-    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-    color: white;
-    text-align: center;
     padding: 20px;
-    margin: 0;
 }
 
-#<?php echo $unique_id; ?> .valyuta-title {
-    color: white;
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0;
+#<?php echo $unique_id; ?> .overflow-x-auto {
+    overflow-x: auto;
 }
 
-#<?php echo $unique_id; ?> .valyuta-subtitle {
-    color: rgba(255,255,255,0.9);
-    font-size: 14px;
-    margin: 5px 0 0 0;
-    font-weight: 400;
+#<?php echo $unique_id; ?> .grid {
+    display: grid;
 }
 
-#<?php echo $unique_id; ?> .valyuta-table {
+#<?php echo $unique_id; ?> .grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+#<?php echo $unique_id; ?> .grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+#<?php echo $unique_id; ?> .gap-5 {
+    gap: 20px;
+}
+
+#<?php echo $unique_id; ?> .gap-10 {
+    gap: 40px;
+}
+
+#<?php echo $unique_id; ?> .space-y-3 > * + * {
+    margin-top: 12px;
+}
+
+#<?php echo $unique_id; ?> .space-y-5 > * + * {
+    margin-top: 20px;
+}
+
+#<?php echo $unique_id; ?> .w-full {
     width: 100%;
-    background: white;
-    border-collapse: collapse;
-    margin: 0;
-    font-size: 14px;
 }
 
-#<?php echo $unique_id; ?> .valyuta-table th {
-    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-    color: white;
-    padding: 16px 12px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 14px;
-    border: none;
-    border-right: 1px solid rgba(255,255,255,0.2);
-}
-
-#<?php echo $unique_id; ?> .valyuta-table th:last-child {
-    border-right: none;
-}
-
-#<?php echo $unique_id; ?> .bank-column {
-    text-align: center !important;
-    min-width: 180px;
-    vertical-align: middle;
+#<?php echo $unique_id; ?> .min-w-[800px] {
+    min-width: 800px;
 }
 
 #<?php echo $unique_id; ?> .currency-dropdown {
-    background: rgba(255,255,255,1);
-    border: 2px solid rgba(255,255,255,0.8);
-    border-radius: 8px;
-    padding: 8px 12px;
-    color: #333;
-    font-size: 14px;
-    font-weight: 600;
-    min-width: 140px;
+    background: #F5F5F5;
+    height: 56px;
+    border: none;
+    border-radius: 10px;
+    padding: 0 24px;
+    font-size: 18px;
+    font-weight: 500;
+    width: 100%;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L6 6L11 1" stroke="%23333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 40px;
 }
 
 #<?php echo $unique_id; ?> .currency-dropdown:focus {
     outline: none;
-    background: white;
-    box-shadow: 0 0 0 3px rgba(255,255,255,0.6);
-    border-color: white;
 }
 
-#<?php echo $unique_id; ?> .valyuta-table td {
-    padding: 14px 12px;
+#<?php echo $unique_id; ?> .bank-header,
+#<?php echo $unique_id; ?> .column-header {
+    background: #F5F5F5;
+    height: 56px;
+    border-radius: 10px;
+    padding: 0 24px;
     text-align: center;
-    border-bottom: 1px solid #e8ecf0;
-    background: white;
-    border-right: 1px solid #e8ecf0;
+    font-size: 18px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-#<?php echo $unique_id; ?> .valyuta-table td:last-child {
-    border-right: none;
+#<?php echo $unique_id; ?> .rate-subheader {
+    background: #F5F5F5;
+    height: 56px;
+    border-radius: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    align-items: center;
+}
+
+#<?php echo $unique_id; ?> .bank-list,
+#<?php echo $unique_id; ?> .rate-list {
+    background: #F5F5F5;
+    padding: 24px;
+    border-radius: 10px;
+}
+
+#<?php echo $unique_id; ?> .bank-list > * + *,
+#<?php echo $unique_id; ?> .rate-list > * + * {
+    margin-top: 20px;
 }
 
 #<?php echo $unique_id; ?> .bank-name {
-    text-align: left !important;
-    font-weight: 600;
-    color: #2c3e50;
-    padding-left: 16px;
-    border-right: 1px solid #e8ecf0;
+    font-size: 18px;
+    font-weight: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#<?php echo $unique_id; ?> .rate-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
 }
 
 #<?php echo $unique_id; ?> .rate-cell {
-    font-weight: 600;
-    color: #2c3e50;
-    font-size: 14px;
+    font-size: 18px;
+    font-weight: normal;
+    text-align: center;
 }
 
-#<?php echo $unique_id; ?> .valyuta-table tbody tr:hover td {
-    background: #f0f6ff;
-}
-
-#<?php echo $unique_id; ?> .valyuta-table tbody tr:nth-child(even) td {
-    background: #fafbfc;
-}
-
-#<?php echo $unique_id; ?> .valyuta-table tbody tr:nth-child(even):hover td {
-    background: #f0f6ff;
-}
-
-#<?php echo $unique_id; ?> .loading-text {
-    color: #7f8c8d;
-    font-style: italic;
-    font-size: 13px;
-}
-
-#<?php echo $unique_id; ?> .no-data {
-    color: #e74c3c;
-    font-size: 13px;
+#<?php echo $unique_id; ?> .text-center {
+    text-align: center;
 }
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     #<?php echo $unique_id; ?> .valyuta-container {
-        margin: 10px;
-        border-radius: 8px;
+        padding: 10px;
     }
     
-    #<?php echo $unique_id; ?> .valyuta-header {
-        padding: 15px;
+    #<?php echo $unique_id; ?> .min-w-[800px] {
+        min-width: 600px;
     }
     
-    #<?php echo $unique_id; ?> .valyuta-title {
-        font-size: 18px;
+    #<?php echo $unique_id; ?> .currency-dropdown,
+    #<?php echo $unique_id; ?> .bank-header,
+    #<?php echo $unique_id; ?> .column-header,
+    #<?php echo $unique_id; ?> .rate-subheader {
+        height: 48px;
+        font-size: 16px;
     }
     
-    #<?php echo $unique_id; ?> .valyuta-subtitle {
-        font-size: 12px;
+    #<?php echo $unique_id; ?> .bank-name,
+    #<?php echo $unique_id; ?> .rate-cell {
+        font-size: 16px;
     }
     
-    #<?php echo $unique_id; ?> .valyuta-table {
-        font-size: 12px;
-    }
-    
-    #<?php echo $unique_id; ?> .valyuta-table th,
-    #<?php echo $unique_id; ?> .valyuta-table td {
-        padding: 10px 8px;
-    }
-    
-    #<?php echo $unique_id; ?> .currency-dropdown {
-        min-width: 120px;
-        font-size: 12px;
-        padding: 6px 10px;
-        padding-right: 32px;
-    }
-    
-    #<?php echo $unique_id; ?> .bank-name {
-        padding-left: 12px;
-    }
-    
-    #<?php echo $unique_id; ?> .bank-column {
-        min-width: 140px;
+    #<?php echo $unique_id; ?> .bank-list,
+    #<?php echo $unique_id; ?> .rate-list {
+        padding: 20px;
     }
 }
 
 @media (max-width: 480px) {
-    #<?php echo $unique_id; ?> .valyuta-table {
-        font-size: 11px;
+    #<?php echo $unique_id; ?> .min-w-[800px] {
+        min-width: 500px;
     }
     
-    #<?php echo $unique_id; ?> .bank-column {
-        min-width: 120px;
+    #<?php echo $unique_id; ?> .currency-dropdown,
+    #<?php echo $unique_id; ?> .bank-header,
+    #<?php echo $unique_id; ?> .column-header,
+    #<?php echo $unique_id; ?> .rate-subheader {
+        height: 44px;
+        font-size: 14px;
+        padding: 0 16px;
     }
     
-    #<?php echo $unique_id; ?> .currency-dropdown {
-        min-width: 100px;
-        font-size: 11px;
+    #<?php echo $unique_id; ?> .bank-name,
+    #<?php echo $unique_id; ?> .rate-cell {
+        font-size: 14px;
+    }
+    
+    #<?php echo $unique_id; ?> .bank-list,
+    #<?php echo $unique_id; ?> .rate-list {
+        padding: 16px;
+    }
+    
+    #<?php echo $unique_id; ?> .gap-10 {
+        gap: 20px;
     }
 }
 </style>
@@ -279,12 +276,11 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Unique ID:', uniqueId);
     
     const currencySelect = document.getElementById('currency-select-' + uniqueId);
-    const ratesTable = document.getElementById('rates-table-' + uniqueId);
+    const ratesContainer = document.getElementById(uniqueId);
     const fetchLiveBtn = document.getElementById('fetch-live-rates-' + uniqueId);
-    const lastUpdatedEl = document.getElementById('last-updated-' + uniqueId);
     
     console.log('Currency select found:', currencySelect);
-    console.log('Rates table found:', ratesTable);
+    console.log('Rates container found:', ratesContainer);
     console.log('Fetch button found:', fetchLiveBtn);
     
     
@@ -297,13 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function updateRates(currency, fromLiveFetch = false) {
         // Show loading state
-        ratesTable.style.opacity = '0.6';
-        
-        // Show loading message in table
-        const tbody = ratesTable.querySelector('tbody');
-        const originalContent = tbody.innerHTML;
-        const colCount = 5; // Always 5 columns now (Banklar + 4 rate columns)
-        tbody.innerHTML = '<tr><td colspan="' + colCount + '" style="text-align: center; padding: 40px;"><span style="color: #667eea;">📊 Məzənnələr yüklənir...</span></td></tr>';
+        ratesContainer.style.opacity = '0.6';
         
         // Make AJAX request to get new rates
         const url = ajaxurl + '?action=get_rates&currency=' + currency;
@@ -318,9 +308,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 console.log('AJAX response data:', data);
                 if (data.success && data.data && data.data.length > 0) {
-                    updateTableContent(data.data);
+                    updateGridContent(data.data);
                     if (fromLiveFetch) {
-                        updateLastUpdatedTime();
                         showSuccessMessage('Məzənnələr uğurla yeniləndi!');
                     }
                 } else {
@@ -329,16 +318,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (!fromLiveFetch) {
                         fetchLiveRates(currency);
                         return; // fetchLiveRates will handle the UI updates
-                    } else {
-                        tbody.innerHTML = '<tr><td colspan="' + colCount + '" style="text-align: center; padding: 40px;"><span style="color: #dc3545;">❌ Bu valyuta üçün məlumat tapılmadı</span></td></tr>';
                     }
                 }
-                ratesTable.style.opacity = '1';
+                ratesContainer.style.opacity = '1';
             })
             .catch(error => {
                 console.error('Error fetching rates:', error);
-                tbody.innerHTML = originalContent; // Restore original content on error
-                ratesTable.style.opacity = '1';
+                ratesContainer.style.opacity = '1';
                 if (fromLiveFetch) {
                     showErrorMessage('Məzənnələr yenilənərkən xəta baş verdi.');
                 }
@@ -346,14 +332,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function fetchLiveRates(currency) {
-        const btnText = fetchLiveBtn.querySelector('.btn-text');
-        const btnLoading = fetchLiveBtn.querySelector('.btn-loading');
-        
         // Show loading state
-        btnText.style.display = 'none';
-        btnLoading.style.display = 'inline';
-        fetchLiveBtn.disabled = true;
-        ratesTable.style.opacity = '0.6';
+        ratesContainer.style.opacity = '0.6';
         
         // Create FormData for POST request
         const formData = new FormData();
@@ -370,9 +350,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update table with new rates
-                    updateTableContent(data.data.rates);
-                    updateLastUpdatedTime();
+                    // Update grid with new rates
+                    updateGridContent(data.data.rates);
                     showSuccessMessage(data.data.message || 'Canlı məzənnələr uğurla yeniləndi!');
                 } else {
                     showErrorMessage(data.data || 'Canlı məzənnələr yenilənərkən xəta baş verdi.');
@@ -383,11 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showErrorMessage('API ilə əlaqə qurula bilmədi.');
             })
             .finally(() => {
-                // Reset button state
-                btnText.style.display = 'inline';
-                btnLoading.style.display = 'none';
-                fetchLiveBtn.disabled = false;
-                ratesTable.style.opacity = '1';
+                ratesContainer.style.opacity = '1';
             });
     }
     
@@ -508,23 +483,48 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100);
     }
     
-    function updateTableContent(banks) {
-        const tbody = ratesTable.querySelector('tbody');
-        tbody.innerHTML = '';
+    function updateGridContent(banks) {
+        // Update bank names
+        const bankList = ratesContainer.querySelector('.bank-list');
+        if (bankList) {
+            bankList.innerHTML = '';
+            banks.forEach(bank => {
+                const bankDiv = document.createElement('div');
+                bankDiv.className = 'bank-name';
+                bankDiv.textContent = bank.bank_name;
+                bankList.appendChild(bankDiv);
+            });
+        }
         
-        banks.forEach(bank => {
-            const row = document.createElement('tr');
-            
-            row.innerHTML = `
-                <td class="bank-name">${bank.bank_name}</td>
-                <td class="rate-cell">${bank.cash_buy_rate ? parseFloat(bank.cash_buy_rate).toFixed(4) : '-'}</td>
-                <td class="rate-cell">${bank.cash_sell_rate ? parseFloat(bank.cash_sell_rate).toFixed(4) : '-'}</td>
-                <td class="rate-cell">${bank.buy_rate ? parseFloat(bank.buy_rate).toFixed(4) : '-'}</td>
-                <td class="rate-cell">${bank.sell_rate ? parseFloat(bank.sell_rate).toFixed(4) : '-'}</td>
-            `;
-            
-            tbody.appendChild(row);
-        });
+        // Update cash rates (Nağd)
+        const cashRatesList = ratesContainer.querySelectorAll('.rate-list')[0];
+        if (cashRatesList) {
+            cashRatesList.innerHTML = '';
+            banks.forEach(bank => {
+                const rateRow = document.createElement('div');
+                rateRow.className = 'rate-row';
+                rateRow.innerHTML = `
+                    <div class="rate-cell">${bank.cash_buy_rate ? parseFloat(bank.cash_buy_rate).toFixed(4) : '-'}</div>
+                    <div class="rate-cell">${bank.cash_sell_rate ? parseFloat(bank.cash_sell_rate).toFixed(4) : '-'}</div>
+                `;
+                cashRatesList.appendChild(rateRow);
+            });
+        }
+        
+        // Update cashless rates (Nağdsız)
+        const cashlessRatesList = ratesContainer.querySelectorAll('.rate-list')[1];
+        if (cashlessRatesList) {
+            cashlessRatesList.innerHTML = '';
+            banks.forEach(bank => {
+                const rateRow = document.createElement('div');
+                rateRow.className = 'rate-row';
+                rateRow.innerHTML = `
+                    <div class="rate-cell">${bank.buy_rate ? parseFloat(bank.buy_rate).toFixed(4) : '-'}</div>
+                    <div class="rate-cell">${bank.sell_rate ? parseFloat(bank.sell_rate).toFixed(4) : '-'}</div>
+                `;
+                cashlessRatesList.appendChild(rateRow);
+            });
+        }
     }
 });
 
