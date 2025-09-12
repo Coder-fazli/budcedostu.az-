@@ -63,15 +63,15 @@ function create_valyuta_faq_table() {
 // Add admin menu
 function valyuta_faq_admin_menu() {
     add_submenu_page(
-        'valyuta-admin',
+        'valyuta-rates',
         'FAQ İdarəetmə',
-        'FAQ',
+        'FAQ İdarəetmə',
         'manage_options',
         'valyuta-faq',
         'valyuta_faq_admin_page'
     );
 }
-add_action('admin_menu', 'valyuta_faq_admin_menu');
+add_action('admin_menu', 'valyuta_faq_admin_menu', 20);
 
 // Admin page
 function valyuta_faq_admin_page() {
@@ -234,7 +234,18 @@ function init_valyuta_faq_system() {
     if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
         create_valyuta_faq_table();
     }
+    
+    // Debug: Log that FAQ system is initialized
+    if (WP_DEBUG) {
+        error_log('Valyuta FAQ System initialized - Table exists: ' . ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") == $table_name ? 'Yes' : 'No'));
+    }
 }
 add_action('init', 'init_valyuta_faq_system');
+
+// Also run on admin_init to ensure it's available in admin
+function init_valyuta_faq_admin() {
+    init_valyuta_faq_system();
+}
+add_action('admin_init', 'init_valyuta_faq_admin');
 
 ?>
