@@ -172,11 +172,11 @@ function valyuta_faq_admin_page() {
         
         <div class="card">
             <h2>Mövcud FAQ-lar</h2>
-            <table class="wp-list-table widefat fixed striped">
+            <table class="wp-list-table widefat striped" style="table-layout: auto;">
                 <thead>
                     <tr>
                         <th style="width: 50px;">ID</th>
-                        <th style="width: 40%;">Sual</th>
+                        <th style="min-width: 300px;">Sual</th>
                         <th style="width: 60px;">Sıra</th>
                         <th style="width: 80px;">Status</th>
                         <th style="width: 120px;">Tarix</th>
