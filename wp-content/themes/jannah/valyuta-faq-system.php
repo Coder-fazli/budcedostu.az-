@@ -115,7 +115,7 @@ function valyuta_faq_admin_page() {
     <div class="wrap">
         <h1>FAQ İdarəetmə</h1>
         
-        <div class="card" style="max-width: 800px; margin: 20px 0;">
+        <div class="card" style="position: relative; margin-top: 20px; padding: .7em 2em 1em; min-width: 100%; max-width: 520px; border: 1px solid #c3c4c7; box-shadow: 0 1px 1px rgba(0, 0, 0, .04); background: #fff; box-sizing: border-box;">
             <h2><?php echo $edit_faq ? 'FAQ Redaktə Et' : 'Yeni FAQ Əlavə Et'; ?></h2>
             <form method="post">
                 <input type="hidden" name="action" value="<?php echo $edit_faq ? 'update_faq' : 'add_faq'; ?>">
@@ -170,7 +170,7 @@ function valyuta_faq_admin_page() {
             </form>
         </div>
         
-        <div class="card">
+        <div class="card" style="position: relative; margin-top: 20px; padding: .7em 2em 1em; min-width: 100%; max-width: 520px; border: 1px solid #c3c4c7; box-shadow: 0 1px 1px rgba(0, 0, 0, .04); background: #fff; box-sizing: border-box;">
             <h2>Mövcud FAQ-lar</h2>
             <table class="wp-list-table widefat striped" style="table-layout: auto;">
                 <thead>
