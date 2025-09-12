@@ -1150,13 +1150,15 @@ add_filter('pre_option_tie_token_error_'.TIELABS_THEME_ID, function($value) {
 	return false;
 });
 
-// Always return support info as active
-function tie_get_support_period_info() {
-	return array(
-		'status' => 'active',
-		'expiring' => false,
-		'human_date' => date('F j, Y', strtotime('+1 year'))
-	);
+// Always return support info as active - only define if doesn't exist
+if (!function_exists('tie_get_support_period_info')) {
+	function tie_get_support_period_info() {
+		return array(
+			'status' => 'active',
+			'expiring' => false,
+			'human_date' => date('F j, Y', strtotime('+1 year'))
+		);
+	}
 }
 
 
