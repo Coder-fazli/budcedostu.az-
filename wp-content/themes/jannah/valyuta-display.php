@@ -29,8 +29,7 @@ if (WP_DEBUG) {
                 <div class="currency-dropdown-wrapper">
                     <div class="currency-dropdown-button" id="currency-button-<?php echo $unique_id; ?>">
                         <div class="currency-display">
-                            <span class="currency-text">USD</span>
-                            <img class="currency-flag" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMSIgeT0iNCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iIzAwMjg2OCIvPgo8cmVjdCB4PSIxIiB5PSI1IiB3aWR0aD0iMjIiIGhlaWdodD0iMiIgZmlsbD0iI0ZGRkZGRiIvPgo8cmVjdCB4PSIxIiB5PSI5IiB3aWR0aD0iMjIiIGhlaWdodD0iMiIgZmlsbD0iI0ZGRkZGRiIvPgo8cmVjdCB4PSIxIiB5PSIxMyIgd2lkdGg9IjIyIiBoZWlnaHQ9IjIiIGZpbGw9IiNGRkZGRkYiLz4KPHJlY3QgeD0iMSIgeT0iMTciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyIiBmaWxsPSIjRkZGRkZGIi8+CjxyZWN0IHg9IjEiIHk9IjQiIHdpZHRoPSI5IiBoZWlnaHQ9IjkiIGZpbGw9IiNGRjAwMDAiLz4KPC9zdmc+" alt="USD" />
+                            <span class="currency-text">USD 🇺🇸</span>
                         </div>
                         <svg class="dropdown-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="m6 9 6 6 6-6"></path>
@@ -38,24 +37,19 @@ if (WP_DEBUG) {
                     </div>
                     <div class="currency-dropdown-menu" id="currency-menu-<?php echo $unique_id; ?>">
                         <div class="currency-option" data-value="USD">
-                            <span class="currency-text">USD</span>
-                            <img class="currency-flag" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMSIgeT0iNCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iIzAwMjg2OCIvPgo8cmVjdCB4PSIxIiB5PSI1IiB3aWR0aD0iMjIiIGhlaWdodD0iMiIgZmlsbD0iI0ZGRkZGRiIvPgo8cmVjdCB4PSIxIiB5PSI5IiB3aWR0aD0iMjIiIGhlaWdodD0iMiIgZmlsbD0iI0ZGRkZGRiIvPgo8cmVjdCB4PSIxIiB5PSIxMyIgd2lkdGg9IjIyIiBoZWlnaHQ9IjIiIGZpbGw9IiNGRkZGRkYiLz4KPHJlY3QgeD0iMSIgeT0iMTciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyIiBmaWxsPSIjRkZGRkZGIi8+CjxyZWN0IHg9IjEiIHk9IjQiIHdpZHRoPSI5IiBoZWlnaHQ9IjkiIGZpbGw9IiNGRjAwMDAiLz4KPC9zdmc+" alt="USD" />
+                            <span class="currency-text">USD 🇺🇸</span>
                         </div>
                         <div class="currency-option" data-value="EUR">
-                            <span class="currency-text">EUR</span>
-                            <img class="currency-flag" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMSIgeT0iNCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iIzAwMzM5OSIvPgo8cGF0aCBkPSJNMTIgOC41bC0xLjUgMS41IDEuNSAxLjUgMS41LTEuNXptMCAwIiBmaWxsPSIjRkZENzAwIi8+Cjwvc3ZnPgo=" alt="EUR" />
+                            <span class="currency-text">EUR 🇪🇺</span>
                         </div>
                         <div class="currency-option" data-value="RUB">
-                            <span class="currency-text">RUB</span>
-                            <img class="currency-flag" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMSIgeT0iNCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjUuMzMiIGZpbGw9IiNGRkZGRkYiLz4KPHJlY3QgeD0iMSIgeT0iOS4zMyIgd2lkdGg9IjIyIiBoZWlnaHQ9IjUuMzMiIGZpbGw9IiMwMDMzOTkiLz4KPHJlY3QgeD0iMSIgeT0iMTQuNjciIHdpZHRoPSIyMiIgaGVpZ2h0PSI1LjMzIiBmaWxsPSIjRkYwMDAwIi8+Cjwvc3ZnPgo=" alt="RUB" />
+                            <span class="currency-text">RUB 🇷🇺</span>
                         </div>
                         <div class="currency-option" data-value="GBP">
-                            <span class="currency-text">GBP</span>
-                            <img class="currency-flag" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMSIgeT0iNCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iIzAwMjg2OCIvPgo8cGF0aCBkPSJNMSA0SDE2TDIzIDEyTDE2IDIwSDE3VjEyTDE2IDRIMVoiIGZpbGw9IiNGRjAwMDAiLz4KPC9zdmc+" alt="GBP" />
+                            <span class="currency-text">GBP 🇬🇧</span>
                         </div>
                         <div class="currency-option" data-value="TRY">
-                            <span class="currency-text">TRY</span>
-                            <img class="currency-flag" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMSIgeT0iNCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI0ZGMDAwMCIvPgo8Y2lyY2xlIGN4PSI5IiBjeT0iMTIiIHI9IjQiIGZpbGw9IiNGRkZGRkYiLz4KPGNpcmNsZSBjeD0iMTEiIGN5PSIxMiIgcj0iMyIgZmlsbD0iI0ZGMDAwMCIvPgo8cGF0aCBkPSJNMTIgOEwxMyAxMEwxNSA5TDE0IDExTDE2IDEyTDE0IDEzTDE1IDE1TDEzIDE0TDEyIDE2TDExIDE0TDkgMTVMMTAgMTNMOCAxMkwxMCAxMUw5IDlMMTEgMTBMMTIgOFoiIGZpbGw9IiNGRkZGRkYiLz4KPC9zdmc+" alt="TRY" />
+                            <span class="currency-text">TRY 🇹🇷</span>
                         </div>
                     </div>
                     <select id="currency-select-<?php echo $unique_id; ?>" style="display: none;">
@@ -183,20 +177,12 @@ if (WP_DEBUG) {
 #<?php echo $unique_id; ?> .currency-display {
     display: flex;
     align-items: center;
-    gap: 12px;
 }
 
 #<?php echo $unique_id; ?> .currency-text {
     font-size: 18px;
     font-weight: 500;
     color: #000;
-}
-
-#<?php echo $unique_id; ?> .currency-flag {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    object-fit: cover;
 }
 
 #<?php echo $unique_id; ?> .dropdown-arrow {
@@ -229,7 +215,6 @@ if (WP_DEBUG) {
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 12px;
     transition: background-color 0.2s ease;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
@@ -331,11 +316,6 @@ if (WP_DEBUG) {
         font-size: 16px;
     }
     
-    #<?php echo $unique_id; ?> .currency-flag {
-        width: 20px;
-        height: 20px;
-    }
-    
     #<?php echo $unique_id; ?> .dropdown-arrow {
         width: 20px;
         height: 20px;
@@ -368,11 +348,6 @@ if (WP_DEBUG) {
     
     #<?php echo $unique_id; ?> .currency-text {
         font-size: 14px;
-    }
-    
-    #<?php echo $unique_id; ?> .currency-flag {
-        width: 18px;
-        height: 18px;
     }
     
     #<?php echo $unique_id; ?> .dropdown-arrow {
@@ -436,11 +411,9 @@ document.addEventListener('DOMContentLoaded', function() {
             option.addEventListener('click', function() {
                 const value = this.dataset.value;
                 const text = this.querySelector('.currency-text').textContent;
-                const flagSrc = this.querySelector('.currency-flag').src;
                 
                 // Update button display
                 currencyButton.querySelector('.currency-text').textContent = text;
-                currencyButton.querySelector('.currency-flag').src = flagSrc;
                 
                 // Update hidden select
                 currencySelect.value = value;
