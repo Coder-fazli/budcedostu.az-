@@ -26,13 +26,46 @@ if (WP_DEBUG) {
     <div class="overflow-x-auto">
         <div class="w-full min-w-[800px] grid grid-cols-3 gap-5">
             <div class="space-y-3 w-auto">
-                <select id="currency-select-<?php echo $unique_id; ?>" class="currency-dropdown">
-                    <option value="USD" selected="selected">USD</option>
-                    <option value="EUR">EUR</option>
-                    <option value="RUB">RUB</option>
-                    <option value="GBP">GBP</option>
-                    <option value="TRY">TRY</option>
-                </select>
+                <div class="currency-dropdown-wrapper">
+                    <div class="currency-dropdown-button" id="currency-button-<?php echo $unique_id; ?>">
+                        <div class="currency-display">
+                            <span class="currency-text">USD</span>
+                            <img class="currency-flag" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMSIgeT0iNCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iIzAwMjg2OCIvPgo8cmVjdCB4PSIxIiB5PSI1IiB3aWR0aD0iMjIiIGhlaWdodD0iMiIgZmlsbD0iI0ZGRkZGRiIvPgo8cmVjdCB4PSIxIiB5PSI5IiB3aWR0aD0iMjIiIGhlaWdodD0iMiIgZmlsbD0iI0ZGRkZGRiIvPgo8cmVjdCB4PSIxIiB5PSIxMyIgd2lkdGg9IjIyIiBoZWlnaHQ9IjIiIGZpbGw9IiNGRkZGRkYiLz4KPHJlY3QgeD0iMSIgeT0iMTciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyIiBmaWxsPSIjRkZGRkZGIi8+CjxyZWN0IHg9IjEiIHk9IjQiIHdpZHRoPSI5IiBoZWlnaHQ9IjkiIGZpbGw9IiNGRjAwMDAiLz4KPC9zdmc+" alt="USD" />
+                        </div>
+                        <svg class="dropdown-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m6 9 6 6 6-6"></path>
+                        </svg>
+                    </div>
+                    <div class="currency-dropdown-menu" id="currency-menu-<?php echo $unique_id; ?>">
+                        <div class="currency-option" data-value="USD">
+                            <span class="currency-text">USD</span>
+                            <img class="currency-flag" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMSIgeT0iNCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iIzAwMjg2OCIvPgo8cmVjdCB4PSIxIiB5PSI1IiB3aWR0aD0iMjIiIGhlaWdodD0iMiIgZmlsbD0iI0ZGRkZGRiIvPgo8cmVjdCB4PSIxIiB5PSI5IiB3aWR0aD0iMjIiIGhlaWdodD0iMiIgZmlsbD0iI0ZGRkZGRiIvPgo8cmVjdCB4PSIxIiB5PSIxMyIgd2lkdGg9IjIyIiBoZWlnaHQ9IjIiIGZpbGw9IiNGRkZGRkYiLz4KPHJlY3QgeD0iMSIgeT0iMTciIHdpZHRoPSIyMiIgaGVpZ2h0PSIyIiBmaWxsPSIjRkZGRkZGIi8+CjxyZWN0IHg9IjEiIHk9IjQiIHdpZHRoPSI5IiBoZWlnaHQ9IjkiIGZpbGw9IiNGRjAwMDAiLz4KPC9zdmc+" alt="USD" />
+                        </div>
+                        <div class="currency-option" data-value="EUR">
+                            <span class="currency-text">EUR</span>
+                            <img class="currency-flag" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMSIgeT0iNCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iIzAwMzM5OSIvPgo8cGF0aCBkPSJNMTIgOC41bC0xLjUgMS41IDEuNSAxLjUgMS41LTEuNXptMCAwIiBmaWxsPSIjRkZENzAwIi8+Cjwvc3ZnPgo=" alt="EUR" />
+                        </div>
+                        <div class="currency-option" data-value="RUB">
+                            <span class="currency-text">RUB</span>
+                            <img class="currency-flag" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMSIgeT0iNCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjUuMzMiIGZpbGw9IiNGRkZGRkYiLz4KPHJlY3QgeD0iMSIgeT0iOS4zMyIgd2lkdGg9IjIyIiBoZWlnaHQ9IjUuMzMiIGZpbGw9IiMwMDMzOTkiLz4KPHJlY3QgeD0iMSIgeT0iMTQuNjciIHdpZHRoPSIyMiIgaGVpZ2h0PSI1LjMzIiBmaWxsPSIjRkYwMDAwIi8+Cjwvc3ZnPgo=" alt="RUB" />
+                        </div>
+                        <div class="currency-option" data-value="GBP">
+                            <span class="currency-text">GBP</span>
+                            <img class="currency-flag" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMSIgeT0iNCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iIzAwMjg2OCIvPgo8cGF0aCBkPSJNMSA0SDE2TDIzIDEyTDE2IDIwSDE3VjEyTDE2IDRIMVoiIGZpbGw9IiNGRjAwMDAiLz4KPC9zdmc+" alt="GBP" />
+                        </div>
+                        <div class="currency-option" data-value="TRY">
+                            <span class="currency-text">TRY</span>
+                            <img class="currency-flag" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMSIgeT0iNCIgd2lkdGg9IjIyIiBoZWlnaHQ9IjE2IiByeD0iMiIgZmlsbD0iI0ZGMDAwMCIvPgo8Y2lyY2xlIGN4PSI5IiBjeT0iMTIiIHI9IjQiIGZpbGw9IiNGRkZGRkYiLz4KPGNpcmNsZSBjeD0iMTEiIGN5PSIxMiIgcj0iMyIgZmlsbD0iI0ZGMDAwMCIvPgo8cGF0aCBkPSJNMTIgOEwxMyAxMEwxNSA5TDE0IDExTDE2IDEyTDE0IDEzTDE1IDE1TDEzIDE0TDEyIDE2TDExIDE0TDkgMTVMMTAgMTNMOCAxMkwxMCAxMUw5IDlMMTEgMTBMMTIgOFoiIGZpbGw9IiNGRkZGRkYiLz4KPC9zdmc+" alt="TRY" />
+                        </div>
+                    </div>
+                    <select id="currency-select-<?php echo $unique_id; ?>" style="display: none;">
+                        <option value="USD" selected="selected">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="RUB">RUB</option>
+                        <option value="GBP">GBP</option>
+                        <option value="TRY">TRY</option>
+                    </select>
+                </div>
                 <div class="bank-header">Banklar</div>
                 <div class="bank-list">
                     <?php foreach ($banks_with_rates as $bank): ?>
@@ -126,7 +159,12 @@ if (WP_DEBUG) {
     min-width: 800px;
 }
 
-#<?php echo $unique_id; ?> .currency-dropdown {
+#<?php echo $unique_id; ?> .currency-dropdown-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+#<?php echo $unique_id; ?> .currency-dropdown-button {
     background: #F5F5F5;
     height: 56px;
     border: none;
@@ -136,13 +174,80 @@ if (WP_DEBUG) {
     font-weight: 500;
     width: 100%;
     cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
 }
 
-#<?php echo $unique_id; ?> .currency-dropdown:focus {
-    outline: none;
+#<?php echo $unique_id; ?> .currency-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#<?php echo $unique_id; ?> .currency-text {
+    font-size: 18px;
+    font-weight: 500;
+    color: #000;
+}
+
+#<?php echo $unique_id; ?> .currency-flag {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+#<?php echo $unique_id; ?> .dropdown-arrow {
+    width: 24px;
+    height: 24px;
+    color: #666;
+    transition: transform 0.2s ease;
+}
+
+#<?php echo $unique_id; ?> .currency-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #F5F5F5;
+    border-radius: 10px;
+    margin-top: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: none;
+    overflow: hidden;
+}
+
+#<?php echo $unique_id; ?> .currency-dropdown-menu.open {
+    display: block;
+}
+
+#<?php echo $unique_id; ?> .currency-option {
+    padding: 16px 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+#<?php echo $unique_id; ?> .currency-option:last-child {
+    border-bottom: none;
+}
+
+#<?php echo $unique_id; ?> .currency-option:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+#<?php echo $unique_id; ?> .currency-option.selected {
+    background: rgba(0, 123, 255, 0.1);
+}
+
+#<?php echo $unique_id; ?> .currency-dropdown-button.open .dropdown-arrow {
+    transform: rotate(180deg);
 }
 
 #<?php echo $unique_id; ?> .bank-header,
@@ -214,12 +319,26 @@ if (WP_DEBUG) {
         min-width: 600px;
     }
     
-    #<?php echo $unique_id; ?> .currency-dropdown,
+    #<?php echo $unique_id; ?> .currency-dropdown-button,
     #<?php echo $unique_id; ?> .bank-header,
     #<?php echo $unique_id; ?> .column-header,
     #<?php echo $unique_id; ?> .rate-subheader {
         height: 48px;
         font-size: 16px;
+    }
+    
+    #<?php echo $unique_id; ?> .currency-text {
+        font-size: 16px;
+    }
+    
+    #<?php echo $unique_id; ?> .currency-flag {
+        width: 20px;
+        height: 20px;
+    }
+    
+    #<?php echo $unique_id; ?> .dropdown-arrow {
+        width: 20px;
+        height: 20px;
     }
     
     #<?php echo $unique_id; ?> .bank-name,
@@ -238,13 +357,27 @@ if (WP_DEBUG) {
         min-width: 500px;
     }
     
-    #<?php echo $unique_id; ?> .currency-dropdown,
+    #<?php echo $unique_id; ?> .currency-dropdown-button,
     #<?php echo $unique_id; ?> .bank-header,
     #<?php echo $unique_id; ?> .column-header,
     #<?php echo $unique_id; ?> .rate-subheader {
         height: 44px;
         font-size: 14px;
         padding: 0 16px;
+    }
+    
+    #<?php echo $unique_id; ?> .currency-text {
+        font-size: 14px;
+    }
+    
+    #<?php echo $unique_id; ?> .currency-flag {
+        width: 18px;
+        height: 18px;
+    }
+    
+    #<?php echo $unique_id; ?> .dropdown-arrow {
+        width: 18px;
+        height: 18px;
     }
     
     #<?php echo $unique_id; ?> .bank-name,
@@ -276,13 +409,82 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Unique ID:', uniqueId);
     
     const currencySelect = document.getElementById('currency-select-' + uniqueId);
+    const currencyButton = document.getElementById('currency-button-' + uniqueId);
+    const currencyMenu = document.getElementById('currency-menu-' + uniqueId);
     const ratesContainer = document.getElementById(uniqueId);
     const fetchLiveBtn = document.getElementById('fetch-live-rates-' + uniqueId);
     
     console.log('Currency select found:', currencySelect);
+    console.log('Currency button found:', currencyButton);
+    console.log('Currency menu found:', currencyMenu);
     console.log('Rates container found:', ratesContainer);
     console.log('Fetch button found:', fetchLiveBtn);
     
+    
+    // Custom dropdown functionality
+    if (currencyButton && currencyMenu) {
+        // Toggle dropdown on button click
+        currencyButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleDropdown();
+        });
+        
+        // Handle option selection
+        const currencyOptions = currencyMenu.querySelectorAll('.currency-option');
+        currencyOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const value = this.dataset.value;
+                const text = this.querySelector('.currency-text').textContent;
+                const flagSrc = this.querySelector('.currency-flag').src;
+                
+                // Update button display
+                currencyButton.querySelector('.currency-text').textContent = text;
+                currencyButton.querySelector('.currency-flag').src = flagSrc;
+                
+                // Update hidden select
+                currencySelect.value = value;
+                
+                // Remove selected class from all options
+                currencyOptions.forEach(opt => opt.classList.remove('selected'));
+                // Add selected class to clicked option
+                this.classList.add('selected');
+                
+                // Close dropdown
+                closeDropdown();
+                
+                // Trigger rates update
+                console.log('Currency changed to:', value);
+                updateRates(value, false);
+            });
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!currencyButton.contains(e.target) && !currencyMenu.contains(e.target)) {
+                closeDropdown();
+            }
+        });
+    }
+    
+    function toggleDropdown() {
+        const isOpen = currencyMenu.classList.contains('open');
+        if (isOpen) {
+            closeDropdown();
+        } else {
+            openDropdown();
+        }
+    }
+    
+    function openDropdown() {
+        currencyMenu.classList.add('open');
+        currencyButton.classList.add('open');
+    }
+    
+    function closeDropdown() {
+        currencyMenu.classList.remove('open');
+        currencyButton.classList.remove('open');
+    }
     
     if (fetchLiveBtn) {
         fetchLiveBtn.addEventListener('click', function() {
@@ -447,16 +649,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // Force set USD as default
         if (currencySelect) {
             currencySelect.value = 'USD';
-            // Force refresh the dropdown display
-            currencySelect.selectedIndex = 0;
-            // Trigger change event to ensure styling updates
-            currencySelect.dispatchEvent(new Event('change'));
             console.log('Set currency dropdown to USD');
             console.log('Current dropdown value:', currencySelect.value);
-            console.log('Selected index:', currencySelect.selectedIndex);
-        } else {
-            console.error('Currency select element not found!');
         }
+        
+        // Set initial selected option in custom dropdown
+        if (currencyMenu) {
+            const usdOption = currencyMenu.querySelector('[data-value="USD"]');
+            if (usdOption) {
+                usdOption.classList.add('selected');
+            }
+        }
+        
         const selectedCurrency = 'USD';
         console.log('Initializing with currency:', selectedCurrency);
         updateRates(selectedCurrency, false);
