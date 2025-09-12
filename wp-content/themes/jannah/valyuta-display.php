@@ -23,11 +23,6 @@ if (WP_DEBUG) {
 ?>
 
 <div class="valyuta-rates-container" id="<?php echo $unique_id; ?>">
-    <div class="valyuta-header">
-        <h2 class="valyuta-title">Bank məzənnələri</h2>
-        <p class="valyuta-subtitle">Məzənnələri aşağılıqla izlə</p>
-    </div>
-    
     <div class="valyuta-controls">
         <div class="controls-left">
             <div class="currency-selector">
@@ -54,23 +49,16 @@ if (WP_DEBUG) {
     <div class="valyuta-table-container">
         <table class="valyuta-rates-table" id="rates-table-<?php echo $unique_id; ?>">
             <thead>
-                <tr>
-                    <th class="bank-column">Banklar</th>
-                    <th class="rate-column">Alış</th>
-                    <th class="rate-column">Satış</th>
-                    <?php if ($show_cash): ?>
-                    <th class="rate-column cash-column">Nağd</th>
-                    <th class="rate-column cash-column">Nağdsız</th>
-                    <?php endif; ?>
+                <tr class="main-headers">
+                    <th rowspan="2" class="bank-column">Banklar</th>
+                    <th colspan="2" class="group-header nagd-header">Nağd</th>
+                    <th colspan="2" class="group-header nagdsiz-header">Nağdsız</th>
                 </tr>
-                <tr class="header-labels">
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <?php if ($show_cash): ?>
-                    <th class="sub-header">Alış</th>
-                    <th class="sub-header">Satış</th>
-                    <?php endif; ?>
+                <tr class="sub-headers">
+                    <th class="sub-header nagd-sub">Alış</th>
+                    <th class="sub-header nagd-sub">Satış</th>
+                    <th class="sub-header nagdsiz-sub">Alış</th>
+                    <th class="sub-header nagdsiz-sub">Satış</th>
                 </tr>
             </thead>
             <tbody>
@@ -79,20 +67,18 @@ if (WP_DEBUG) {
                     <td class="bank-name">
                         <span class="bank-title"><?php echo esc_html($bank->bank_name); ?></span>
                     </td>
-                    <td class="rate-value buy-rate">
-                        <?php echo $bank->buy_rate ? number_format($bank->buy_rate, 4) : '-'; ?>
-                    </td>
-                    <td class="rate-value sell-rate">
-                        <?php echo $bank->sell_rate ? number_format($bank->sell_rate, 4) : '-'; ?>
-                    </td>
-                    <?php if ($show_cash): ?>
-                    <td class="rate-value cash-buy-rate">
+                    <td class="rate-value nagd-buy">
                         <?php echo $bank->cash_buy_rate ? number_format($bank->cash_buy_rate, 4) : '-'; ?>
                     </td>
-                    <td class="rate-value cash-sell-rate">
+                    <td class="rate-value nagd-sell">
                         <?php echo $bank->cash_sell_rate ? number_format($bank->cash_sell_rate, 4) : '-'; ?>
                     </td>
-                    <?php endif; ?>
+                    <td class="rate-value nagdsiz-buy">
+                        <?php echo $bank->buy_rate ? number_format($bank->buy_rate, 4) : '-'; ?>
+                    </td>
+                    <td class="rate-value nagdsiz-sell">
+                        <?php echo $bank->sell_rate ? number_format($bank->sell_rate, 4) : '-'; ?>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -121,26 +107,6 @@ if (WP_DEBUG) {
     overflow: hidden;
 }
 
-#<?php echo $unique_id; ?> .valyuta-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 40px 30px;
-    text-align: left;
-}
-
-#<?php echo $unique_id; ?> .valyuta-title {
-    font-size: 32px;
-    font-weight: 700;
-    margin: 0 0 8px 0;
-    line-height: 1.2;
-}
-
-#<?php echo $unique_id; ?> .valyuta-subtitle {
-    font-size: 16px;
-    margin: 0;
-    opacity: 0.9;
-    font-weight: 400;
-}
 
 #<?php echo $unique_id; ?> .valyuta-controls {
     background: white;
@@ -262,12 +228,45 @@ if (WP_DEBUG) {
     background: #f8f9fa;
     color: #6c757d;
     font-weight: 600;
-    padding: 16px 20px;
-    text-align: left;
+    padding: 12px 16px;
+    text-align: center;
     border-bottom: 1px solid #e9ecef;
-    font-size: 13px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+#<?php echo $unique_id; ?> .valyuta-rates-table .main-headers th {
+    padding: 16px 16px 8px 16px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+#<?php echo $unique_id; ?> .valyuta-rates-table .sub-headers th {
+    padding: 8px 16px 12px 16px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #868e96;
+}
+
+#<?php echo $unique_id; ?> .bank-column {
+    text-align: left !important;
+    min-width: 180px;
+}
+
+#<?php echo $unique_id; ?> .group-header {
+    border-left: 1px solid #e9ecef;
+    border-right: 1px solid #e9ecef;
+}
+
+#<?php echo $unique_id; ?> .nagd-header,
+#<?php echo $unique_id; ?> .nagd-sub {
+    background: #f1f3f4 !important;
+}
+
+#<?php echo $unique_id; ?> .nagdsiz-header,
+#<?php echo $unique_id; ?> .nagdsiz-sub {
+    background: #ffffff !important;
 }
 
 #<?php echo $unique_id; ?> .valyuta-rates-table .header-labels th {
@@ -309,9 +308,35 @@ if (WP_DEBUG) {
 }
 
 #<?php echo $unique_id; ?> .valyuta-rates-table tbody td {
-    padding: 16px 20px;
+    padding: 14px 16px;
     border-bottom: 1px solid #f1f3f4;
     vertical-align: middle;
+    text-align: center;
+}
+
+#<?php echo $unique_id; ?> .bank-name {
+    text-align: left !important;
+    padding-left: 16px !important;
+}
+
+#<?php echo $unique_id; ?> .nagd-buy,
+#<?php echo $unique_id; ?> .nagd-sell {
+    background: #f1f3f4;
+}
+
+#<?php echo $unique_id; ?> .nagdsiz-buy,
+#<?php echo $unique_id; ?> .nagdsiz-sell {
+    background: #ffffff;
+}
+
+#<?php echo $unique_id; ?> .valyuta-rates-table tbody tr:hover .nagd-buy,
+#<?php echo $unique_id; ?> .valyuta-rates-table tbody tr:hover .nagd-sell {
+    background: #e8eaed;
+}
+
+#<?php echo $unique_id; ?> .valyuta-rates-table tbody tr:hover .nagdsiz-buy,
+#<?php echo $unique_id; ?> .valyuta-rates-table tbody tr:hover .nagdsiz-sell {
+    background: #f8f9fa;
 }
 
 #<?php echo $unique_id; ?> .bank-name {
@@ -458,7 +483,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show loading message in table
         const tbody = ratesTable.querySelector('tbody');
         const originalContent = tbody.innerHTML;
-        const colCount = <?php echo $show_cash ? '5' : '3'; ?>;
+        const colCount = 5; // Always 5 columns now (Banklar + 4 rate columns)
         tbody.innerHTML = '<tr><td colspan="' + colCount + '" style="text-align: center; padding: 40px;"><span style="color: #667eea;">📊 Məzənnələr yüklənir...</span></td></tr>';
         
         // Make AJAX request to get new rates
@@ -672,27 +697,22 @@ document.addEventListener('DOMContentLoaded', function() {
             const row = document.createElement('tr');
             row.className = 'bank-row';
             
-            const showCash = <?php echo $show_cash ? 'true' : 'false'; ?>;
-            const cashColumns = showCash ? `
-                <td class="rate-value cash-buy-rate">
-                    ${bank.cash_buy_rate ? parseFloat(bank.cash_buy_rate).toFixed(4) : '-'}
-                </td>
-                <td class="rate-value cash-sell-rate">
-                    ${bank.cash_sell_rate ? parseFloat(bank.cash_sell_rate).toFixed(4) : '-'}
-                </td>
-            ` : '';
-            
             row.innerHTML = `
                 <td class="bank-name">
                     <span class="bank-title">${bank.bank_name}</span>
                 </td>
-                <td class="rate-value buy-rate">
+                <td class="rate-value nagd-buy">
+                    ${bank.cash_buy_rate ? parseFloat(bank.cash_buy_rate).toFixed(4) : '-'}
+                </td>
+                <td class="rate-value nagd-sell">
+                    ${bank.cash_sell_rate ? parseFloat(bank.cash_sell_rate).toFixed(4) : '-'}
+                </td>
+                <td class="rate-value nagdsiz-buy">
                     ${bank.buy_rate ? parseFloat(bank.buy_rate).toFixed(4) : '-'}
                 </td>
-                <td class="rate-value sell-rate">
+                <td class="rate-value nagdsiz-sell">
                     ${bank.sell_rate ? parseFloat(bank.sell_rate).toFixed(4) : '-'}
                 </td>
-                ${cashColumns}
             `;
             
             tbody.appendChild(row);
