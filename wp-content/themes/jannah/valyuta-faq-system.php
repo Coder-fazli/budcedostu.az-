@@ -175,12 +175,12 @@ function valyuta_faq_admin_page() {
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Sual</th>
-                        <th>Sıra</th>
-                        <th>Status</th>
-                        <th>Tarix</th>
-                        <th>Əməllər</th>
+                        <th style="width: 50px;">ID</th>
+                        <th style="width: 40%;">Sual</th>
+                        <th style="width: 60px;">Sıra</th>
+                        <th style="width: 80px;">Status</th>
+                        <th style="width: 120px;">Tarix</th>
+                        <th style="width: 150px;">Əməllər</th>
                     </tr>
                 </thead>
                 <tbody>
