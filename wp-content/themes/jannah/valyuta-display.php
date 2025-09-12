@@ -103,6 +103,18 @@ if (WP_DEBUG) {
     </div>
     
     <button id="fetch-live-rates-<?php echo $unique_id; ?>" style="display: none;"></button>
+    
+    <div class="info-notice">
+        <div class="info-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none">
+                <path fill="#8199D3" d="M20 0a20 20 0 1 0 0 40 20 20 0 0 0 0-40Zm2 28a2 2 0 0 1-4 0V18a2 2 0 0 1 4 0v10Zm-2-14a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"></path>
+            </svg>
+        </div>
+        <div class="info-content">
+            <p class="info-text">Valyuta məzənnələrini birbaşa bank saytlarından hər 10 dəqiqədən bir yenilənir. Buna baxmayaraq, düzgün olmayan məlumatlar da ala bilərik. Məlumatları bankların əlaqə nömrələri ilə dəqiqləşdirin.</p>
+            <a class="info-link" href="/contact">Bankda oldum və məzənə fərqlidir.</a>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -294,6 +306,40 @@ if (WP_DEBUG) {
     text-align: center;
 }
 
+#<?php echo $unique_id; ?> .info-notice {
+    display: flex;
+    gap: 18px;
+    padding: 24px;
+    background: rgba(221, 230, 252, 0.5);
+    border-radius: 12px;
+    margin-top: 20px;
+    margin-bottom: 80px;
+}
+
+#<?php echo $unique_id; ?> .info-icon-wrapper {
+    flex-shrink: 0;
+}
+
+#<?php echo $unique_id; ?> .info-content {
+    flex: 1;
+}
+
+#<?php echo $unique_id; ?> .info-text {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: #333;
+    line-height: 1.5;
+    margin-top: 0;
+}
+
+#<?php echo $unique_id; ?> .info-link {
+    font-size: 16px;
+    font-weight: 500;
+    color: #7384AC;
+    text-decoration: underline;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     #<?php echo $unique_id; ?> .valyuta-container {
@@ -329,6 +375,17 @@ if (WP_DEBUG) {
     #<?php echo $unique_id; ?> .bank-list,
     #<?php echo $unique_id; ?> .rate-list {
         padding: 20px;
+    }
+    
+    #<?php echo $unique_id; ?> .info-notice {
+        gap: 16px;
+        padding: 20px;
+        margin-bottom: 60px;
+    }
+    
+    #<?php echo $unique_id; ?> .info-text,
+    #<?php echo $unique_id; ?> .info-link {
+        font-size: 14px;
     }
 }
 
@@ -367,6 +424,22 @@ if (WP_DEBUG) {
     
     #<?php echo $unique_id; ?> .gap-10 {
         gap: 20px;
+    }
+    
+    #<?php echo $unique_id; ?> .info-notice {
+        gap: 12px;
+        padding: 16px;
+        margin-bottom: 40px;
+    }
+    
+    #<?php echo $unique_id; ?> .info-text,
+    #<?php echo $unique_id; ?> .info-link {
+        font-size: 13px;
+    }
+    
+    #<?php echo $unique_id; ?> .info-icon-wrapper svg {
+        width: 32px;
+        height: 32px;
     }
 }
 </style>
