@@ -22,418 +22,236 @@ if (WP_DEBUG) {
 }
 ?>
 
-<div class="valyuta-rates-container" id="<?php echo $unique_id; ?>">
-    <div class="valyuta-controls">
-        <div class="controls-left">
-            <div class="currency-selector">
-                <select id="currency-select-<?php echo $unique_id; ?>" class="currency-dropdown">
-                    <option value="USD" selected="selected">🇺🇸 USD</option>
-                    <option value="EUR">🇪🇺 EUR</option>
-                    <option value="RUB">🇷🇺 RUB</option>
-                    <option value="GBP">🇬🇧 GBP</option>
-                    <option value="TRY">🇹🇷 TRY</option>
-                </select>
-            </div>
-        </div>
-        <div class="controls-right">
-            <button id="fetch-live-rates-<?php echo $unique_id; ?>" class="fetch-live-btn">
-                <span class="btn-text">🔄 Canlı məzənnələr</span>
-                <span class="btn-loading" style="display: none;">⏳ Yenilənir...</span>
-            </button>
-            <div class="last-updated" id="last-updated-<?php echo $unique_id; ?>">
-                <small>Son yeniləmə: <span class="update-time">Bilinmir</span></small>
-            </div>
-        </div>
+<div class="valyuta-container" id="<?php echo $unique_id; ?>">
+    <div class="valyuta-header">
+        <h2 class="valyuta-title">Bank məzənnələri</h2>
+        <p class="valyuta-subtitle">Məzənnələrin saytlardan ilk</p>
     </div>
     
-    <div class="valyuta-table-container">
-        <table class="valyuta-rates-table" id="rates-table-<?php echo $unique_id; ?>">
-            <thead>
-                <tr class="main-headers">
-                    <th rowspan="2" class="bank-column">Banklar</th>
-                    <th colspan="2" class="group-header nagd-header">Nağd</th>
-                    <th colspan="2" class="group-header nagdsiz-header">Nağdsız</th>
-                </tr>
-                <tr class="sub-headers">
-                    <th class="sub-header nagd-sub">Alış</th>
-                    <th class="sub-header nagd-sub">Satış</th>
-                    <th class="sub-header nagdsiz-sub">Alış</th>
-                    <th class="sub-header nagdsiz-sub">Satış</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($banks_with_rates as $bank): ?>
-                <tr class="bank-row">
-                    <td class="bank-name">
-                        <span class="bank-title"><?php echo esc_html($bank->bank_name); ?></span>
-                    </td>
-                    <td class="rate-value nagd-buy">
-                        <?php echo $bank->cash_buy_rate ? number_format($bank->cash_buy_rate, 4) : '-'; ?>
-                    </td>
-                    <td class="rate-value nagd-sell">
-                        <?php echo $bank->cash_sell_rate ? number_format($bank->cash_sell_rate, 4) : '-'; ?>
-                    </td>
-                    <td class="rate-value nagdsiz-buy">
-                        <?php echo $bank->buy_rate ? number_format($bank->buy_rate, 4) : '-'; ?>
-                    </td>
-                    <td class="rate-value nagdsiz-sell">
-                        <?php echo $bank->sell_rate ? number_format($bank->sell_rate, 4) : '-'; ?>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
+    <table class="valyuta-table" id="rates-table-<?php echo $unique_id; ?>">
+        <thead>
+            <tr>
+                <th rowspan="2" class="bank-column">
+                    <select id="currency-select-<?php echo $unique_id; ?>" class="currency-dropdown">
+                        <option value="USD" selected="selected">USD 🇺🇸</option>
+                        <option value="EUR">EUR 🇪🇺</option>
+                        <option value="RUB">RUB 🇷🇺</option>
+                        <option value="GBP">GBP 🇬🇧</option>
+                        <option value="TRY">TRY 🇹🇷</option>
+                    </select>
+                </th>
+                <th colspan="2">Nağd</th>
+                <th colspan="2">Nağdsız</th>
+            </tr>
+            <tr>
+                <th>Alış</th>
+                <th>Satış</th>
+                <th>Alış</th>
+                <th>Satış</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($banks_with_rates as $bank): ?>
+            <tr>
+                <td class="bank-name"><?php echo esc_html($bank->bank_name); ?></td>
+                <td class="rate-cell"><?php echo $bank->cash_buy_rate ? number_format($bank->cash_buy_rate, 4) : '-'; ?></td>
+                <td class="rate-cell"><?php echo $bank->cash_sell_rate ? number_format($bank->cash_sell_rate, 4) : '-'; ?></td>
+                <td class="rate-cell"><?php echo $bank->buy_rate ? number_format($bank->buy_rate, 4) : '-'; ?></td>
+                <td class="rate-cell"><?php echo $bank->sell_rate ? number_format($bank->sell_rate, 4) : '-'; ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
     
-    <div class="valyuta-info">
-        <div class="info-box">
-            <p class="info-text">
-                <i class="info-icon">ℹ️</i>
-                Valyuta məzənnələrinin birbaşa bank saytlarından son 10 dəqiqədən bir yenilənir. Bunu baxmayaraq, düzgün alınmın məlumatlar da ola bilər. Məlumatların dəqiqliyindən əlaqəli normalarla ilə dəqiqləşdirin.
-            </p>
-            <a href="#" class="update-link">Bankları aldırım və məzənə fərqləri</a>
-        </div>
-    </div>
+    <!-- Hidden button for functionality -->
+    <button id="fetch-live-rates-<?php echo $unique_id; ?>" style="display: none;"></button>
 </div>
 
 <style>
-#<?php echo $unique_id; ?> .valyuta-rates-container {
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 0;
-    margin: 20px 0;
+#<?php echo $unique_id; ?> .valyuta-container {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0;
+    background: transparent;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border-radius: 12px;
     overflow: hidden;
 }
 
-
-#<?php echo $unique_id; ?> .valyuta-controls {
-    background: white;
-    padding: 20px 30px;
-    border-bottom: 1px solid #e9ecef;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-#<?php echo $unique_id; ?> .controls-left {
-    display: flex;
-    align-items: center;
-}
-
-#<?php echo $unique_id; ?> .controls-right {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-#<?php echo $unique_id; ?> .currency-selector {
-    display: flex;
-    align-items: center;
-}
-
-#<?php echo $unique_id; ?> .fetch-live-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+#<?php echo $unique_id; ?> .valyuta-header {
+    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
     color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 16px;
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+}
+
+#<?php echo $unique_id; ?> .valyuta-title {
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+#<?php echo $unique_id; ?> .valyuta-subtitle {
+    color: rgba(255,255,255,0.9);
     font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    margin: 5px 0 0 0;
+    font-weight: 400;
 }
 
-#<?php echo $unique_id; ?> .fetch-live-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-#<?php echo $unique_id; ?> .fetch-live-btn:active {
-    transform: translateY(0);
-}
-
-#<?php echo $unique_id; ?> .fetch-live-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
-}
-
-#<?php echo $unique_id; ?> .last-updated {
-    color: #6c757d;
-    font-size: 12px;
-}
-
-#<?php echo $unique_id; ?> .update-time {
-    font-weight: 500;
-    color: #495057;
-}
-
-#<?php echo $unique_id; ?> .currency-dropdown {
-    background: white;
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 16px;
-    font-weight: 500;
-    color: #495057;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L6 6L11 1" stroke="%23495057" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 16px center;
-    padding-right: 50px;
-    min-width: 150px;
-    height: 48px;
-    line-height: 24px;
-    display: block;
+#<?php echo $unique_id; ?> .valyuta-table {
     width: 100%;
-    max-width: 200px;
-}
-
-#<?php echo $unique_id; ?> .currency-dropdown:hover {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-#<?php echo $unique_id; ?> .currency-dropdown:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-}
-
-#<?php echo $unique_id; ?> .valyuta-table-container {
     background: white;
-    overflow-x: auto;
-}
-
-#<?php echo $unique_id; ?> .valyuta-rates-table {
-    width: 100%;
     border-collapse: collapse;
     margin: 0;
     font-size: 14px;
 }
 
-#<?php echo $unique_id; ?> .valyuta-rates-table thead th {
-    background: #f8f9fa;
-    color: #6c757d;
-    font-weight: 600;
-    padding: 12px 16px;
+#<?php echo $unique_id; ?> .valyuta-table th {
+    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    color: white;
+    padding: 16px 12px;
     text-align: center;
-    border-bottom: 1px solid #e9ecef;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    border-right: 1px solid rgba(255,255,255,0.2);
 }
 
-#<?php echo $unique_id; ?> .valyuta-rates-table .main-headers th {
-    padding: 16px 16px 8px 16px;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-#<?php echo $unique_id; ?> .valyuta-rates-table .sub-headers th {
-    padding: 8px 16px 12px 16px;
-    font-size: 11px;
-    font-weight: 500;
-    color: #868e96;
+#<?php echo $unique_id; ?> .valyuta-table th:last-child {
+    border-right: none;
 }
 
 #<?php echo $unique_id; ?> .bank-column {
-    text-align: left !important;
+    text-align: center !important;
     min-width: 180px;
-}
-
-#<?php echo $unique_id; ?> .group-header {
-    border-left: 1px solid #e9ecef;
-    border-right: 1px solid #e9ecef;
-}
-
-#<?php echo $unique_id; ?> .nagd-header,
-#<?php echo $unique_id; ?> .nagd-sub {
-    background: #f1f3f4 !important;
-}
-
-#<?php echo $unique_id; ?> .nagdsiz-header,
-#<?php echo $unique_id; ?> .nagdsiz-sub {
-    background: #ffffff !important;
-}
-
-#<?php echo $unique_id; ?> .valyuta-rates-table .header-labels th {
-    background: #f8f9fa;
-    padding: 8px 20px;
-    font-size: 12px;
-    font-weight: 500;
-    color: #868e96;
-}
-
-#<?php echo $unique_id; ?> .valyuta-rates-table .bank-column {
-    min-width: 200px;
-}
-
-#<?php echo $unique_id; ?> .valyuta-rates-table .rate-column {
-    min-width: 80px;
-    text-align: center;
-}
-
-#<?php echo $unique_id; ?> .valyuta-rates-table .cash-column {
-    background: #f1f3f4;
-}
-
-#<?php echo $unique_id; ?> .valyuta-rates-table .sub-header {
-    text-align: center;
-    font-size: 11px;
-}
-
-#<?php echo $unique_id; ?> .valyuta-rates-table tbody tr {
-    transition: background-color 0.2s ease;
-}
-
-#<?php echo $unique_id; ?> .valyuta-rates-table tbody tr:hover {
-    background-color: #f8f9fa;
-}
-
-#<?php echo $unique_id; ?> .valyuta-rates-table tbody tr:nth-child(even) {
-    background-color: #fdfdfd;
-}
-
-#<?php echo $unique_id; ?> .valyuta-rates-table tbody td {
-    padding: 14px 16px;
-    border-bottom: 1px solid #f1f3f4;
     vertical-align: middle;
+}
+
+#<?php echo $unique_id; ?> .currency-dropdown {
+    background: rgba(255,255,255,1);
+    border: 2px solid rgba(255,255,255,0.8);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #333;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 140px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L6 6L11 1" stroke="%23333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 40px;
+}
+
+#<?php echo $unique_id; ?> .currency-dropdown:focus {
+    outline: none;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.6);
+    border-color: white;
+}
+
+#<?php echo $unique_id; ?> .valyuta-table td {
+    padding: 14px 12px;
     text-align: center;
+    border-bottom: 1px solid #e8ecf0;
+    background: white;
+    border-right: 1px solid #e8ecf0;
+}
+
+#<?php echo $unique_id; ?> .valyuta-table td:last-child {
+    border-right: none;
 }
 
 #<?php echo $unique_id; ?> .bank-name {
     text-align: left !important;
-    padding-left: 16px !important;
+    font-weight: 600;
+    color: #2c3e50;
+    padding-left: 16px;
+    border-right: 1px solid #e8ecf0;
 }
 
-#<?php echo $unique_id; ?> .nagd-buy,
-#<?php echo $unique_id; ?> .nagd-sell {
-    background: #f1f3f4;
-}
-
-#<?php echo $unique_id; ?> .nagdsiz-buy,
-#<?php echo $unique_id; ?> .nagdsiz-sell {
-    background: #ffffff;
-}
-
-#<?php echo $unique_id; ?> .valyuta-rates-table tbody tr:hover .nagd-buy,
-#<?php echo $unique_id; ?> .valyuta-rates-table tbody tr:hover .nagd-sell {
-    background: #e8eaed;
-}
-
-#<?php echo $unique_id; ?> .valyuta-rates-table tbody tr:hover .nagdsiz-buy,
-#<?php echo $unique_id; ?> .valyuta-rates-table tbody tr:hover .nagdsiz-sell {
-    background: #f8f9fa;
-}
-
-#<?php echo $unique_id; ?> .bank-name {
-    font-weight: 500;
-    color: #212529;
+#<?php echo $unique_id; ?> .rate-cell {
+    font-weight: 600;
+    color: #2c3e50;
     font-size: 14px;
 }
 
-#<?php echo $unique_id; ?> .rate-value {
-    text-align: center;
-    font-weight: 500;
-    color: #495057;
-    font-size: 14px;
-    font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+#<?php echo $unique_id; ?> .valyuta-table tbody tr:hover td {
+    background: #f0f6ff;
 }
 
-#<?php echo $unique_id; ?> .valyuta-info {
-    background: #e3f2fd;
-    padding: 20px 30px;
+#<?php echo $unique_id; ?> .valyuta-table tbody tr:nth-child(even) td {
+    background: #fafbfc;
 }
 
-#<?php echo $unique_id; ?> .info-box {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+#<?php echo $unique_id; ?> .valyuta-table tbody tr:nth-child(even):hover td {
+    background: #f0f6ff;
 }
 
-#<?php echo $unique_id; ?> .info-text {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin: 0;
+#<?php echo $unique_id; ?> .loading-text {
+    color: #7f8c8d;
+    font-style: italic;
     font-size: 13px;
-    line-height: 1.5;
-    color: #1565c0;
 }
 
-#<?php echo $unique_id; ?> .info-icon {
-    font-size: 16px;
-    margin-top: 1px;
-}
-
-#<?php echo $unique_id; ?> .update-link {
-    color: #1976d2;
-    text-decoration: none;
+#<?php echo $unique_id; ?> .no-data {
+    color: #e74c3c;
     font-size: 13px;
-    font-weight: 500;
-}
-
-#<?php echo $unique_id; ?> .update-link:hover {
-    text-decoration: underline;
 }
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
+    #<?php echo $unique_id; ?> .valyuta-container {
+        margin: 10px;
+        border-radius: 8px;
+    }
+    
     #<?php echo $unique_id; ?> .valyuta-header {
-        padding: 30px 20px;
-        text-align: center;
+        padding: 15px;
     }
     
     #<?php echo $unique_id; ?> .valyuta-title {
-        font-size: 24px;
+        font-size: 18px;
     }
     
-    #<?php echo $unique_id; ?> .valyuta-controls {
-        padding: 15px 20px;
-    }
-    
-    #<?php echo $unique_id; ?> .currency-dropdown {
-        width: 100%;
-        max-width: 200px;
-    }
-    
-    #<?php echo $unique_id; ?> .valyuta-rates-table {
+    #<?php echo $unique_id; ?> .valyuta-subtitle {
         font-size: 12px;
     }
     
-    #<?php echo $unique_id; ?> .valyuta-rates-table thead th,
-    #<?php echo $unique_id; ?> .valyuta-rates-table tbody td {
-        padding: 12px 10px;
+    #<?php echo $unique_id; ?> .valyuta-table {
+        font-size: 12px;
+    }
+    
+    #<?php echo $unique_id; ?> .valyuta-table th,
+    #<?php echo $unique_id; ?> .valyuta-table td {
+        padding: 10px 8px;
+    }
+    
+    #<?php echo $unique_id; ?> .currency-dropdown {
+        min-width: 120px;
+        font-size: 12px;
+        padding: 6px 10px;
+        padding-right: 32px;
+    }
+    
+    #<?php echo $unique_id; ?> .bank-name {
+        padding-left: 12px;
     }
     
     #<?php echo $unique_id; ?> .bank-column {
-        min-width: 150px;
-    }
-    
-    #<?php echo $unique_id; ?> .rate-column {
-        min-width: 60px;
-    }
-    
-    #<?php echo $unique_id; ?> .valyuta-info {
-        padding: 15px 20px;
+        min-width: 140px;
     }
 }
 
 @media (max-width: 480px) {
-    #<?php echo $unique_id; ?> .valyuta-rates-table {
+    #<?php echo $unique_id; ?> .valyuta-table {
         font-size: 11px;
     }
     
@@ -441,8 +259,9 @@ if (WP_DEBUG) {
         min-width: 120px;
     }
     
-    #<?php echo $unique_id; ?> .rate-column {
-        min-width: 50px;
+    #<?php echo $unique_id; ?> .currency-dropdown {
+        min-width: 100px;
+        font-size: 11px;
     }
 }
 </style>
@@ -695,24 +514,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         banks.forEach(bank => {
             const row = document.createElement('tr');
-            row.className = 'bank-row';
             
             row.innerHTML = `
-                <td class="bank-name">
-                    <span class="bank-title">${bank.bank_name}</span>
-                </td>
-                <td class="rate-value nagd-buy">
-                    ${bank.cash_buy_rate ? parseFloat(bank.cash_buy_rate).toFixed(4) : '-'}
-                </td>
-                <td class="rate-value nagd-sell">
-                    ${bank.cash_sell_rate ? parseFloat(bank.cash_sell_rate).toFixed(4) : '-'}
-                </td>
-                <td class="rate-value nagdsiz-buy">
-                    ${bank.buy_rate ? parseFloat(bank.buy_rate).toFixed(4) : '-'}
-                </td>
-                <td class="rate-value nagdsiz-sell">
-                    ${bank.sell_rate ? parseFloat(bank.sell_rate).toFixed(4) : '-'}
-                </td>
+                <td class="bank-name">${bank.bank_name}</td>
+                <td class="rate-cell">${bank.cash_buy_rate ? parseFloat(bank.cash_buy_rate).toFixed(4) : '-'}</td>
+                <td class="rate-cell">${bank.cash_sell_rate ? parseFloat(bank.cash_sell_rate).toFixed(4) : '-'}</td>
+                <td class="rate-cell">${bank.buy_rate ? parseFloat(bank.buy_rate).toFixed(4) : '-'}</td>
+                <td class="rate-cell">${bank.sell_rate ? parseFloat(bank.sell_rate).toFixed(4) : '-'}</td>
             `;
             
             tbody.appendChild(row);
